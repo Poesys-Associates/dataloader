@@ -5,6 +5,7 @@ package com.poesys.accounting.dataloader.properties;
 
 
 import java.io.Reader;
+import java.io.Writer;
 
 
 /**
@@ -20,7 +21,7 @@ public class UnitTestParametersInvalidPath implements IParameters {
   private int startCalls = 0;
   private int endCalls = 0;
 
-  // Filenames for accounting system files
+  // Keys in properties file for accounting system filenames
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -28,6 +29,11 @@ public class UnitTestParametersInvalidPath implements IParameters {
   private static final String REIM_FILE = "reimbursement_file";
   private static final String TRANSACTION_FILE = "transaction_file";
   private static final String ITEM_FILE = "item_file";
+
+  // Keys in properties file for output accounting statement filenames
+  private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
+  private static final String INCOME_STMT_FILE = "income_statement_file";
+
 
   // Messages
   private static final String FILE_NOT_FOUND = "file not found: ";
@@ -125,5 +131,15 @@ public class UnitTestParametersInvalidPath implements IParameters {
   @Override
   public Reader getAccountMapReader(Integer year) {
     throw new RuntimeException(FILE_NOT_FOUND + ACCOUNT_MAP_FILE);
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter(Integer year) {
+    throw new RuntimeException(FILE_NOT_FOUND + BALANCE_SHEET_FILE);
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter(Integer year) {
+    throw new RuntimeException(FILE_NOT_FOUND + INCOME_STMT_FILE);
   }
 }

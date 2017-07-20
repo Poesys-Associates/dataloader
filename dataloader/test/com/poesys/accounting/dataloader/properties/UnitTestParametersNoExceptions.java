@@ -6,6 +6,8 @@ package com.poesys.accounting.dataloader.properties;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 
 /**
@@ -38,7 +40,7 @@ public class UnitTestParametersNoExceptions implements IParameters {
   private static final Float END_2 = 119.99F;
   private static final Float START_3 = 400.00F;
   private static final Float END_3 = 409.99F;
-  
+
   private static final Float ACCOUNT_NUMBER_1 = 100.0F;
   private static final String ACCOUNT_NAME_1 =
     "Citicorp Checking (111222333444)";
@@ -133,8 +135,8 @@ public class UnitTestParametersNoExceptions implements IParameters {
     String input =
       START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1
           + LINE_RET + START_2.toString() + DELIM + END_2.toString() + DELIM
-          + GROUP_NAME_2+ LINE_RET + START_3.toString() + DELIM + END_3.toString() + DELIM
-          + GROUP_NAME_3;
+          + GROUP_NAME_2 + LINE_RET + START_3.toString() + DELIM
+          + END_3.toString() + DELIM + GROUP_NAME_3;
     return new StringReader(input);
   }
 
@@ -184,5 +186,15 @@ public class UnitTestParametersNoExceptions implements IParameters {
           + DELIM + "N" + LINE_RET + TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_4
           + DELIM + AMOUNT + DELIM + "CR" + DELIM + "N";
     return new StringReader(input);
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter(Integer year) {
+    return new StringWriter();
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter(Integer year) {
+    return new StringWriter();
   }
 }

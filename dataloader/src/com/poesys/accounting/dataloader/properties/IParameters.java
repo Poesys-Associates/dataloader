@@ -2,13 +2,35 @@ package com.poesys.accounting.dataloader.properties;
 
 
 import java.io.Reader;
+import java.io.Writer;
 
 
 /**
+ * <p>
  * Interface that allows a client to get the parameters of the data loader;
  * implementations may read properties from a file or provide properties
- * directly from the implementation for unit testing; the get-reader methods
- * provide an interface for unit testing without reading files
+ * directly from the implementation for unit testing; the get-reader and
+ * get-writer methods implement Reader and Writer opening and filename handling
+ * but also permit other implementations for unit testing
+ * </p>
+ * Properties you define in the accounting.properties file:
+ * <p>
+ * </p>
+ * <ul>
+ * <li>entity</li>
+ * <li>path</li>
+ * <li>start</li>
+ * <li>end</li>
+ * <li>account_group_file</li>
+ * <li>account_map_file</li>
+ * <li>account_file</li>
+ * <li>reimbursement_file</li>
+ * <li>balance_file</li>
+ * <li>transaction_file</li>
+ * <li>item_file</li>
+ * <li>balance_sheet_file</li>
+ * <li>income_statement_file</li>
+ * </ul>
  * 
  * @author Robert J. Muller
  */
@@ -108,4 +130,20 @@ public interface IParameters {
    * @return a reader
    */
   Reader getItemReader(Integer year);
+
+  /**
+   * Get a writer for the balance sheet data.
+   * 
+   * @param year the current fiscal year number
+   * @return a writer
+   */
+  Writer getBalanceSheetWriter(Integer year);
+
+  /**
+   * Get a writer for the income statement data.
+   * 
+   * @param year the current fiscal year number
+   * @return a writer
+   */
+  Writer getIncomeStatementWriter(Integer year);
 }

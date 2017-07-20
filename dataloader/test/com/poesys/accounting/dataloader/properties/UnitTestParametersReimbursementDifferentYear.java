@@ -6,6 +6,8 @@ package com.poesys.accounting.dataloader.properties;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 
 /**
@@ -181,10 +183,10 @@ public class UnitTestParametersReimbursementDifferentYear implements
     // Reimbursement in second year
     String input = "";
     if (currentYear == YEAR_2) {
-    input =
-        REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_YEAR + DELIM + RECEIVABLE_TRANS_ID
-            + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT + DELIM
-            + ALLOCATED_AMOUNT;
+      input =
+        REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_YEAR + DELIM
+            + RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT
+            + DELIM + ALLOCATED_AMOUNT;
     }
     return new StringReader(input);
   }
@@ -229,6 +231,16 @@ public class UnitTestParametersReimbursementDifferentYear implements
             + DELIM + FALSE;
     }
     return new StringReader(input);
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter(Integer year) {
+    return new StringWriter();
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter(Integer year) {
+    return new StringWriter();
   }
 
   /**

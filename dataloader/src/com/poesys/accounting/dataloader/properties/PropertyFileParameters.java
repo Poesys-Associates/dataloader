@@ -6,9 +6,11 @@ package com.poesys.accounting.dataloader.properties;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -50,7 +52,7 @@ public class PropertyFileParameters implements IParameters {
 
   private static final String PATH_DELIMITER = null;
 
-  // Filenames for accounting system files
+  // Keys in properties file for accounting system filenames
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -58,6 +60,10 @@ public class PropertyFileParameters implements IParameters {
   private static final String REIM_FILE = "reimbursement_file";
   private static final String TRANSACTION_FILE = "transaction_file";
   private static final String ITEM_FILE = "item_file";
+
+  // Keys in properties file for output accounting statement filenames
+  private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
+  private static final String INCOME_STMT_FILE = "income_statement_file";
 
   // Messages
   private static final String FILE_NOT_FOUND = "file not found: ";
@@ -134,6 +140,29 @@ public class PropertyFileParameters implements IParameters {
   }
 
   /**
+   * Get the Writer that writes data to the specified file. The filename is
+   * required.
+   * 
+   * @param filename the fully qualified filename for the file
+   * @return a Writer pointing at the file for appending
+   */
+  private Writer getWriter(String filename) {
+    Writer w = null;
+
+    if (filename == null || filename.isEmpty()) {
+      throw new InvalidParametersException(NULL_PARAMETERS);
+    }
+
+    try {
+      w = new FileWriter(filename);
+    } catch (IOException e) {
+      throw new RuntimeException(FILE_NOT_FOUND + filename);
+    }
+
+    return w;
+  }
+
+  /**
    * Get the fully qualified filename based on the fiscal year number and the
    * file name; this appends the file name from the properties file to the path
    * and year, producing the fully qualified name. The path property, the year,
@@ -163,7 +192,6 @@ public class PropertyFileParameters implements IParameters {
     return getReader(getFullyQualifiedFilename(year, ACCOUNT_GROUP_FILE));
   }
 
-
   @Override
   public Reader getAccountMapReader(Integer year) {
     return getReader(getFullyQualifiedFilename(year, ACCOUNT_MAP_FILE));
@@ -192,5 +220,15 @@ public class PropertyFileParameters implements IParameters {
   @Override
   public Reader getItemReader(Integer year) {
     return getReader(getFullyQualifiedFilename(year, ITEM_FILE));
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter(Integer year) {
+    return getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter(Integer year) {
+    return getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
   }
 }

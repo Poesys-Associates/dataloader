@@ -6,6 +6,8 @@ package com.poesys.accounting.dataloader.properties;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 
 /**
@@ -196,5 +198,15 @@ public class UnitTestParametersReimbursementSameYear implements IParameters {
           + REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM
           + AMOUNT + DELIM + CREDIT + DELIM + FALSE;
     return new StringReader(input);
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter(Integer year) {
+    return new StringWriter();
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter(Integer year) {
+    return new StringWriter();
   }
 }
