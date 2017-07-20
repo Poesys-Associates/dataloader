@@ -1,0 +1,8 @@
+.classpath
+.project
+.settings/
+/bin/
+/data/
+/accounting-db.log
+/dataloader.log
+build.properties

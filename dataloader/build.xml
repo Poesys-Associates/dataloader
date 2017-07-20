@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+<project name="poesys-dataloader" default="jar">
+
+	<property file="build.properties" />
+
+	<property name="src" value="src" />
+	<property name="lib" value="lib" />
+	<property name="dist" value="dist" />
+	<property name="build" value="bin/classes" />
+	<property name="build-number" value="1.0.0" />
+	<property name="dist-file" value="poesys-dataloader-${build-number}" />
+
+	<!-- ================================= 
+	      The classpath for Java compilation
+         ================================= -->
+	<path id="project.classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+		<path path="${build}" />
+	</path>
+
+	<!-- ================================= 
+	      The classpath for running the program from the jar file
+         ================================= -->
+	<path id="run.classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${dist}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<!-- ================================= 
+          target: compile Compiles the Java classes               
+         ================================= -->
+	<target name="compile" description="Compiles the Java classes">
+		<mkdir dir="${build}" />
+		<javac source="1.8" target="1.8" destdir="${build}" deprecation="false" nowarn="on" debug="on" memoryMaximumSize="512m" fork="true" includeantruntime="false">
+			<classpath refid="project.classpath" />
+			<src path="${src}" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<!-- ================================= 
+          target: jar Builds the distribution jar file and javadoc with the non-test classes and without the properties files             
+         ================================= -->
+	<target name="jar" depends="compile">
+		<jar destfile="${dist}/${dist-file}.jar">
+			<fileset dir="${build}" includes="**/*.class" />
+			<fileset dir="${build}" includes="**/*.properties" />
+			<manifest />
+		</jar>
+		<javadoc access="private" author="true" destdir="doc" doctitle="Poesys/Accounting Database Access Library" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="src" splitindex="true" use="true" version="true">
+			<classpath refid="project.classpath" />
+		</javadoc>
+	</target>
+
+	<!-- ================================= 
+          target: jar-no-javadoc Builds the distribution jar file with the non-test classes and without the properties files or javadoc          
+         ================================= -->
+	<target name="jar-no-javadoc" depends="compile">
+		<jar destfile="${dist}/${dist-file}.jar">
+			<fileset dir="${build}" includes="**/*.class" />
+			<fileset dir="${build}" includes="**/*.properties" />
+			<manifest />
+		</jar>
+	</target>
+
+	<!-- ================================= 
+          target: clean Remove compiled classes and jar file
+         ================================= -->
+	<target name="clean" description="Removes compiled classes and jar file">
+		<delete dir="${build}" />
+		<delete file="${dist}/${dist-file}.jar" />
+	</target>
+
+	<!-- ================================= 
+          target: run Runs the main class for the data loader
+         ================================= -->
+	<target name="run" description="Runs the main class for the Data Loader">
+		<java classname="com.poesys.accounting.dataloader.DataLoader">
+			<classpath refid="run.classpath" />
+		</java>
+	</target>
+</project>

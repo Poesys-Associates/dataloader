@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration name="Phoenix Subscription Loader">
+
+    <!-- ================================ Append messages to the console ================================ -->
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{MM/dd/yyyy HH:mm:ss,SSS} %-5p [%c] %m%n" />
+        </Console>
+
+        <File name="File" fileName="/var/log/poesys/dataloader.log">
+            <PatternLayout>
+                <Pattern>%d{MM/dd/yyyy HH:mm:ss,SSS} %-5p [%C] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+
+        <RollingFile name="Debug" fileName="/var/log/poesys/dataloader-debug.log" filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <Pattern>%d{MM/dd/yyyy HH:mm:ss,SSS} %-5p [%c] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="500 MB" />
+            </Policies>
+        </RollingFile>
+
+    </Appenders>
+
+   <Loggers>
+        <Logger name="org.apache" level="warn" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Logger>
+        <Logger name="com.poesys.dataloader" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Logger>
+        <Root level="debug">
+            <AppenderRef ref="Console" level="debug" />
+            <AppenderRef ref="File" level="warn" />
+            <AppenderRef ref="Debug" level="debug" />
+        </Root>
+    </Loggers>
+
+</Configuration>
+
