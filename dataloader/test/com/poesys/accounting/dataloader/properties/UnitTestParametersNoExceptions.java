@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.properties;
 
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -24,6 +25,10 @@ public class UnitTestParametersNoExceptions implements IParameters {
   private int entityCalls = 0;
   private int startCalls = 0;
   private int endCalls = 0;
+
+  // unit test string writers
+  private StringWriter balanceSheetWriter = null;
+  private StringWriter incomeStatementWriter = null;
 
   // Data input
   private static final String DELIM = "\t";
@@ -189,12 +194,35 @@ public class UnitTestParametersNoExceptions implements IParameters {
   }
 
   @Override
-  public Writer getBalanceSheetWriter(Integer year) {
-    return new StringWriter();
+  public void createWriters(Integer year) {
+    incomeStatementWriter = new StringWriter();
+    balanceSheetWriter = new StringWriter();
   }
 
   @Override
-  public Writer getIncomeStatementWriter(Integer year) {
-    return new StringWriter();
+  public void closeWriters() {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+        balanceSheetWriter = null;
+      }
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+        incomeStatementWriter = null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter() {
+    return balanceSheetWriter;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
   }
 }

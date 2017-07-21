@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.properties;
 
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -75,6 +76,10 @@ public class UnitTestParametersReimbursementSameYear implements IParameters {
   private static final String RECEIVABLE_DATE = "26-JUN-17";
   /** reimbursement date as Oracle-formatted string representation */
   private static final String REIMBURSEMENT_DATE = "20-JUL-17";
+
+  // writers
+  private Writer balanceSheetWriter = null;
+  private Writer incomeStatementWriter = null;
 
   @Override
   public String getPath() {
@@ -201,12 +206,46 @@ public class UnitTestParametersReimbursementSameYear implements IParameters {
   }
 
   @Override
-  public Writer getBalanceSheetWriter(Integer year) {
-    return new StringWriter();
+  public void createWriters(Integer year) {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+      }
+      balanceSheetWriter = new StringWriter();
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+      }
+      incomeStatementWriter = new StringWriter();
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
   }
 
   @Override
-  public Writer getIncomeStatementWriter(Integer year) {
-    return new StringWriter();
+  public void closeWriters() {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+        balanceSheetWriter = null;
+      }
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+        incomeStatementWriter = null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter() {
+    return balanceSheetWriter;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
   }
 }

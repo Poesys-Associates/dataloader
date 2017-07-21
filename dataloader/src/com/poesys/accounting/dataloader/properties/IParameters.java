@@ -14,8 +14,6 @@ import java.io.Writer;
  * but also permit other implementations for unit testing
  * </p>
  * Properties you define in the accounting.properties file:
- * <p>
- * </p>
  * <ul>
  * <li>entity</li>
  * <li>path</li>
@@ -132,18 +130,36 @@ public interface IParameters {
   Reader getItemReader(Integer year);
 
   /**
-   * Get a writer for the balance sheet data.
+   * Create the several supported writers for the specified year. You can then
+   * call the getters for the writers and get the same writer repeatedly to
+   * allow appending of data and to allow getting a complete String version for
+   * display in unit tests. Creating the writers closes any existing writers,
+   * clearing the resources associated with them. To use the writers, you need
+   * to create the writer and use it to completion before creating another set
+   * of writers. Usually, this happens in an iteration through years.
    * 
    * @param year the current fiscal year number
+   */
+  void createWriters(Integer year);
+
+  /**
+   * Close the several supported writers if they are open. Call this method to
+   * close writers explicitly rather than by creating new writers through the
+   * createWriters() method.
+   */
+  void closeWriters();
+
+  /**
+   * Get a writer for the balance sheet data.
+   * 
    * @return a writer
    */
-  Writer getBalanceSheetWriter(Integer year);
+  Writer getBalanceSheetWriter();
 
   /**
    * Get a writer for the income statement data.
    * 
-   * @param year the current fiscal year number
    * @return a writer
    */
-  Writer getIncomeStatementWriter(Integer year);
+  Writer getIncomeStatementWriter();
 }

@@ -27,7 +27,7 @@ import com.poesys.db.InvalidParametersException;
  */
 public class PropertyFileParameters implements IParameters {
 
-  /** Logger for this class */
+  /** logger for this class */
   private static final Logger logger =
     Logger.getLogger(PropertyFileParameters.class);
 
@@ -50,9 +50,9 @@ public class PropertyFileParameters implements IParameters {
   private static final String END_KEY = "end";
   private static final String ENTITY = "entity";
 
-  private static final String PATH_DELIMITER = null;
+  private static final String PATH_DELIMITER = "/";
 
-  // Keys in properties file for accounting system filenames
+  // keys in properties file for accounting system filenames
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -61,11 +61,15 @@ public class PropertyFileParameters implements IParameters {
   private static final String TRANSACTION_FILE = "transaction_file";
   private static final String ITEM_FILE = "item_file";
 
-  // Keys in properties file for output accounting statement filenames
+  // keys in properties file for output accounting statement filenames
   private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
   private static final String INCOME_STMT_FILE = "income_statement_file";
 
-  // Messages
+  // writers
+  private Writer balanceSheetWriter = null;
+  private Writer incomeStatementWriter = null;
+
+  // messages
   private static final String FILE_NOT_FOUND = "file not found: ";
   private static final String NULL_PARAMETERS = "null file parameters";
 
@@ -180,7 +184,6 @@ public class PropertyFileParameters implements IParameters {
     }
 
     StringBuilder builder = new StringBuilder(getPath());
-    builder.append(PATH_DELIMITER);
     builder.append(year.toString());
     builder.append(PATH_DELIMITER);
     builder.append(properties.getProperty(filename));
@@ -223,12 +226,48 @@ public class PropertyFileParameters implements IParameters {
   }
 
   @Override
-  public Writer getBalanceSheetWriter(Integer year) {
-    return getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
+  public void createWriters(Integer year) {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+      }
+      balanceSheetWriter =
+        getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+      }
+      incomeStatementWriter =
+        getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
   }
 
   @Override
-  public Writer getIncomeStatementWriter(Integer year) {
-    return getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
+  public void closeWriters() {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+        balanceSheetWriter = null;
+      }
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+        incomeStatementWriter = null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter() {
+    return balanceSheetWriter;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
   }
 }

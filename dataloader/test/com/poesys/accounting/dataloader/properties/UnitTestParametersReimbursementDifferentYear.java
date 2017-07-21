@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.properties;
 
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -90,6 +91,10 @@ public class UnitTestParametersReimbursementDifferentYear implements
   private static final String REIMBURSEMENT_DATE = "20-JUL-17";
   /** year in which receivable is reimbursed */
   private static final Integer RECEIVABLE_YEAR = YEAR_1;
+
+  // writers
+  private Writer balanceSheetWriter = null;
+  private Writer incomeStatementWriter = null;
 
   @Override
   public String getPath() {
@@ -233,16 +238,6 @@ public class UnitTestParametersReimbursementDifferentYear implements
     return new StringReader(input);
   }
 
-  @Override
-  public Writer getBalanceSheetWriter(Integer year) {
-    return new StringWriter();
-  }
-
-  @Override
-  public Writer getIncomeStatementWriter(Integer year) {
-    return new StringWriter();
-  }
-
   /**
    * Method for this implementation; sets the current year for use in
    * conditionals that determine actual data returned
@@ -251,5 +246,49 @@ public class UnitTestParametersReimbursementDifferentYear implements
    */
   public void setCurrentYear(int year) {
     currentYear = year;
+  }
+
+  @Override
+  public void createWriters(Integer year) {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+      }
+      balanceSheetWriter = new StringWriter();
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+      }
+      incomeStatementWriter = new StringWriter();
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
+  }
+
+  @Override
+  public void closeWriters() {
+    try {
+      if (balanceSheetWriter != null) {
+        balanceSheetWriter.close();
+        balanceSheetWriter = null;
+      }
+
+      if (incomeStatementWriter != null) {
+        incomeStatementWriter.close();
+        incomeStatementWriter = null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Exception closing writer", e);
+    }
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter() {
+    return balanceSheetWriter;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
   }
 }

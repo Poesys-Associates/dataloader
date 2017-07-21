@@ -21,7 +21,7 @@ public class UnitTestParametersInvalidPath implements IParameters {
   private int startCalls = 0;
   private int endCalls = 0;
 
-  // Keys in properties file for accounting system filenames
+  // keys in properties file for accounting system filenames
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -30,12 +30,10 @@ public class UnitTestParametersInvalidPath implements IParameters {
   private static final String TRANSACTION_FILE = "transaction_file";
   private static final String ITEM_FILE = "item_file";
 
-  // Keys in properties file for output accounting statement filenames
+  // keys in properties file for output accounting statement filenames
   private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
-  private static final String INCOME_STMT_FILE = "income_statement_file";
 
-
-  // Messages
+  // messages
   private static final String FILE_NOT_FOUND = "file not found: ";
 
   @Override
@@ -134,12 +132,24 @@ public class UnitTestParametersInvalidPath implements IParameters {
   }
 
   @Override
-  public Writer getBalanceSheetWriter(Integer year) {
+  public void createWriters(Integer year) {
     throw new RuntimeException(FILE_NOT_FOUND + BALANCE_SHEET_FILE);
   }
 
   @Override
-  public Writer getIncomeStatementWriter(Integer year) {
-    throw new RuntimeException(FILE_NOT_FOUND + INCOME_STMT_FILE);
+  public void closeWriters() {
+    // nothing to do, never fails    
+  }
+
+  @Override
+  public Writer getBalanceSheetWriter() {
+    // fails by returning null
+    return null;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    // fails by returning null
+    return null;
   }
 }

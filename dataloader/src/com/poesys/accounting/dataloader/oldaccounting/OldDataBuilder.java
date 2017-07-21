@@ -574,10 +574,12 @@ public class OldDataBuilder implements IBuilder {
   private boolean validateTransactions() {
     boolean valid = true;
     for (com.poesys.accounting.dataloader.newaccounting.Transaction transaction : transactionMap.values()) {
-      logger.error(INVALID_TRANSACTION_ERROR + transaction);
-      if (valid) {
-        // set flag to invalid if valid only, thus never resets to valid state
-        valid = false;
+      if (!transaction.isValid()) {
+        logger.error(INVALID_TRANSACTION_ERROR + transaction);
+        if (valid) {
+          // set flag to invalid if valid only, thus never resets to valid state
+          valid = false;
+        }
       }
     }
     return valid;
