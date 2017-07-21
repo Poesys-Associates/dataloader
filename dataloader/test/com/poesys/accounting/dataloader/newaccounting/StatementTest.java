@@ -466,6 +466,19 @@ public class StatementTest {
     assertTrue("statement string rep failed: " + statement,
                "Statement [year=FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0], name=Balance Sheet, type=BALANCE_SHEET]".equals(statement.toString()));
   }
+  
+  /**
+   * Test Statement.toData().
+   */
+  @Test
+  public void testStatementToData() {
+    FiscalYear year = new FiscalYear(YEAR);
+    createFiscalYearForBalance(year, getNextId(null));
+    Statement statement =
+      new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    String data = statement.toData();
+    assertTrue("data set incorrect for statement: " + data, "Credit Card\t95.00\nSalary\t100.00\nEssential Expense\t-125.00\nShared Capital\t2080.00\nChecking\t-2150.00".equals(data));
+  }
 
   /**
    * Test Rollup.toString().
@@ -475,8 +488,19 @@ public class StatementTest {
     FiscalYear year = new FiscalYear(YEAR);
     Statement statement = createStatementWithRollup(year, incomeAccount);
     Rollup rollup = statement.getRollups().get(incomeAccount);
-    assertTrue("statement string rep failed: " + rollup,
-               "Rollup [statement=Statement [year=FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0], name=Balance Sheet, type=BALANCE_SHEET], account=Account [name=Salary, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Earned Income]]]".equals(rollup.toString()));
+    assertTrue("rollup string rep failed: " + rollup,
+               "Rollup [statement=Statement [year=FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0], name=Balance Sheet, type=BALANCE_SHEET], account=Account [name=Salary, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Earned Income]], total=0.00]".equals(rollup.toString()));
+  }
+  
+  /**
+   * Test Rollup.toData().
+   */
+  @Test
+  public void testRollupToData() {
+    FiscalYear year = new FiscalYear(YEAR);
+    Statement statement = createStatementWithRollup(year, incomeAccount);
+    Rollup rollup = statement.getRollups().get(incomeAccount);
+    assertTrue("rollup data string rep failed: " + rollup.toData(), rollup.toData().equals("Salary\t0.00"));
   }
 
   /**

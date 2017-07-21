@@ -23,6 +23,9 @@ import com.poesys.db.InvalidParametersException;
 public class Statement {
   private static final Logger logger = Logger.getLogger(Statement.class);
 
+  /** line delimiter string for data sets */
+  private static final String LINE = "\n";
+
   /**
    * The types of statement supported by this program
    */
@@ -138,7 +141,7 @@ public class Statement {
           Double total = rollup.getTotal();
           balance += total;
           logger.debug("Balance Sheet account " + account.getName() + ": "
-              +  total + ", balance = " + balance);
+                       + total + ", balance = " + balance);
           break;
         default:
           // Ignore other type values, not part of balance sheet
@@ -152,7 +155,7 @@ public class Statement {
           Double total = rollup.getTotal();
           balance += total;
           logger.debug("Income statement account " + account.getName() + ": "
-              + total + ", balance = " + balance);
+                       + total + ", balance = " + balance);
           break;
         default:
           // Ignore other type values, not part of income statement
@@ -171,5 +174,27 @@ public class Statement {
   public String toString() {
     return "Statement [year=" + year + ", name=" + name + ", type=" + type
            + "]";
+  }
+
+  /**
+   * Produce a data set of rollup data lines in a String suitable for writing
+   * out as a data file, with line delimiters. Note that the last line should
+   * not have a line delimiter.
+   * 
+   * @return a data set as a String
+   */
+  public String toData() {
+    StringBuilder builder = new StringBuilder();
+    boolean first = true;
+    for (Rollup rollup : getRollups().values()) {
+      // append line delim between lines so last line is not delimited
+      if (!first) {
+        builder.append(LINE);
+      } else {
+        first = false;
+      }
+      builder.append(rollup.toData());
+    }
+    return builder.toString();
   }
 }

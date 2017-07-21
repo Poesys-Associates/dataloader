@@ -4,6 +4,8 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.text.DecimalFormat;
+
 import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
@@ -24,6 +26,12 @@ public class Rollup {
 
   /** the account being summed */
   private final Account account;
+
+  /** data value delimiter for data strings */
+  private static final String DELIMITER = "\t";
+
+  /** format for double data values - [n]+.nn */
+  private static DecimalFormat format = new DecimalFormat("0.00");
 
   // Messages
 
@@ -108,6 +116,20 @@ public class Rollup {
 
   @Override
   public String toString() {
-    return "Rollup [statement=" + statement + ", account=" + account + "]";
+    return "Rollup [statement=" + statement + ", account=" + account
+           + ", total=" + format.format(getTotal()) + "]";
+  }
+
+  /**
+   * Return the rollup as a tab-delimited data string with two fields, account
+   * name and total (formatted to two decimal places).
+   * 
+   * @return the tab-delimited data string
+   */
+  public String toData() {
+    StringBuilder builder = new StringBuilder(account.getName());
+    builder.append(DELIMITER);
+    builder.append(format.format(getTotal()));
+    return builder.toString();
   }
 }
