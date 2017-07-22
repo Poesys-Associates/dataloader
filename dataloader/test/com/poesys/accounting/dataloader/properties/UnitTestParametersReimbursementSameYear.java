@@ -180,7 +180,8 @@ public class UnitTestParametersReimbursementSameYear extends
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input = CASH_ACCOUNT + DELIM + DEBIT + DELIM + AMOUNT;
+    String input =
+      CASH_ACCOUNT + DELIM + RECEIVABLE_DATE + DELIM + DEBIT + DELIM + AMOUNT;
     return new StringReader(input);
   }
 

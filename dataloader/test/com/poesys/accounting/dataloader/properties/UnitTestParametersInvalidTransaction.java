@@ -173,7 +173,9 @@ public class UnitTestParametersInvalidTransaction extends
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input = CASH_ACCOUNT + DELIM + DEBIT + DELIM + AMOUNT;
+    String input =
+      CASH_ACCOUNT + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM
+          + AMOUNT;
     return new StringReader(input);
   }
 

@@ -173,7 +173,9 @@ public class UnitTestParametersNoExceptions extends
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input = ACCOUNT_NUMBER_3 + DELIM + DEBIT + DELIM + AMOUNT;
+    String input =
+      ACCOUNT_NUMBER_3 + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM
+          + AMOUNT;
     return new StringReader(input);
   }
 

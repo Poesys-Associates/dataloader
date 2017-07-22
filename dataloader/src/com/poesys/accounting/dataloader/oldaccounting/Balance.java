@@ -5,37 +5,57 @@ package com.poesys.accounting.dataloader.oldaccounting;
 
 
 import java.io.BufferedReader;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
 
 
 /**
  * A data transfer object containing an initial balance for the system. Fields:
- * account number, debit, amount
+ * account number, balance date, debit, amount
  * 
  * @author Robert J. Muller
  */
 public class Balance extends AbstractReaderDto {
+  /** logger for this class */
+  private static final Logger logger = Logger.getLogger(Balance.class);
+
   private Integer year;
   private Float accountNumber;
+  private Timestamp balanceDate;
   private Double amount;
   private Boolean debit;
+
+  // messages
+
+  /** badly formatted date input from reader */
+  private static final String BAD_DATE_ERROR = "reader date field not valid: ";
 
   /**
    * Create a Balance object.
    * 
    * @param year the year number for the fiscal year
    * @param accountNumber the account for which the amount applies
+   * @param balanceDate the date on which the balance took effect
    * @param amount the dollar amount of the balance
    * @param debit whether the amount is a debit or credit balance
    */
-  public Balance(Integer year, Float accountNumber, Double amount, Boolean debit) {
-    if (year == null || accountNumber == null || amount == null
-        || debit == null) {
+  public Balance(Integer year,
+                 Float accountNumber,
+                 Timestamp balanceDate,
+                 Double amount,
+                 Boolean debit) {
+    if (year == null || accountNumber == null || balanceDate == null
+        || amount == null || debit == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.year = year;
     this.accountNumber = accountNumber;
+
     this.amount = amount;
     this.debit = debit;
   }
@@ -54,13 +74,22 @@ public class Balance extends AbstractReaderDto {
   @Override
   protected void init(String[] fields) {
     this.accountNumber = new Float(fields[0]);
-    this.debit = fields[1].equals("DR") ? true : false;
-    this.amount = new Double(fields[2]);
+    // Oracle-formatted transaction date
+    String format = "dd-MMM-yy";
+    SimpleDateFormat formatter = new SimpleDateFormat(format);
+    try {
+      balanceDate = new Timestamp(formatter.parse(fields[1]).getTime());
+    } catch (ParseException e) {
+      logger.error("bad date: " + fields[2] + ", format " + format, e);
+      throw new InvalidParametersException(BAD_DATE_ERROR + fields[2]);
+    }
+    this.debit = fields[2].equals("DR") ? true : false;
+    this.amount = new Double(fields[3]);
   }
 
   @Override
   protected int numberOfFields() {
-    return 3;
+    return 4;
   }
 
   @Override
@@ -96,6 +125,15 @@ public class Balance extends AbstractReaderDto {
    */
   public Float getAccountNumber() {
     return accountNumber;
+  }
+
+  /**
+   * Get the date the balance took effect.
+   * 
+   * @return the balance date
+   */
+  public Timestamp getBalanceDate() {
+    return balanceDate;
   }
 
   /**

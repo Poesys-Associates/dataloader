@@ -9,6 +9,9 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 
@@ -29,13 +32,30 @@ public class BalanceTest {
   private static final Boolean DEBIT = Boolean.TRUE;
 
   /**
+   * Create a timestamp for the balance date.
+   * 
+   * @return a timestamp
+   */
+  private Timestamp getDate() {
+    Timestamp date = null;
+    try {
+      String format = "dd-MMM-yy";
+      SimpleDateFormat formatter = new SimpleDateFormat(format);
+      date = new Timestamp(formatter.parse("1-JAN-2017").getTime());
+    } catch (ParseException e) {
+      fail("Could not format date 1-JAN-2017");
+    }
+    return date;
+  }
+
+  /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests constructor and getters.
    */
   @Test
   public void testBalance() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
 
     assertTrue("account not correct: " + balance.getAccountNumber()
                    + ", but expected " + ACCOUNT1,
@@ -48,12 +68,12 @@ public class BalanceTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests reader constructor and getters.
    */
   @Test
   public void testBalanceReaderValid() {
-    String input = ACCOUNT1 + "\t" + "DR" + "\t" + AMOUNT;
+    String input = ACCOUNT1 + "\t" + "1-JAN-2017" + "\t" + "DR" + "\t" + AMOUNT;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Balance balance = new Balance(YEAR, reader);
 
@@ -68,13 +88,13 @@ public class BalanceTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests constructor with null year.
    */
   @Test
   public void testBalanceNullYear() {
     try {
-      new Balance(null, ACCOUNT1, AMOUNT, DEBIT);
+      new Balance(null, ACCOUNT1, getDate(), AMOUNT, DEBIT);
       fail("No exception for null year");
     } catch (InvalidParametersException e) {
       // success
@@ -85,13 +105,13 @@ public class BalanceTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests constructor with null account number.
    */
   @Test
   public void testBalanceNullAccountNumber() {
     try {
-      new Balance(YEAR, null, AMOUNT, DEBIT);
+      new Balance(YEAR, null, getDate(), AMOUNT, DEBIT);
       fail("No exception for null account number");
     } catch (InvalidParametersException e) {
       // success
@@ -102,13 +122,13 @@ public class BalanceTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests constructor with null amount.
    */
   @Test
   public void testBalanceNullAmount() {
     try {
-      new Balance(YEAR, ACCOUNT1, null, DEBIT);
+      new Balance(YEAR, ACCOUNT1, getDate(), null, DEBIT);
       fail("No exception for null amount");
     } catch (InvalidParametersException e) {
       // success
@@ -119,13 +139,30 @@ public class BalanceTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
+   * . Tests constructor with null balance date.
+   */
+  @Test
+  public void testBalanceNullBalanceDate() {
+    try {
+      new Balance(YEAR, ACCOUNT1, null, AMOUNT, DEBIT);
+      fail("No exception for null balance date");
+    } catch (InvalidParametersException e) {
+      // success
+    } catch (Exception e) {
+      fail("Wrong exception for null amount");
+    }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
    * . Tests constructor with null amount.
    */
   @Test
   public void testBalanceNullDebit() {
     try {
-      new Balance(YEAR, ACCOUNT1, AMOUNT, null);
+      new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, null);
       fail("No exception for null debit flag");
     } catch (InvalidParametersException e) {
       // success
@@ -140,8 +177,8 @@ public class BalanceTest {
    */
   @Test
   public void testHashCodeEquality() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
-    Balance balance2 = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
+    Balance balance2 = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
     assertTrue("Equal balances have different hash codes",
                balance.hashCode() == balance2.hashCode());
   }
@@ -153,8 +190,8 @@ public class BalanceTest {
    */
   @Test
   public void testEqualsObjectEquality() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
-    Balance balance2 = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
+    Balance balance2 = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
     assertTrue("Equal balances test as not equal", balance.equals(balance2));
   }
 
@@ -164,8 +201,8 @@ public class BalanceTest {
    */
   @Test
   public void testHashCodeInequality() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
-    Balance balance2 = new Balance(YEAR, ACCOUNT2, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
+    Balance balance2 = new Balance(YEAR, ACCOUNT2, getDate(), AMOUNT, DEBIT);
     assertTrue("Different balances have the sname hash code",
                balance.hashCode() != balance2.hashCode());
   }
@@ -177,8 +214,8 @@ public class BalanceTest {
    */
   @Test
   public void testEqualsObjectInequality() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
-    Balance balance2 = new Balance(YEAR, ACCOUNT2, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
+    Balance balance2 = new Balance(YEAR, ACCOUNT2, getDate(), AMOUNT, DEBIT);
     assertTrue("Different balances test as equal", !balance.equals(balance2));
   }
 
@@ -188,7 +225,7 @@ public class BalanceTest {
    */
   @Test
   public void testToString() {
-    Balance balance = new Balance(YEAR, ACCOUNT1, AMOUNT, DEBIT);
+    Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
     assertTrue("String representation not correct: " + balance,
                balance.toString().equals(STRING_REP));
   }
