@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project>
-<project name="poesys-dataloader" default="jar">
+<project name="poesys-dataloader" default="run">
 
 	<property file="build.properties" />
 
@@ -48,7 +48,7 @@
 	<!-- ================================= 
           target: jar Builds the distribution jar file and javadoc with the non-test classes and without the properties files             
          ================================= -->
-	<target name="jar" depends="compile">
+	<target name="jar" depends="compile, jar-no-javadoc">
 		<jar destfile="${dist}/${dist-file}.jar">
 			<fileset dir="${build}" includes="**/*.class" />
 			<fileset dir="${build}" includes="**/*.properties" />
@@ -65,7 +65,8 @@
 	<target name="jar-no-javadoc" depends="compile">
 		<jar destfile="${dist}/${dist-file}.jar">
 			<fileset dir="${build}" includes="**/*.class" />
-			<fileset dir="${build}" includes="**/*.properties" />
+			<fileset dir="${src}" includes="**/*.properties" />
+			<fileset dir="${src}" includes="**/*.xml" />
 			<manifest />
 		</jar>
 	</target>
