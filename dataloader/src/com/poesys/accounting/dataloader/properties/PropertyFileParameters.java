@@ -25,7 +25,7 @@ import com.poesys.db.InvalidParametersException;
  * 
  * @author Robert J. Muller
  */
-public class PropertyFileParameters implements IParameters {
+public class PropertyFileParameters extends AbstractStatementMaintainingParameters implements IParameters {
 
   /** logger for this class */
   private static final Logger logger =
@@ -64,10 +64,6 @@ public class PropertyFileParameters implements IParameters {
   // keys in properties file for output accounting statement filenames
   private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
   private static final String INCOME_STMT_FILE = "income_statement_file";
-
-  // writers
-  private Writer balanceSheetWriter = null;
-  private Writer incomeStatementWriter = null;
 
   // messages
   private static final String FILE_NOT_FOUND = "file not found: ";
@@ -227,38 +223,12 @@ public class PropertyFileParameters implements IParameters {
 
   @Override
   public void createWriters(Integer year) {
-    try {
-      if (balanceSheetWriter != null) {
-        balanceSheetWriter.close();
-      }
-      balanceSheetWriter =
-        getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
-
-      if (incomeStatementWriter != null) {
-        incomeStatementWriter.close();
-      }
-      incomeStatementWriter =
-        getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
-    } catch (IOException e) {
-      throw new RuntimeException("Exception closing writer", e);
-    }
-  }
-
-  @Override
-  public void closeWriters() {
-    try {
-      if (balanceSheetWriter != null) {
-        balanceSheetWriter.close();
-        balanceSheetWriter = null;
-      }
-
-      if (incomeStatementWriter != null) {
-        incomeStatementWriter.close();
-        incomeStatementWriter = null;
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Exception closing writer", e);
-    }
+    closeWriters();
+    this.year = year;
+    balanceSheetWriter =
+      getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
+    incomeStatementWriter =
+      getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
   }
 
   @Override
@@ -269,5 +239,17 @@ public class PropertyFileParameters implements IParameters {
   @Override
   public Writer getIncomeStatementWriter() {
     return incomeStatementWriter;
+  }
+
+  @Override
+  public String getBalanceSheetData(int year) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String getIncomeStatementData(int year) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -159,6 +159,6 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
 
   @Override
   public void readFile(Reader reader, IBuildStrategy strategy) {
-    // Do nothing, not used    
+    // Do nothing, not used
   }
 }

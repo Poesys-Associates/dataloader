@@ -24,8 +24,8 @@ import java.io.Writer;
  * 
  * @author Robert J. Muller
  */
-public class UnitTestParametersReimbursementDifferentYear implements
-    IParameters {
+public class UnitTestParametersReimbursementDifferentYear extends
+    AbstractStatementMaintainingParameters implements IParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;

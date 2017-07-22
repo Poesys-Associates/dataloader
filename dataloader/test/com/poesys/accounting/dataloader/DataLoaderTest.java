@@ -19,6 +19,8 @@ import com.poesys.accounting.dataloader.properties.UnitTestParametersNoException
  * @author Robert J. Muller
  */
 public class DataLoaderTest {
+  /** number of fiscal years in the test load */
+  private static int NUMBER_OF_YEARS = 3;
 
   /**
    * Test method for
@@ -30,7 +32,8 @@ public class DataLoaderTest {
     // Create the data loader.
     DataLoader loader = new DataLoader();
     // Create the production interface implementations for the loader.
-    UnitTestParametersNoExceptions parameters = new UnitTestParametersNoExceptions();
+    UnitTestParametersNoExceptions parameters =
+      new UnitTestParametersNoExceptions();
     UnitTestNoExceptionsBuilder builder = new UnitTestNoExceptionsBuilder();
     UnitTestNoExceptionsStorageManager storageManager =
       new UnitTestNoExceptionsStorageManager();
@@ -44,21 +47,43 @@ public class DataLoaderTest {
     // There should be no calls to get the path for this unit test.
     assertTrue("path parameter retrieved", parameters.getPathCalls() == 0);
 
+    // There should be one call to get the entity name.
     assertTrue("entity parameter not retrieved",
                parameters.getEntityCalls() == 1);
-    assertTrue("start parameter not retrieved", parameters.getStartCalls() == 1);
-    assertTrue("end parameter not retrieved", parameters.getEndCalls() == 1);
 
-    // test has 3 fiscal years, so each builder method is called 3 times
-    assertTrue("buildYear() not called: " + builder.getYearCalls(), builder.getYearCalls() == 3);
-    assertTrue("buildGroups() not called", builder.getGroupCalls() == 3);
-    assertTrue("buildAccountMap() not called", builder.getAccountMapCalls() == 3);
-    assertTrue("buildAccounts() not called", builder.getAccountCalls() == 3);
+    // The number of start-end calls depends on the number of fiscal years
+    // processed plus one startup call.
+    assertTrue("start parameter not retrieved",
+               parameters.getStartCalls() == NUMBER_OF_YEARS + 1);
+    assertTrue("end parameter not retrieved",
+               parameters.getEndCalls() == NUMBER_OF_YEARS + 1);
+
+    // test has NUMBER_OF_YEARS fiscal years, so each builder method is called
+    // NUMBER_OF_YEARS times
+    assertTrue("buildYear() not called: " + builder.getYearCalls(),
+               builder.getYearCalls() == NUMBER_OF_YEARS);
+    assertTrue("buildGroups() not called",
+               builder.getGroupCalls() == NUMBER_OF_YEARS);
+    assertTrue("buildAccountMap() not called",
+               builder.getAccountMapCalls() == NUMBER_OF_YEARS);
+    assertTrue("buildAccounts() not called",
+               builder.getAccountCalls() == NUMBER_OF_YEARS);
     // buildBalances should be called only for first fiscal year
-    assertTrue("buildBalances() not called: " + builder.getBalanceCalls(), builder.getBalanceCalls() == 1);
+    assertTrue("buildBalances() not called: " + builder.getBalanceCalls(),
+               builder.getBalanceCalls() == 1);
     assertTrue("buildTransactions() not called",
-               builder.getTransactionCalls() == 3);
+               builder.getTransactionCalls() == NUMBER_OF_YEARS);
     assertTrue("buildReimbursements() not called",
-               builder.getReimbursementCalls() == 3);
+               builder.getReimbursementCalls() == NUMBER_OF_YEARS);
+
+    // Validate the statements.
+    for (int year = parameters.getStartYear(); year <= parameters.getEndYear(); year++) {
+      String balanceSheetDataSet = parameters.getBalanceSheetData(year);
+      assertTrue("balance sheet null for year " + year,
+                 balanceSheetDataSet != null);
+      String incomeStatementDataSet = parameters.getIncomeStatementData(year);
+      assertTrue("income statement null for year " + year,
+                 incomeStatementDataSet != null);
+    }
   }
 }

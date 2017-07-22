@@ -15,7 +15,8 @@ import java.io.Writer;
  * 
  * @author Robert J. Muller
  */
-public class UnitTestParametersInvalidPath implements IParameters {
+public class UnitTestParametersInvalidPath extends
+    AbstractStatementMaintainingParameters implements IParameters {
   private int pathCalls = 0;
   private int entityCalls = 0;
   private int startCalls = 0;

@@ -4,6 +4,8 @@
 package com.poesys.accounting.dataloader;
 
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import com.poesys.accounting.dataloader.newaccounting.AccountingDbService;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.Statement;
+import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder;
 import com.poesys.accounting.dataloader.properties.IParameters;
@@ -31,6 +35,9 @@ public class DataLoader implements IDirector {
 
   /** the set of fiscal year objects */
   private final List<FiscalYear> years = new ArrayList<FiscalYear>();
+
+  // messages
+  private static final String IO_ERROR = "IO exception writing statements";
 
   /**
    * Main entry point for Poesys Data Loader; exits with 0 status code if
@@ -62,9 +69,7 @@ public class DataLoader implements IDirector {
   public void construct(IParameters parameters, IBuilder builder,
                         IStorageManager storageManager,
                         IDataAccessService dbService) {
-    buildFiscalYears(builder,
-                     parameters.getStartYear(),
-                     parameters.getEndYear());
+    buildFiscalYears(builder, parameters);
     storageManager.validate(years);
     storageManager.store(parameters.getEntity(), years, dbService);
   }
@@ -73,11 +78,10 @@ public class DataLoader implements IDirector {
    * Iterate through the fiscal years from start to end, building each year.
    * 
    * @param builder the IBuilder instance to use to build the fiscal years
-   * @param start the first fiscal year in sequence
-   * @param end the last fiscal year in sequence
+   * @param parameters the IParameters object containing program parameters
    */
-  private void buildFiscalYears(IBuilder builder, int start, int end) {
-    for (int year = start; year <= end; year++) {
+  private void buildFiscalYears(IBuilder builder, IParameters parameters) {
+    for (int year = parameters.getStartYear(); year <= parameters.getEndYear(); year++) {
       // Build the current fiscal year, clearing data from previous year.
       builder.buildFiscalYear(year);
 
@@ -87,7 +91,7 @@ public class DataLoader implements IDirector {
       builder.buildAccounts();
 
       // Build balances for first year only.
-      if (year == start) {
+      if (year == parameters.getStartYear()) {
         builder.buildBalances();
       }
 
@@ -95,7 +99,40 @@ public class DataLoader implements IDirector {
       builder.buildReimbursements();
 
       // Add the new year to the list of years.
-      years.add(builder.getFiscalYear());
+      FiscalYear fiscalYear = builder.getFiscalYear();
+      years.add(fiscalYear);
+
+      // Write the statements.
+      writeStatements(parameters, fiscalYear);
+    }
+  }
+
+  /**
+   * Generate a balance sheet and income statement for a fiscal year and write
+   * those statements out with the appropriate writers from the program
+   * parameters.
+   * 
+   * @param parameters the program parameters
+   * @param fiscalYear the fiscal year for which to generate statements
+   */
+  private void writeStatements(IParameters parameters, FiscalYear fiscalYear) {
+    Statement balanceSheet =
+      new Statement(fiscalYear, "Balance Sheet", StatementType.BALANCE_SHEET);
+    Statement incomeStatement =
+      new Statement(fiscalYear,
+                    "Income Statement",
+                    StatementType.INCOME_STATEMENT);
+    try {
+      parameters.createWriters(fiscalYear.getYear());
+      Writer balanceSheetWriter = parameters.getBalanceSheetWriter();
+      Writer incomeStmtWriter = parameters.getIncomeStatementWriter();
+      balanceSheetWriter.write(balanceSheet.toData());
+      incomeStmtWriter.write(incomeStatement.toData());
+    } catch (IOException e) {
+      logger.error(IO_ERROR, e);
+      throw new RuntimeException(IO_ERROR, e);
+    } finally {
+      parameters.closeWriters();
     }
   }
 }
