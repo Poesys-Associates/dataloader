@@ -34,6 +34,11 @@ public class Balance extends AbstractReaderDto {
 
   /** badly formatted date input from reader */
   private static final String BAD_DATE_ERROR = "reader date field not valid: ";
+  /** badly formatted number data input from reader */
+  private static final String NUM_FMT_ERROR =
+    "Number format exception for balance amount for account ";
+  /** message about defaulting to value */
+  private static final String DEFAULT_MSG = ", defaulting to 0.00";
 
   /**
    * Create a Balance object.
@@ -84,7 +89,13 @@ public class Balance extends AbstractReaderDto {
       throw new InvalidParametersException(BAD_DATE_ERROR + fields[2]);
     }
     this.debit = fields[2].equals("DR") ? true : false;
-    this.amount = new Double(fields[3]);
+    try {
+      this.amount = new Double(fields[3]);
+    } catch (NumberFormatException e) {
+      // Problem with input, null or not a number
+      logger.warn(NUM_FMT_ERROR + accountNumber + DEFAULT_MSG);
+      this.amount = 0.00D;
+    }
   }
 
   @Override

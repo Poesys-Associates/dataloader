@@ -4,6 +4,7 @@ package com.poesys.accounting.dataloader.oldaccounting;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
@@ -62,11 +63,12 @@ public abstract class AbstractReaderDto {
         // end of stream reached
         throw new EndOfStream(END_OF_STREAM_MSG);
       }
-      String[] fields = line.trim().split(DELIMITER);
+      // Use Apache split to handle null values correctly.
+      String[] fields = StringUtils.splitPreserveAllTokens(line, DELIMITER);
       if (fields.length != numberOfFields()) {
-        throw new InvalidParametersException(INVALID_FIELDS_ERROR
-                                             + fields.length + " (" + line
-                                             + ")");
+          throw new InvalidParametersException(INVALID_FIELDS_ERROR
+                                               + fields.length + " (" + line
+                                               + ")");
       }
       init(fields);
     } catch (IOException e) {
@@ -92,7 +94,7 @@ public abstract class AbstractReaderDto {
 
   @Override
   abstract public int hashCode();
-  
+
   @Override
   abstract public boolean equals(Object obj);
 }

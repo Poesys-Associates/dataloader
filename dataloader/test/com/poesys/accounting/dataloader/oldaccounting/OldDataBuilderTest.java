@@ -25,6 +25,7 @@ import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidPath;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidTransaction;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersNoExceptions;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersNullLastFields;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersReimbursementDifferentYear;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersReimbursementSameYear;
 import com.poesys.db.InvalidParametersException;
@@ -517,6 +518,28 @@ public class OldDataBuilderTest {
       assertTrue("wrong exception",
                  INVALID_TRANSACTIONS_ERROR.equals(e.getMessage()));
       // success
+    }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder#buildTransactions()}
+   * . Tests transaction data with a null in the last field position
+   */
+  @Test
+  public void testBuildNullLastField() {
+    IParameters parameters = new UnitTestParametersNullLastFields();
+    IBuilder builder = new OldDataBuilder(parameters);
+    assertTrue("no builder created", builder != null);
+    try {
+      builder.buildFiscalYear(YEAR);
+      builder.buildAccountGroups();
+      builder.buildAccountMap();
+      builder.buildAccounts();
+      builder.buildBalances();
+      builder.buildTransactions();
+    } catch (Throwable e) {
+      fail("exception testing null last field: " + e.getMessage());
     }
   }
 

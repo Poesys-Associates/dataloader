@@ -43,7 +43,7 @@ public class OldDataBuilder implements IBuilder {
    * because the old accounting system doesn't actually have transaction ids for
    * these transactions
    */
-  private static final String FIRST_BALANCE_TRANSACTION_ID = "10000";
+  private static final String FIRST_BALANCE_TRANSACTION_ID = "100000";
 
   // Data sets shared across process instances
   /** the shared set of account groups */
@@ -446,6 +446,8 @@ public class OldDataBuilder implements IBuilder {
       }
       // add the transaction to the fiscal year
       fiscalYear.addTransaction(transaction);
+      // increment the transaction id
+      id.add(BigInteger.ONE);
     }
   }
 

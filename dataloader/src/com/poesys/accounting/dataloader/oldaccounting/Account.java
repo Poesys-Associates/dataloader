@@ -76,7 +76,7 @@ public class Account extends AbstractReaderDto {
   protected void init(String[] fields) {
     this.accountNumber = new Float(fields[0]);
     this.name = fields[1];
-    if (fields[0].equalsIgnoreCase("DR")) {
+    if (fields[2].equalsIgnoreCase("DR")) {
       this.defaultDebit = true;
     } else {
       defaultDebit = false;

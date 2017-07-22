@@ -143,6 +143,27 @@ public class TransactionTest {
 
   /**
    * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.io.BufferedReader)}
+   * . Tests reader constructor with null year.
+   */
+  @Test
+  public void testTransactionIntegerBufferedReaderNullChecked() {
+    String input =
+      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t";
+    BufferedReader reader = new BufferedReader(new StringReader(input));
+
+    try {
+      new Transaction(null, reader);
+      fail("No exception for null checked");
+    } catch (InvalidParametersException e) {
+      // success
+    } catch (Throwable e) {
+      fail("Wrong throwable for null checked: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()}
    * . Tests equal objects with same year and transaction id
    */

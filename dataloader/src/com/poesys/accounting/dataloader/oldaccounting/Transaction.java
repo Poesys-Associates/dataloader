@@ -103,7 +103,12 @@ public class Transaction extends AbstractReaderDto {
       logger.error("bad date: " + fields[2] + ", format " + format, e);
       throw new InvalidParametersException(BAD_DATE_ERROR + fields[2]);
     }
-    checked = fields[3].equalsIgnoreCase("Y");
+    if (fields[3] == null) {
+      // checked is null in input file, default to "N"
+      checked = false;
+    } else {
+      checked = fields[3].equalsIgnoreCase("Y");
+    }
   }
 
   @Override
