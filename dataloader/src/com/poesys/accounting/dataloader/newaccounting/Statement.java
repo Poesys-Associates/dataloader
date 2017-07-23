@@ -181,7 +181,8 @@ public class Statement {
   /**
    * Produce a data set of rollup data lines in a String suitable for writing
    * out as a data file, with line delimiters. Note that the last line should
-   * not have a line delimiter.
+   * not have a line delimiter. The accounts output depend on the type of
+   * statement, balance sheet or income statement.
    * 
    * @return a data set as a String
    */
@@ -189,14 +190,51 @@ public class Statement {
     StringBuilder builder = new StringBuilder();
     boolean first = true;
     for (Rollup rollup : getRollups().values()) {
-      // append line delim between lines so last line is not delimited
-      if (!first) {
-        builder.append(LINE);
-      } else {
-        first = false;
+      Account account = rollup.getAccount();
+      switch (type) {
+      case BALANCE_SHEET:
+        switch (account.getAccountType()) {
+        case ASSET:
+        case LIABILITY:
+        case EQUITY:
+          appendDataLine(builder, first, rollup);
+          first = false;
+          break;
+        default:
+          // Ignore other type values, not part of balance sheet
+          break;
+        }
+        break;
+      case INCOME_STATEMENT:
+        switch (account.getAccountType()) {
+        case INCOME:
+        case EXPENSE:
+          appendDataLine(builder, first, rollup);
+          first = false;
+          break;
+        default:
+          // Ignore other type values, not part of balance sheet
+          break;
+        }
       }
-      builder.append(rollup.toData());
     }
     return builder.toString();
+  }
+
+  /**
+   * Append a data line to a builder building an output data set.
+   * 
+   * @param builder the in-progress builder
+   * @param first whether this is the first line of the data set; controls
+   *          pre-pending of line return
+   * @param rollup the rollup to output
+   */
+  private void appendDataLine(StringBuilder builder, boolean first,
+                              Rollup rollup) {
+    // append line delim between lines so last line is not delimited
+    if (!first) {
+      builder.append(LINE);
+    }
+    builder.append(rollup.toData());
   }
 }
