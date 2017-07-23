@@ -59,6 +59,16 @@ public abstract class AbstractStatementMaintainingParameters implements
   }
 
   @Override
+  public Writer getBalanceSheetWriter() {
+    return balanceSheetWriter;
+  }
+
+  @Override
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
+  }
+
+  @Override
   public String getBalanceSheetData(int year) {
     return balanceSheets.toString();
   }

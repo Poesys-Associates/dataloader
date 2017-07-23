@@ -230,26 +230,4 @@ public class PropertyFileParameters extends AbstractStatementMaintainingParamete
     incomeStatementWriter =
       getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
   }
-
-  @Override
-  public Writer getBalanceSheetWriter() {
-    return balanceSheetWriter;
-  }
-
-  @Override
-  public Writer getIncomeStatementWriter() {
-    return incomeStatementWriter;
-  }
-
-  @Override
-  public String getBalanceSheetData(int year) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getIncomeStatementData(int year) {
-    // TODO Auto-generated method stub
-    return null;
-  }
 }
