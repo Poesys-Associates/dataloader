@@ -15,9 +15,11 @@ import com.poesys.accounting.dataloader.newaccounting.AccountingDbService;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.Statement;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
-import com.poesys.accounting.dataloader.newaccounting.StorageManager;
+// TODO restore this import after system testing is complete
+// import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder;
 import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.accounting.dataloader.properties.PropertyFileParameters;
@@ -38,6 +40,10 @@ public class DataLoader implements IDirector {
 
   // messages
   private static final String IO_ERROR = "IO exception writing statements";
+  private static final String FATAL_LOADING_ERROR =
+    "Fatal error loading accounting data";
+  private static final String FATAL_BALANCE_ERROR =
+    "Fatal error: statements don't balance";
 
   /**
    * Main entry point for Poesys Data Loader; exits with 0 status code if
@@ -53,14 +59,17 @@ public class DataLoader implements IDirector {
       // Create the production interface implementations for the loader.
       IParameters parameters = new PropertyFileParameters();
       IBuilder builder = new OldDataBuilder(parameters);
-      IStorageManager storageManager = new StorageManager();
+      // IStorageManager storageManager = new StorageManager();
+      // TODO: Use a non-storing storage manager for now until full system test
+      // is complete, then uncomment above line and remove these two lines.
+      IStorageManager storageManager = new NonStoringStorageManager();
       IDataAccessService dbService = new AccountingDbService();
       // Construct the accounting system.
       loader.construct(parameters, builder, storageManager, dbService);
       status = 0;
     } catch (Throwable e) {
       // Log fatal error before exiting.
-      logger.fatal("Fatal error loading accounting data", e);
+      logger.fatal(FATAL_LOADING_ERROR, e);
     }
     System.exit(status);
   }
@@ -70,8 +79,12 @@ public class DataLoader implements IDirector {
                         IStorageManager storageManager,
                         IDataAccessService dbService) {
     buildFiscalYears(builder, parameters);
-    storageManager.validate(years);
-    storageManager.store(parameters.getEntity(), years, dbService);
+    if (storageManager.validate(years)) {
+      storageManager.store(parameters.getEntity(), years, dbService);
+    } else {
+      logger.fatal(FATAL_BALANCE_ERROR);
+      System.exit(1);
+    }
   }
 
   /**
