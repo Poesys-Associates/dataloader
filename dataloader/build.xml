@@ -83,7 +83,7 @@
           target: run Runs the main class for the data loader
          ================================= -->
 	<target name="run" description="Runs the main class for the Data Loader">
-		<java classname="com.poesys.accounting.dataloader.DataLoader">
+		<java classname="com.poesys.accounting.dataloader.DataLoader" fork="true">
 			<classpath refid="run.classpath" />
 		</java>
 	</target>
