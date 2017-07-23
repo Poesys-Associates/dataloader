@@ -16,7 +16,7 @@ import java.io.Writer;
  * @author Robert J. Muller
  */
 public class UnitTestParametersInvalidPath extends
-    AbstractStatementMaintainingParameters implements IParameters {
+    AbstractStatementMaintainingParameters {
   private int pathCalls = 0;
   private int entityCalls = 0;
   private int startCalls = 0;
@@ -139,7 +139,7 @@ public class UnitTestParametersInvalidPath extends
 
   @Override
   public void closeWriters() {
-    // nothing to do, never fails    
+    // nothing to do, never fails
   }
 
   @Override

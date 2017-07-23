@@ -25,7 +25,7 @@ import java.io.Writer;
  * @author Robert J. Muller
  */
 public class UnitTestParametersReimbursementDifferentYear extends
-    AbstractStatementMaintainingParameters implements IParameters {
+    AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -198,7 +198,8 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input = CASH_ACCOUNT + DELIM + RECEIVABLE_DATE + DELIM + DEBIT + DELIM + AMOUNT;
+    String input =
+      CASH_ACCOUNT + DELIM + RECEIVABLE_DATE + DELIM + DEBIT + DELIM + AMOUNT;
     return new StringReader(input);
   }
 

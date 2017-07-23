@@ -25,7 +25,7 @@ import com.poesys.db.InvalidParametersException;
  * 
  * @author Robert J. Muller
  */
-public class PropertyFileParameters extends AbstractStatementMaintainingParameters implements IParameters {
+public class PropertyFileParameters extends AbstractStatementMaintainingParameters {
 
   /** logger for this class */
   private static final Logger logger =

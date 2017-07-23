@@ -22,7 +22,7 @@ import java.io.Writer;
  * @author Robert J. Muller
  */
 public class UnitTestParametersInvalidTransaction extends
-    AbstractStatementMaintainingParameters implements IParameters {
+    AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;

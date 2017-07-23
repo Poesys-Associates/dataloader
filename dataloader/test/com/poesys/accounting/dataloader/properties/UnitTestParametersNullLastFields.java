@@ -20,7 +20,7 @@ import java.io.Writer;
  * @author Robert J. Muller
  */
 public class UnitTestParametersNullLastFields extends
-    AbstractStatementMaintainingParameters implements IParameters {
+    AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -49,7 +49,6 @@ public class UnitTestParametersNullLastFields extends
   private static final Float ACCOUNT_NUMBER_1 = 100.0F;
   private static final String ACCOUNT_NAME_1 =
     "Citicorp Checking (111222333444)";
-  private static final String ACCOUNT_NAME_NEW = "Citicorp Checking";
   private static final Float ACCOUNT_NUMBER_2 = 110.0F;
   private static final String ACCOUNT_NAME_2 = "Accounts Receivable";
   private static final Float ACCOUNT_NUMBER_3 = 109.0F;
@@ -153,7 +152,8 @@ public class UnitTestParametersNullLastFields extends
       ACCOUNT_NUMBER_1 + DELIM + ACCOUNT_NAME_1 + DELIM + CREDIT + LINE_RET
           + ACCOUNT_NUMBER_2 + DELIM + ACCOUNT_NAME_2 + DELIM + CREDIT
           + LINE_RET + ACCOUNT_NUMBER_3 + DELIM + ACCOUNT_NAME_3 + DELIM
-          + CREDIT + LINE_RET + ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4 + DELIM;
+          + CREDIT + LINE_RET + ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4
+          + DELIM;
     return new StringReader(input);
   }
 
