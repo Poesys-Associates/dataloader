@@ -7,6 +7,7 @@ package com.poesys.accounting.dataloader.newaccounting;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
@@ -193,7 +194,7 @@ public class StatementTest {
     createFiscalYearForBalance(year, getNextId(null));
     Statement statement =
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
-    Double balance = statement.getBalance();
+    BigDecimal balance = statement.getBalance();
     for (Rollup rollup : statement.getRollups().values()) {
       switch (rollup.getAccount().getAccountType()) {
       case ASSET:
@@ -206,8 +207,9 @@ public class StatementTest {
       }
     }
     logger.info("Balance: " + balance);
+    BigDecimal checkBalance = new BigDecimal("25.00").setScale(2);
     assertTrue("Balance is not $25 (credit) for Balance Sheet: " + balance,
-               balance == 25.00D);
+               balance.compareTo(checkBalance) == 0);
   }
 
   /**
@@ -229,7 +231,7 @@ public class StatementTest {
     createFiscalYearForBalance(year3, getNextId(year2));
     Statement statement =
       new Statement(year2, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
-    Double balance = statement.getBalance();
+    BigDecimal balance = statement.getBalance();
     for (Rollup rollup : statement.getRollups().values()) {
       switch (rollup.getAccount().getAccountType()) {
       case ASSET:
@@ -242,8 +244,9 @@ public class StatementTest {
       }
     }
     logger.info("Balance: " + balance);
+    BigDecimal checkBalance = new BigDecimal("25.00").setScale(2);
     assertTrue("Balance is not $25 (credit) for Balance Sheet: " + balance,
-               balance == 25.00D);
+               balance.compareTo(checkBalance) == 0);
   }
 
   /**
@@ -257,7 +260,7 @@ public class StatementTest {
     createFiscalYearForBalance(year, getNextId(null));
     Statement statement =
       new Statement(year, INCOME_STATEMENT_NAME, StatementType.INCOME_STATEMENT);
-    Double balance = statement.getBalance();
+    BigDecimal balance = statement.getBalance();
     for (Rollup rollup : statement.getRollups().values()) {
       switch (rollup.getAccount().getAccountType()) {
       case ASSET:
@@ -270,8 +273,9 @@ public class StatementTest {
       }
     }
     logger.info("Balance: " + balance);
-    assertTrue("Balance is not -$25 (debit) for Income Statement: " + balance,
-               balance == -25.00D);
+    BigDecimal checkBalance = new BigDecimal("-25.00").setScale(2);
+    assertTrue("Balance is not $25 (debit) for Balance Sheet: " + balance,
+               balance.compareTo(checkBalance) == 0);
   }
 
   /**
@@ -315,7 +319,7 @@ public class StatementTest {
     year.addAccount(expenseAccount);
 
     Transaction transaction = null;
-    
+
     // Get the transaction date to use for all transactions.
     Timestamp date = year.getStart();
 
@@ -328,21 +332,13 @@ public class StatementTest {
 
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, BALANCE);
     transaction.addItem(20.00D, liabilityAccount, CREDIT, CHECKED);
     year.addTransaction(transaction);
 
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, BALANCE);
     transaction.addItem(80.00D, equityAccount, CREDIT, CHECKED);
     year.addTransaction(transaction);
 
@@ -351,11 +347,7 @@ public class StatementTest {
     // Income transaction
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      NOT_BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, NOT_BALANCE);
     transaction.addItem(100.00D, checkingAccount, DEBIT, CHECKED);
     transaction.addItem(100.00D, incomeAccount, CREDIT, CHECKED);
     assertTrue("income transaction is not valid", transaction.isValid());
@@ -364,11 +356,7 @@ public class StatementTest {
     // Expense transaction
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      NOT_BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, NOT_BALANCE);
     transaction.addItem(50.00D, expenseAccount, DEBIT, CHECKED);
     transaction.addItem(50.00D, checkingAccount, CREDIT, CHECKED);
     assertTrue("expense transaction is not valid", transaction.isValid());
@@ -377,11 +365,7 @@ public class StatementTest {
     // Liability transaction (credit card transaction)
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      NOT_BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, NOT_BALANCE);
     transaction.addItem(75.00D, expenseAccount, DEBIT, CHECKED);
     transaction.addItem(75.00D, liabilityAccount, CREDIT, CHECKED);
     assertTrue("liability transaction is not valid", transaction.isValid());
@@ -390,11 +374,7 @@ public class StatementTest {
     // Equity transaction (capital infusion)
     nextId = nextId.add(BigInteger.ONE);
     transaction =
-      new Transaction(nextId,
-                      DESCRIPTION,
-                      date,
-                      NOT_CHECKED,
-                      NOT_BALANCE);
+      new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, NOT_BALANCE);
     transaction.addItem(2000.00D, checkingAccount, DEBIT, CHECKED);
     transaction.addItem(2000.00D, equityAccount, CREDIT, CHECKED);
     assertTrue("equity transaction is not valid", transaction.isValid());
@@ -466,7 +446,7 @@ public class StatementTest {
     assertTrue("statement string rep failed: " + statement,
                "Statement [year=FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0], name=Balance Sheet, type=BALANCE_SHEET]".equals(statement.toString()));
   }
-  
+
   /**
    * Test Statement.toData().
    */
@@ -477,7 +457,8 @@ public class StatementTest {
     Statement statement =
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toData();
-    assertTrue("data set incorrect for statement: " + data, "Credit Card\t95.00\nSalary\t100.00\nEssential Expense\t-125.00\nShared Capital\t2080.00\nChecking\t-2150.00".equals(data));
+    assertTrue("data set incorrect for statement: " + data,
+               "Credit Card\t95.00\nSalary\t100.00\nEssential Expense\t-125.00\nShared Capital\t2080.00\nChecking\t-2150.00".equals(data));
   }
 
   /**
@@ -491,7 +472,7 @@ public class StatementTest {
     assertTrue("rollup string rep failed: " + rollup,
                "Rollup [statement=Statement [year=FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0], name=Balance Sheet, type=BALANCE_SHEET], account=Account [name=Salary, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Earned Income]], total=0.00]".equals(rollup.toString()));
   }
-  
+
   /**
    * Test Rollup.toData().
    */
@@ -500,7 +481,8 @@ public class StatementTest {
     FiscalYear year = new FiscalYear(YEAR);
     Statement statement = createStatementWithRollup(year, incomeAccount);
     Rollup rollup = statement.getRollups().get(incomeAccount);
-    assertTrue("rollup data string rep failed: " + rollup.toData(), rollup.toData().equals("Salary\t0.00"));
+    assertTrue("rollup data string rep failed: " + rollup.toData(),
+               rollup.toData().equals("Salary\t0.00"));
   }
 
   /**
@@ -553,8 +535,9 @@ public class StatementTest {
                                  checkingAccount);
     year.addTransaction(transaction1);
     year.addTransaction(transaction2);
-    assertTrue("rollup total for checking is wrong, should be -$50.00: "
-               + rollup.getTotal(), rollup.getTotal() == -50.00D);
+    BigDecimal total = new BigDecimal(-50.00).setScale(2);
+    assertTrue("rollup total for checking is wrong, should be " + total + ": "
+               + rollup.getTotal(), rollup.getTotal().compareTo(total) == 0);
   }
 
   /**
@@ -573,8 +556,9 @@ public class StatementTest {
                                  checkingAccount,
                                  incomeAccount);
     year.addTransaction(transaction1);
-    assertTrue("rollup total for checking is wrong, should be -$100.00: "
-               + rollup.getTotal(), rollup.getTotal() == -100.00D);
+    BigDecimal total = new BigDecimal(-100.00).setScale(2);
+    assertTrue("rollup total for checking is wrong, should be " + total + ": "
+               + rollup.getTotal(), rollup.getTotal().compareTo(total) == 0);
   }
 
   /**
@@ -585,9 +569,10 @@ public class StatementTest {
     FiscalYear year = new FiscalYear(YEAR);
     Statement statement = createStatementWithRollup(year, checkingAccount);
     Rollup rollup = statement.getRollups().get(checkingAccount);
-    assertTrue("rollup total for checking is wrong, should be $0.00: "
-                   + rollup.getTotal(),
-               rollup.getTotal() == 0.00D);
+    BigDecimal checkTotal = BigDecimal.ZERO.setScale(2);
+    assertTrue("rollup total for checking is wrong, should be " + checkTotal
+                   + ": " + rollup.getTotal(),
+               rollup.getTotal().compareTo(checkTotal) == 0);
   }
 
   /**
@@ -607,8 +592,9 @@ public class StatementTest {
     assertTrue("transaction constructor failed", transaction != null);
     // No items added
     year.addTransaction(transaction);
-    assertTrue("rollup total for checking is wrong, should be $0.00: "
-                   + rollup.getTotal(),
-               rollup.getTotal() == 0.00D);
+    BigDecimal checkTotal = BigDecimal.ZERO.setScale(2);
+    assertTrue("rollup total for checking is wrong, should be " + checkTotal
+                   + ": " + rollup.getTotal(),
+               rollup.getTotal().compareTo(checkTotal) == 0);
   }
 }

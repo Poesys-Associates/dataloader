@@ -4,8 +4,11 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,11 +47,16 @@ public class Transaction {
   /** the set of items */
   private final Set<Item> items = new HashSet<Item>();
 
+  /** format for double data values - [n]+.nn */
+  private static DecimalFormat format = new DecimalFormat("0.00");
+
   // Messages
 
   /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "Transaction parameters are required but one is null";
+  /** transaction does not balance */
+  private static final String BALANCE_ERROR = "Transaction does not balance (";
 
   /**
    * Create a Transaction object.
@@ -181,15 +189,34 @@ public class Transaction {
       logger.error("Transaction has less than 2 items: " + this);
     } else {
       // Sum the items, taking debits as negative values.
-      Double sum = 0.00D;
-      for (Item item : items) {
-        sum += item.isDebit() ? -item.getAmount() : item.getAmount();
-      }
-      if (sum != 0.00D) {
-        logger.error("Transaction does not balance (" + sum + "): " + this);
-      } else {
-        valid = Boolean.TRUE;
-      }
+      valid = isBalanced();
+    }
+    return valid;
+  }
+
+  /**
+   * Is the set of items balanced--does the sum of the credits and debits equal
+   * zero with debits taken as negative numbers?
+   * 
+   * @return true if balanced, false if not
+   */
+  private Boolean isBalanced() {
+    Boolean valid = Boolean.FALSE;
+    // Use BigDecimal to maintain correct scale 2.
+    BigDecimal sum = BigDecimal.ZERO.setScale(2);
+    BigDecimal zero = BigDecimal.ZERO.setScale(2);
+    for (Item item : items) {
+      // Convert amount to BigDecimal at scale 2 to insure correct arithmetic.
+      BigDecimal amount =
+        new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+      // Negate the amount for debit items.
+      amount = item.isDebit() ? amount.negate() : amount;
+      sum = sum.add(amount);
+    }
+    if (sum.compareTo(zero) != 0) {
+      logger.error(BALANCE_ERROR + format.format(sum) + "): " + this);
+    } else {
+      valid = Boolean.TRUE;
     }
     return valid;
   }

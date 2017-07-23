@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,13 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class StorageManager implements IStorageManager {
+  /** logger for this class */
   private static final Logger logger = Logger.getLogger(StorageManager.class);
+  
+  // messages
+  
+  /** statements don't balance */
+  private static final String BALANCE_ERROR = "Statements don't balance for year ";
 
   @Override
   public Boolean validate(List<FiscalYear> years) {
@@ -42,14 +49,17 @@ public class StorageManager implements IStorageManager {
         new Statement(year,
                       "Income Statement",
                       Statement.StatementType.INCOME_STATEMENT);
-      Double balanceSheetBalance = balanceSheet.getBalance();
-      Double incomeStatementBalance = incomeStatement.getBalance();
+      BigDecimal balanceSheetBalance = balanceSheet.getBalance();
+      BigDecimal incomeStatementBalance = incomeStatement.getBalance();
+      BigDecimal zero = BigDecimal.ZERO.setScale(2);
       logger.debug("Validating " + year.getYear() + " balance sheet balance: "
                    + balanceSheetBalance);
       logger.debug("Validating " + year.getYear()
                    + " income statement balance: " + incomeStatementBalance);
-      if (balanceSheetBalance + incomeStatementBalance != 0.00D) {
+      BigDecimal systemBalance = balanceSheetBalance.add(incomeStatementBalance);
+      if (systemBalance.compareTo(zero) != 0) {
         valid = Boolean.FALSE;
+        logger.error(BALANCE_ERROR + year);
         break;
       }
     }

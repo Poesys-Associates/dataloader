@@ -4,6 +4,8 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import org.apache.log4j.Logger;
@@ -64,20 +66,26 @@ public class Rollup {
 
   /**
    * Sum the items against the account for the fiscal year and return the total.
+   * Arithmetic uses BigDecimal and the total returned is a BigDecimal for 
+   * accurately scaled comparisons.
    * 
    * @return the sum of the items against the account taking credits as positive
    *         numbers and debits as negative numbers
    */
-  public Double getTotal() {
-    Double total = 0.00D;
+  public BigDecimal getTotal() {
+    BigDecimal total = BigDecimal.ZERO.setScale(2);
     FiscalYear year = statement.getYear();
     for (Item item : account.getItems()) {
       Transaction transaction = item.getTransaction();
       if (year.isIn(transaction.getDate())) {
-        total += item.isDebit() ? -item.getAmount() : item.getAmount();
+        BigDecimal amount =
+            new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+          // Negate the amount for debit items.
+          amount = item.isDebit() ? amount.negate() : amount;
+          total = total.add(amount);
         logger.debug("Added item to " + account.getName()
                      + " total for fiscal year " + year.getYear() + ": "
-                     + item.getAmount() + ", total = " + total);
+                     + amount + ", total = " + total);
       }
     }
     return total;

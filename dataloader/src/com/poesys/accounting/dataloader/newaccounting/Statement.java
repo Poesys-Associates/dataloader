@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,13 +124,14 @@ public class Statement {
    * 
    * @return the balance
    */
-  public Double getBalance() {
-    Double balance = 0.00D;
+  public BigDecimal getBalance() {
+    BigDecimal balance = BigDecimal.ZERO.setScale(2);
     // Iterate through all the rollups in the dynamic rollup map, getting and
     // accumulating the sum of the rollup totals. This takes into account the
     // credit/debit, taking credits as positive numbers and debits as negative
     // numbers. Accumulation only happens for accounts of the right type for
-    // the kind of statement this is (balance sheet or income statement).
+    // the kind of statement this is (balance sheet or income statement). All
+    // arithmetic is done with BigDecimal values to avoid scale problems.
     for (Rollup rollup : getRollups().values()) {
       Account account = rollup.getAccount();
       switch (type) {
@@ -138,8 +140,8 @@ public class Statement {
         case ASSET:
         case LIABILITY:
         case EQUITY:
-          Double total = rollup.getTotal();
-          balance += total;
+          BigDecimal total = rollup.getTotal();
+          balance = balance.add(total);
           logger.debug("Balance Sheet account " + account.getName() + ": "
                        + total + ", balance = " + balance);
           break;
@@ -152,8 +154,8 @@ public class Statement {
         switch (account.getAccountType()) {
         case INCOME:
         case EXPENSE:
-          Double total = rollup.getTotal();
-          balance += total;
+          BigDecimal total = rollup.getTotal();
+          balance = balance.add(total);
           logger.debug("Income statement account " + account.getName() + ": "
                        + total + ", balance = " + balance);
           break;

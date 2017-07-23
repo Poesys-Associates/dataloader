@@ -35,21 +35,35 @@ public class TransactionTest {
   private static final Double ALLOCATED_AMOUNT = 0.00D;
   private static final Boolean DEBIT = Boolean.TRUE;
   private static final Boolean CREDIT = Boolean.FALSE;
-  private static final String INCOME_ACCOUNT_NAME = "Revenue";
-  private static final String CHECKING_ACCOUNT_NAME = "Citibank Checking";
-  private static final String AR_ACCOUNT_NAME = "Accounts Receivable";
+  
   private static final AccountType INCOME_TYPE = AccountType.INCOME;
   private static final AccountType ASSET_TYPE = AccountType.ASSET;
+  private static final AccountType EQUITY_TYPE = AccountType.EQUITY;
+  private static final AccountType EXPENSE_TYPE = AccountType.EXPENSE;
+  
   private static final Boolean DEBIT_DEFAULT = Boolean.TRUE;
   private static final Boolean CREDIT_DEFAULT = Boolean.FALSE;
   private static final Boolean NOT_RECEIVABLE = Boolean.FALSE;
   private static final Boolean RECEIVABLE = Boolean.TRUE;
+  
+  // account groups for testing
+  
   private static final String CASH_GROUP_NAME = "Cash";
   private static final AccountGroup CASH_GROUP =
     new AccountGroup(CASH_GROUP_NAME);
   private static final String INCOME_GROUP_NAME = "Income";
   private static final AccountGroup INCOME_GROUP =
-    new AccountGroup(INCOME_GROUP_NAME);
+      new AccountGroup(INCOME_GROUP_NAME);
+  private static final String CAPITAL_GROUP_NAME = "Personal Capital";
+  private static final AccountGroup CAPITAL_GROUP =
+      new AccountGroup(CAPITAL_GROUP_NAME);
+  private static final String UTILITIES_GROUP_NAME = "Utilities";
+  private static final AccountGroup UTILITIES_GROUP =
+      new AccountGroup(UTILITIES_GROUP_NAME);
+
+  // accounts for testing
+  
+  private static final String INCOME_ACCOUNT_NAME = "Revenue";
   private static final Account INCOME_ACCOUNT =
     new Account(INCOME_ACCOUNT_NAME,
                 DESCRIPTION,
@@ -57,6 +71,7 @@ public class TransactionTest {
                 CREDIT_DEFAULT,
                 NOT_RECEIVABLE,
                 INCOME_GROUP);
+  private static final String CHECKING_ACCOUNT_NAME = "Citibank Checking";
   private static final Account CHECKING_ACCOUNT =
     new Account(CHECKING_ACCOUNT_NAME,
                 DESCRIPTION,
@@ -64,12 +79,34 @@ public class TransactionTest {
                 DEBIT_DEFAULT,
                 NOT_RECEIVABLE,
                 CASH_GROUP);
+  private static final String AR_ACCOUNT_NAME = "Accounts Receivable";
   private static final Account AR_ACCOUNT = new Account(AR_ACCOUNT_NAME,
                                                         DESCRIPTION,
                                                         ASSET_TYPE,
                                                         DEBIT_DEFAULT,
                                                         RECEIVABLE,
                                                         CASH_GROUP);
+  private static final String CAPITAL_ACCOUNT_NAME_1 = "Partner 1 Basis";
+  private static final Account CAPITAL_ACCOUNT_1 = new Account(CAPITAL_ACCOUNT_NAME_1,
+                                                        DESCRIPTION,
+                                                        EQUITY_TYPE,
+                                                        CREDIT_DEFAULT,
+                                                        NOT_RECEIVABLE,
+                                                        CAPITAL_GROUP);
+  private static final String CAPITAL_ACCOUNT_NAME_2 = "Partner 2 Basis";
+  private static final Account CAPITAL_ACCOUNT_2 = new Account(CAPITAL_ACCOUNT_NAME_2,
+                                                        DESCRIPTION,
+                                                        EQUITY_TYPE,
+                                                        CREDIT_DEFAULT,
+                                                        NOT_RECEIVABLE,
+                                                        CAPITAL_GROUP);
+  private static final String INTERNET_ACCOUNT_NAME = "Internet Service";
+  private static final Account INTERNET_ACCOUNT = new Account(INTERNET_ACCOUNT_NAME,
+                                                        DESCRIPTION,
+                                                        EXPENSE_TYPE,
+                                                        DEBIT_DEFAULT,
+                                                        NOT_RECEIVABLE,
+                                                        UTILITIES_GROUP);
 
   /**
    * Test method for
@@ -546,10 +583,10 @@ public class TransactionTest {
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.newaccounting.Transaction#isValid()}
-   * . Tests case where isValid must return true.
+   * . Tests case where isValid must return true based on 2 items balancing.
    */
   @Test
-  public void testIsValidTrue() {
+  public void testIsValidTrue2Items() {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID,
@@ -569,6 +606,38 @@ public class TransactionTest {
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("invalid receivable transaction but same amounts: "
                + receivableTransaction, receivableTransaction.isValid());
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.Transaction#isValid()}
+   * . Tests case where isValid must return true based on 3 items balancing.
+   */
+  @Test
+  public void testIsValidTrue3Items() {
+    // Create the receivable transaction with items.
+    Transaction transaction =
+      new Transaction(TRANSACTION_ID,
+                      DESCRIPTION,
+                      DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("3-item transaction constructor failed",
+               transaction != null);
+    // personal capital 1 item
+    Item cap1 =
+      transaction.addItem(7.48D, CAPITAL_ACCOUNT_1, CREDIT, NOT_CHECKED);
+    assertTrue("capital 1 item constructor failed", cap1 != null);
+    // personal capital 2 item
+    Item cap2 =
+      transaction.addItem(7.47D, CAPITAL_ACCOUNT_2, CREDIT, NOT_CHECKED);
+    assertTrue("capital 2 item constructor failed", cap2 != null);
+    // internet service item with total amount
+    Item internet =
+      transaction.addItem(14.95D, INTERNET_ACCOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("internet item constructor failed", internet != null);
+    assertTrue("invalid transaction but same amounts: "
+               + transaction, transaction.isValid());
   }
 
   /**
