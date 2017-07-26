@@ -25,7 +25,8 @@ import com.poesys.db.InvalidParametersException;
  * 
  * @author Robert J. Muller
  */
-public class PropertyFileParameters extends AbstractStatementMaintainingParameters {
+public class PropertyFileParameters extends
+    AbstractStatementMaintainingParameters {
 
   /** logger for this class */
   private static final Logger logger =
@@ -64,6 +65,10 @@ public class PropertyFileParameters extends AbstractStatementMaintainingParamete
   // keys in properties file for output accounting statement filenames
   private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
   private static final String INCOME_STMT_FILE = "income_statement_file";
+  private static final String BALANCE_SHEET_DETAILS_FILE =
+    "balance_sheet_details_file";
+  private static final String INCOME_STMT_DETAILS_FILE =
+    "income_statement_details_file";
 
   // messages
   private static final String FILE_NOT_FOUND = "file not found: ";
@@ -229,5 +234,9 @@ public class PropertyFileParameters extends AbstractStatementMaintainingParamete
       getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
     incomeStatementWriter =
       getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
+    balanceSheetDetailsWriter =
+      getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_DETAILS_FILE));
+    incomeStatementDetailsWriter =
+      getWriter(getFullyQualifiedFilename(year, INCOME_STMT_DETAILS_FILE));
   }
 }

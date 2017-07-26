@@ -188,7 +188,8 @@ public class Statement {
    */
   public String toData() {
     StringBuilder builder = new StringBuilder();
-    boolean first = true;
+    // Initialize line delimeter to empty so as not to write delimiter first.
+    String line = "";
     for (Rollup rollup : getRollups().values()) {
       Account account = rollup.getAccount();
       switch (type) {
@@ -197,8 +198,9 @@ public class Statement {
         case ASSET:
         case LIABILITY:
         case EQUITY:
-          appendDataLine(builder, first, rollup);
-          first = false;
+          appendDataLine(builder, line, rollup);
+          // Set line delimiter to write after first line.
+          line = LINE;
           break;
         default:
           // Ignore other type values, not part of balance sheet
@@ -209,8 +211,9 @@ public class Statement {
         switch (account.getAccountType()) {
         case INCOME:
         case EXPENSE:
-          appendDataLine(builder, first, rollup);
-          first = false;
+          appendDataLine(builder, line, rollup);
+          // Set line delimiter to write after first line.
+          line = LINE;
           break;
         default:
           // Ignore other type values, not part of balance sheet
@@ -225,16 +228,76 @@ public class Statement {
    * Append a data line to a builder building an output data set.
    * 
    * @param builder the in-progress builder
-   * @param first whether this is the first line of the data set; controls
-   *          pre-pending of line return
+   * @param delimeter the line delimiter to write before the data line; possibly
+   *          empty string
    * @param rollup the rollup to output
    */
-  private void appendDataLine(StringBuilder builder, boolean first,
+  private void appendDataLine(StringBuilder builder, String delimiter,
                               Rollup rollup) {
-    // append line delim between lines so last line is not delimited
-    if (!first) {
-      builder.append(LINE);
-    }
+    builder.append(delimiter);
     builder.append(rollup.toData());
+  }
+
+  /**
+   * Produce a data set of rollup data-detail lines in a String suitable for
+   * writing out as a data file, with line delimiters. Note that the last line
+   * should not have a line delimiter. The accounts output depend on the type of
+   * statement, balance sheet or income statement. If the rollup has no items,
+   * the detail data contains no rows for the account.
+   * 
+   * @return a data set as a String
+   */
+  public String toDetailData() {
+    StringBuilder builder = new StringBuilder();
+    // Initialize line delimiter to empty so as not to write delimiter first.
+    String line = "";
+    for (Rollup rollup : getRollups().values()) {
+      Account account = rollup.getAccount();
+      if (account.getItems().size() > 0) {
+        switch (type) {
+        case BALANCE_SHEET:
+          switch (account.getAccountType()) {
+          case ASSET:
+          case LIABILITY:
+          case EQUITY:
+            appendDataDetailsLines(builder, line, rollup);
+            // Set line delimiter to write after first line.
+            line = LINE;
+            break;
+          default:
+            // Ignore other type values, not part of balance sheet
+            break;
+          }
+          break;
+        case INCOME_STATEMENT:
+          switch (account.getAccountType()) {
+          case INCOME:
+          case EXPENSE:
+            appendDataDetailsLines(builder, line, rollup);
+            // Set line delimiter to write after first line.
+            line = LINE;
+            break;
+          default:
+            // Ignore other type values, not part of balance sheet
+            break;
+          }
+        }
+      }
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Append a data details line set to a builder building an output data set.
+   * 
+   * @param builder the in-progress builder
+   * @param delimeter the line delimiter to write before the data line; possibly
+   *          empty string
+   * @param rollup the rollup to output
+   */
+  private void appendDataDetailsLines(StringBuilder builder, String delimiter,
+                                      Rollup rollup) {
+    builder.append(delimiter);
+    builder.append(rollup.toDetailsData());
   }
 }

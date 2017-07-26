@@ -458,7 +458,23 @@ public class StatementTest {
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toData();
     assertTrue("data set incorrect for statement: " + data,
-               "Credit Card\t95.00\nSalary\t100.00\nEssential Expense\t-125.00\nShared Capital\t2080.00\nChecking\t-2150.00".equals(data));
+               "Liability\tCredit Accounts\tCredit Card\t95.00\nEquity\tPersonal Capital\tShared Capital\t2080.00\nAsset\tCash\tChecking\t-2150.00".equals(data));
+  }
+
+  /**
+   * Test Statement.toDetailData().
+   */
+  @Test
+  public void testStatementToDetailData() {
+    FiscalYear year = new FiscalYear(YEAR);
+    createFiscalYearForBalance(year, getNextId(null));
+    Statement statement =
+      new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    String data = statement.toDetailData();
+    assertTrue("detail data set incorrect for statement: " + data,
+               "Liability\tCredit Accounts\tCredit Card\t6\t01-Jan-17\t75.00\nLiability\tCredit Accounts\tCredit Card\t2\t01-Jan-17\t20.00\nEquity\tPersonal Capital\tShared Capital\t7\t01-Jan-17\t2000.00\nEquity\tPersonal Capital\tShared Capital\t3\t01-Jan-17\t80.00\nAsset\tCash\tChecking\t5\t01-Jan-17\t50.00\nAsset\tCash\tChecking\t7\t01-Jan-17\t-2000.00\nAsset\tCash\tChecking\t1\t01-Jan-17\t-100.00\nAsset\tCash\tChecking\t4\t01-Jan-17\t-100.00".equals(data));
+    
+    
   }
 
   /**
@@ -482,7 +498,7 @@ public class StatementTest {
     Statement statement = createStatementWithRollup(year, incomeAccount);
     Rollup rollup = statement.getRollups().get(incomeAccount);
     assertTrue("rollup data string rep failed: " + rollup.toData(),
-               rollup.toData().equals("Salary\t0.00"));
+               rollup.toData().equals("Income\tEarned Income\tSalary\t0.00"));
   }
 
   /**

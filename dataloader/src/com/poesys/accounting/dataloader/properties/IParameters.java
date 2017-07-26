@@ -182,4 +182,38 @@ public interface IParameters {
    *         such data set
    */
   String getIncomeStatementData(int year);
+
+  /**
+   * Get a writer for the balance sheet details data (includes items).
+   * 
+   * @return a writer
+   */
+  Writer getBalanceSheetDetailsWriter();
+
+  /**
+   * Get a writer for the income statement details data (includes items).
+   * 
+   * @return a writer
+   */
+  Writer getIncomeStatementDetailsWriter();
+
+  /**
+   * Get the balance sheet details data for unit test validation.
+   * 
+   * @param year the year of the balance sheet to get
+   * 
+   * @return the balance sheet details data set as a String or null if there is
+   *         no such data set
+   */
+  String getBalanceSheetDetailsData(int year);
+
+  /**
+   * Get the income statement details data for unit test validation.
+   * 
+   * @param year the year of the income statement to get
+   * 
+   * @return the income statement details data set as a String or null if there
+   *         is no such data set
+   */
+  String getIncomeStatementDetailsData(int year);
 }

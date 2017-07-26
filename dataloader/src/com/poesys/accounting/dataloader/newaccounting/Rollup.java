@@ -7,6 +7,7 @@ package com.poesys.accounting.dataloader.newaccounting;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
 
@@ -31,6 +32,8 @@ public class Rollup {
 
   /** data value delimiter for data strings */
   private static final String DELIMITER = "\t";
+  /** line delimiter for data strings */
+  private static final String LINE_DELIMITER = "\n";
 
   /** format for double data values - [n]+.nn */
   private static DecimalFormat format = new DecimalFormat("0.00");
@@ -66,7 +69,7 @@ public class Rollup {
 
   /**
    * Sum the items against the account for the fiscal year and return the total.
-   * Arithmetic uses BigDecimal and the total returned is a BigDecimal for 
+   * Arithmetic uses BigDecimal and the total returned is a BigDecimal for
    * accurately scaled comparisons.
    * 
    * @return the sum of the items against the account taking credits as positive
@@ -79,10 +82,10 @@ public class Rollup {
       Transaction transaction = item.getTransaction();
       if (year.isIn(transaction.getDate())) {
         BigDecimal amount =
-            new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
-          // Negate the amount for debit items.
-          amount = item.isDebit() ? amount.negate() : amount;
-          total = total.add(amount);
+          new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+        // Negate the amount for debit items.
+        amount = item.isDebit() ? amount.negate() : amount;
+        total = total.add(amount);
         logger.debug("Added item to " + account.getName()
                      + " total for fiscal year " + year.getYear() + ": "
                      + amount + ", total = " + total);
@@ -129,15 +132,68 @@ public class Rollup {
   }
 
   /**
-   * Return the rollup as a tab-delimited data string with two fields, account
-   * name and total (formatted to two decimal places).
+   * Return the rollup as a tab-delimited data string with four fields: account
+   * type, account group, account name, and total (formatted to two decimal
+   * places).
    * 
    * @return the tab-delimited data string
    */
   public String toData() {
-    StringBuilder builder = new StringBuilder(account.getName());
+    StringBuilder builder =
+      new StringBuilder(account.getAccountType().toString());
+    builder.append(DELIMITER);
+    builder.append(account.getGroup().getName());
+    builder.append(DELIMITER);
+    builder.append(account.getName());
     builder.append(DELIMITER);
     builder.append(format.format(getTotal()));
     return builder.toString();
+  }
+
+  /**
+   * Return the rollup as a set of tab-delimited data lines with each line
+   * containing a detail with the fields account type, account group, account
+   * name, the old transaction id, the transaction date, and the amount (debits
+   * are negative). Do not write out a line for rollups with no items.
+   * 
+   * @return the detail data
+   */
+  public String toDetailsData() {
+    StringBuilder data = new StringBuilder("");
+    FiscalYear year = statement.getYear();
+    String line = "";
+    for (Item item : account.getItems()) {
+      Transaction transaction = item.getTransaction();
+      if (year.isIn(transaction.getDate())) {
+        // Item is in year
+
+        // Construct the date formatted as an Oracle date.
+        String format = "dd-MMM-yy";
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        String date = formatter.format(transaction.getDate());
+
+        // Scale the amount as 2digit, then negate the amount for debit items.
+        BigDecimal amount =
+          new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+        amount = item.isDebit() ? amount.negate() : amount;
+
+        // Build the data line.
+        data.append(line);
+        data.append(account.getAccountType().toString());
+        data.append(DELIMITER);
+        data.append(account.getGroup().getName());
+        data.append(DELIMITER);
+        data.append(item.getAccount().getName());
+        data.append(DELIMITER);
+        data.append(item.getTransaction().getId());
+        data.append(DELIMITER);
+        data.append(date);
+        data.append(DELIMITER);
+        data.append(amount);
+        line = LINE_DELIMITER;
+      }
+    }
+
+    return data.toString();
   }
 }

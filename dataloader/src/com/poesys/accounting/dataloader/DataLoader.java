@@ -139,8 +139,12 @@ public class DataLoader implements IDirector {
       parameters.createWriters(fiscalYear.getYear());
       Writer balanceSheetWriter = parameters.getBalanceSheetWriter();
       Writer incomeStmtWriter = parameters.getIncomeStatementWriter();
+      Writer balanceSheetDetailsWriter = parameters.getBalanceSheetDetailsWriter();
+      Writer incomeStmtDetailsWriter = parameters.getIncomeStatementDetailsWriter();
       balanceSheetWriter.write(balanceSheet.toData());
       incomeStmtWriter.write(incomeStatement.toData());
+      balanceSheetDetailsWriter.write(balanceSheet.toDetailData());
+      incomeStmtDetailsWriter.write(incomeStatement.toDetailData());
     } catch (IOException e) {
       logger.error(IO_ERROR, e);
       throw new RuntimeException(IO_ERROR, e);
