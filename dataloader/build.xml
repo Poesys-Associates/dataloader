@@ -29,7 +29,7 @@
 			<include name="*.jar" />
 		</fileset>
 		<fileset dir="${dist}">
-			<include name="*.jar" />
+			<include name="${dist-file}.jar" />
 		</fileset>
 	</path>
 
