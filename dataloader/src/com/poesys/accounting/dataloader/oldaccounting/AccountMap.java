@@ -111,7 +111,7 @@ public class AccountMap extends AbstractReaderDto {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.accountNumber = new Float(fields[0]);
-    this.name = fields[1];
+    this.name = fields[1].trim();
   }
 
   @Override

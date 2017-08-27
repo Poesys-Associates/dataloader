@@ -82,7 +82,7 @@ public class AccountGroup extends AbstractReaderDto {
   protected void init(String[] fields) {
     this.start = new Float(fields[0]);
     this.end = new Float(fields[1]);
-    this.name = fields[2];
+    this.name = fields[2].trim();
   }
 
   @Override

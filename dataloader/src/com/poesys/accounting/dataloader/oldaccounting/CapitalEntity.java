@@ -125,11 +125,11 @@ public class CapitalEntity extends AbstractReaderDto {
 
   @Override
   protected void init(String[] fields) {
-    capitalAccountName = fields[0];
+    capitalAccountName = fields[0].trim();
     if (capitalAccountName == null || capitalAccountName.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
-    distributionAccountName = fields[1];
+    distributionAccountName = fields[1].trim();
     if (fields[2].isEmpty()) {
       ownership = 1.0D;
     } else {
