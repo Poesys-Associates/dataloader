@@ -8,9 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
-import com.poesys.accounting.dataloader.properties.UnitTestParametersNoExceptions;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneEntityOneYearNoDistribution;
 
 
 /**
@@ -20,11 +22,11 @@ import com.poesys.accounting.dataloader.properties.UnitTestParametersNoException
  */
 public class DataLoaderTest {
   /** number of fiscal years in the test load */
-  private static int NUMBER_OF_YEARS = 3;
+  private static int NUMBER_OF_YEARS = 1;
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.DataLoader#construct(com.poesys.accounting.dataloader.properties.IParameters, com.poesys.accounting.dataloader.IBuilder, com.poesys.accounting.dataloader.newaccounting.IStorageManager, com.poesys.accounting.dataloader.newaccounting.IDataAccessService)}
+   * {@link com.poesys.accounting.dataloader.DataLoader#construct(com.poesys.accounting.dataloader.properties.IParameters, com.poesys.accounting.dataloader.IBuilder, com.poesys.accounting.dataloader.newaccounting.IStorageManager, com.poesys.accounting.dataloader.newaccounting.IDataAccessService, IFiscalYearUpdater)}
    * .
    */
   @Test
@@ -32,15 +34,16 @@ public class DataLoaderTest {
     // Create the data loader.
     DataLoader loader = new DataLoader();
     // Create the production interface implementations for the loader.
-    UnitTestParametersNoExceptions parameters =
-      new UnitTestParametersNoExceptions();
+    UnitTestParametersCapitalOneEntityOneYearNoDistribution parameters =
+      new UnitTestParametersCapitalOneEntityOneYearNoDistribution();
     UnitTestNoExceptionsBuilder builder = new UnitTestNoExceptionsBuilder();
     UnitTestNoExceptionsStorageManager storageManager =
       new UnitTestNoExceptionsStorageManager();
     UnitTestNoExceptionDataService dbService =
       new UnitTestNoExceptionDataService();
+    IFiscalYearUpdater updater = new PoesysFiscalYearUpdater();
     // Construct the accounting system.
-    loader.construct(parameters, builder, storageManager, dbService);
+    loader.construct(parameters, builder, storageManager, dbService, updater);
 
     // Test the calls to the interface implementations
 
@@ -53,7 +56,7 @@ public class DataLoaderTest {
 
     // The number of start-end calls depends on the number of fiscal years
     // processed plus one startup call.
-    assertTrue("start parameter not retrieved",
+    assertTrue("start parameter not retrieved: " + parameters.getStartCalls(),
                parameters.getStartCalls() == NUMBER_OF_YEARS + 1);
     assertTrue("end parameter not retrieved",
                parameters.getEndCalls() == NUMBER_OF_YEARS + 1);

@@ -5,6 +5,7 @@ package com.poesys.accounting.dataloader;
 
 
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
 import com.poesys.accounting.dataloader.properties.IParameters;
 
@@ -26,8 +27,11 @@ public interface IDirector {
    *          in-memory system
    * @param dbService the IDataAccessService implementation that actually stores
    *          the data in the repository
+   * @param updater the IFiscalYearUpdater implementation that updates the
+   *          fiscal year with a set of closing transactions appropriate to the
+   *          specific accounting system
    */
   public void construct(IParameters parameters, IBuilder builder,
                         IStorageManager storageManager,
-                        IDataAccessService dbService);
+                        IDataAccessService dbService, IFiscalYearUpdater updater);
 }

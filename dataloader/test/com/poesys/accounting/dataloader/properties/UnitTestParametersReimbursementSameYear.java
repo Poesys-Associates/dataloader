@@ -26,6 +26,7 @@ public class UnitTestParametersReimbursementSameYear extends
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
+  private int incomeSummaryCalls = 0;
   private int startCalls = 0;
   private int endCalls = 0;
 
@@ -33,6 +34,10 @@ public class UnitTestParametersReimbursementSameYear extends
   private static final String DELIM = "\t";
 
   private static final Integer YEAR = 2017;
+
+  private static final String CAP_ACCOUNT = "Personal Capital";
+  private static final String DIST_ACCOUNT = "Distributions";
+  private static final Double OWNERSHIP = 1.0D;
 
   private static final String GROUP_NAME_1 = "Cash";
   private static final String GROUP_NAME_2 = "Accounts Receivable";
@@ -95,6 +100,11 @@ public class UnitTestParametersReimbursementSameYear extends
   }
 
   @Override
+  public String getIncomeSummaryAccountName() {
+    return "Income Summary";
+  }
+
+  @Override
   public Integer getStartYear() {
     startCalls++;
     return 2017;
@@ -125,6 +135,15 @@ public class UnitTestParametersReimbursementSameYear extends
   }
 
   /**
+   * Get the count of getIncomeSummaryAccountName() calls.
+   * 
+   * @return a count
+   */
+  public int getIncomeSummaryCalls() {
+    return incomeSummaryCalls;
+  }
+
+  /**
    * Get the count of getStartYear() calls.
    * 
    * @return a count
@@ -140,6 +159,12 @@ public class UnitTestParametersReimbursementSameYear extends
    */
   public int getEndCalls() {
     return endCalls;
+  }
+
+  @Override
+  public Reader getCapitalEntityReader() {
+    String input = CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
+    return new StringReader(input);
   }
 
   @Override

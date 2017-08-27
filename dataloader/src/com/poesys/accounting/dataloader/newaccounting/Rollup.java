@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
 
+import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -80,7 +82,11 @@ public class Rollup {
     FiscalYear year = statement.getYear();
     for (Item item : account.getItems()) {
       Transaction transaction = item.getTransaction();
-      if (year.isIn(transaction.getDate())) {
+      Statement.StatementType type = statement.getType();
+      // Iterate through all years up to the current year for balance sheet,
+      // only current year for income statement.
+      if ((type.equals(StatementType.BALANCE_SHEET) && year.isInYearOrPriorYear(transaction.getDate()))
+          || (type.equals(StatementType.INCOME_STATEMENT) && year.isIn(transaction.getDate()))) {
         BigDecimal amount =
           new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
         // Negate the amount for debit items.
@@ -164,7 +170,16 @@ public class Rollup {
     String line = "";
     for (Item item : account.getItems()) {
       Transaction transaction = item.getTransaction();
-      if (year.isIn(transaction.getDate())) {
+
+      boolean balanceSheetAccount =
+        account.getAccountType().equals(AccountType.ASSET)
+            || account.getAccountType().equals(AccountType.LIABILITY)
+            || account.getAccountType().equals(AccountType.EQUITY);
+
+      // Process all transactions for balance sheet accounts, only those for the
+      // current year for income statement accounts.
+      if ((balanceSheetAccount && year.isInYearOrPriorYear(transaction.getDate()))
+          || year.isIn(transaction.getDate())) {
         // Item is in year
 
         // Construct the date formatted as an Oracle date.

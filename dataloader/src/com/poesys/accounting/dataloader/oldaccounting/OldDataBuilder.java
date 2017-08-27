@@ -7,15 +7,19 @@ package com.poesys.accounting.dataloader.oldaccounting;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.poesys.accounting.dataloader.IBuilder;
+import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.db.InvalidParametersException;
@@ -45,7 +49,9 @@ public class OldDataBuilder implements IBuilder {
    */
   private static final String FIRST_BALANCE_TRANSACTION_ID = "100000";
 
-  // Data sets shared across process instances
+  // Data sets shared across process iterations
+  /** the shared list of capital entities */
+  private CapitalStructure capitalStructure;
   /** the shared set of account groups */
   private final Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> groups =
     new HashSet<com.poesys.accounting.dataloader.newaccounting.AccountGroup>();
@@ -54,6 +60,8 @@ public class OldDataBuilder implements IBuilder {
     new HashSet<com.poesys.accounting.dataloader.newaccounting.Account>();
 
   // Messages
+  private static final String NULL_FILE_PATH_ERROR =
+    "Null file path in parameter file";
   private static final String FILE_READER_CLOSE_ERROR =
     "IO exception closing file reader";
   private static final String READER_CLOSE_ERROR =
@@ -62,6 +70,8 @@ public class OldDataBuilder implements IBuilder {
     "cannot find group for account ";
   private static final String NULL_PARAMETER_ERROR =
     "parameters required but are null";
+  private static final String NULL_INCOME_SUMMARY_ERROR =
+    "Null income summary account name in parameter file";
   private static final String NO_SUCH_TRANSACTION_ERROR =
     "no such transaction ";
   private static final String NO_SUCH_ACCOUNT_ERROR = "no such account ";
@@ -70,6 +80,10 @@ public class OldDataBuilder implements IBuilder {
     "invalid transaction: ";
   private static final String INVALID_TRANSACTIONS_ERROR =
     "invalid transactions";
+  private static final String NO_REIMBURSEMENTS_ITEM_MAP_ERROR =
+    "no reimbursements item map for fiscal year ";
+  private static final String NO_RECEIVABLES_ITEM_MAP_ERROR =
+    "no receivables item map for fiscal year ";
 
   // lookup maps
 
@@ -119,19 +133,21 @@ public class OldDataBuilder implements IBuilder {
    * year, then transaction id (that is, Map(year, Map(tranId, item)); the
    * buildFiscalYear() method initializes the nested map for the year
    */
-  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> receivables =
+  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> receivablesMap =
     new HashMap<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>>();
   /**
    * the shared lookup map of fiscal year maps of reimbursing items indexed by
    * year, then transaction id (that is, Map(year, Map(tranId, item)); the
    * buildFiscalYear() method initializes the nested map for the year
    */
-  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> reimbursements =
+  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> reimbursementsMap =
     new HashMap<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>>();
+
+  // list of capital entities read directly
+  private final List<CapitalEntity> entities = new ArrayList<CapitalEntity>();
 
   // sets of the data read directly; cleared by buildFiscalYear()
 
-  private final Set<Receivable> receivableDataSet = new HashSet<Receivable>();
   private final Set<Reimbursement> reimbursementDataSet =
     new HashSet<Reimbursement>();
   private final Set<Balance> balanceDataSet = new HashSet<Balance>();
@@ -155,6 +171,14 @@ public class OldDataBuilder implements IBuilder {
     void build(BufferedReader r);
   }
 
+  private class CapitalEntityStrategy implements IBuildStrategy {
+    @Override
+    public void build(BufferedReader r) {
+      CapitalEntity entity = new CapitalEntity(r);
+      entities.add(entity);
+    }
+  }
+
   private class AccountGroupStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -168,8 +192,6 @@ public class OldDataBuilder implements IBuilder {
         Integer start = new Float(group.getStart() * 100F).intValue();
         Integer end = new Float(group.getEnd() * 100F).intValue();
         for (Integer accountNumber = start; accountNumber <= end; accountNumber++) {
-          // logger.debug("Putting account " + accountNumber + " in group "
-          // + newGroup.getName());
           groupMap.put(accountNumber, newGroup);
         }
       }
@@ -307,8 +329,36 @@ public class OldDataBuilder implements IBuilder {
   public OldDataBuilder(IParameters parameters) {
     this.parameters = parameters;
     if (parameters.getPath() == null) {
-      throw new InvalidParametersException("Null year or path for old data builder");
+      throw new InvalidParametersException(NULL_FILE_PATH_ERROR);
     }
+
+    // Build the capital structure once for the entire build process.
+    buildCapitalStructure(parameters);
+  }
+
+  /**
+   * Build the capital structure for the accounting system.
+   * 
+   * @param parameters the parameters for the program
+   */
+  private void buildCapitalStructure(IParameters parameters) {
+    // Build the capital entities list for the accounting system.
+    String incomeSummary = parameters.getIncomeSummaryAccountName();
+    if (incomeSummary == null || incomeSummary.isEmpty()) {
+      throw new InvalidParametersException(NULL_INCOME_SUMMARY_ERROR);
+    }
+    capitalStructure = new CapitalStructure(incomeSummary);
+    IBuildStrategy strategy = new CapitalEntityStrategy();
+    readFile(parameters.getCapitalEntityReader(), strategy);
+    // Build a list of new-accounting capital entities from the old ones.
+    List<com.poesys.accounting.dataloader.newaccounting.CapitalEntity> newEntities =
+      new ArrayList<com.poesys.accounting.dataloader.newaccounting.CapitalEntity>();
+    for (CapitalEntity entity : entities) {
+      newEntities.add(new com.poesys.accounting.dataloader.newaccounting.CapitalEntity(entity.getCapitalAccountName(),
+                                                                                       entity.getDistributionAccountName(),
+                                                                                       new BigDecimal(entity.getOwnership())));
+    }
+    capitalStructure.addEntities(newEntities);
   }
 
   @Override
@@ -318,15 +368,14 @@ public class OldDataBuilder implements IBuilder {
     logger.debug("Building fiscal year " + year);
 
     // Add the sub-map for the receivables.
-    receivables.put(year,
-                    new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Item>());
-
-    // Add the sub-map for the reimbursements.
-    reimbursements.put(year,
+    receivablesMap.put(year,
                        new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Item>());
 
+    // Add the sub-map for the reimbursements.
+    reimbursementsMap.put(year,
+                          new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Item>());
+
     // Clear the temporary data sets for the fiscal year.
-    receivableDataSet.clear();
     reimbursementDataSet.clear();
     balanceDataSet.clear();
     transactionDataSet.clear();
@@ -446,8 +495,8 @@ public class OldDataBuilder implements IBuilder {
       }
       // add the transaction to the fiscal year
       fiscalYear.addTransaction(transaction);
-      // increment the transaction id
-      id.add(BigInteger.ONE);
+      // increment the transaction id; assign because BigInteger is immutable
+      id = id.add(BigInteger.ONE);
     }
   }
 
@@ -471,7 +520,8 @@ public class OldDataBuilder implements IBuilder {
     createTransactions();
     createItems();
     if (!validateTransactions()) {
-      throw new RuntimeException(INVALID_TRANSACTIONS_ERROR);
+      throw new RuntimeException(INVALID_TRANSACTIONS_ERROR + " for year "
+                                 + fiscalYear.getYear());
     }
   }
 
@@ -553,14 +603,14 @@ public class OldDataBuilder implements IBuilder {
         // Receivable item, add to map indexed by year and transaction id
         logger.debug("Adding receivable item to receivables map: "
                      + fiscalYear.getYear() + " - " + item.getTransactionId());
-        receivables.get(fiscalYear.getYear()).put(item.getTransactionId(),
-                                                  newItem);
+        receivablesMap.get(fiscalYear.getYear()).put(item.getTransactionId(),
+                                                     newItem);
       } else if (account.isReceivable() && !item.isDebit()) {
         // Reimbursing item, add to map indexed by year and transaction id
         logger.debug("Adding reimbursing item to reimbursements map: "
                      + fiscalYear.getYear() + " - " + item.getTransactionId());
-        reimbursements.get(fiscalYear.getYear()).put(item.getTransactionId(),
-                                                     newItem);
+        reimbursementsMap.get(fiscalYear.getYear()).put(item.getTransactionId(),
+                                                        newItem);
       }
     }
   }
@@ -639,10 +689,9 @@ public class OldDataBuilder implements IBuilder {
     logger.debug("Looking up receivable item for reimbursement: " + year
                  + " - " + id);
     Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item> items =
-      receivables.get(year);
+      receivablesMap.get(year);
     if (items == null) {
-      throw new RuntimeException("no receivables item map for fiscal year "
-                                 + year);
+      throw new RuntimeException(NO_RECEIVABLES_ITEM_MAP_ERROR + year);
     }
     com.poesys.accounting.dataloader.newaccounting.Item receivableItem =
       items.get(id);
@@ -661,10 +710,9 @@ public class OldDataBuilder implements IBuilder {
     logger.debug("Looking up reimbursing item for receivable: " + year + " - "
                  + id);
     Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item> items =
-      reimbursements.get(year);
+      reimbursementsMap.get(year);
     if (items == null) {
-      throw new RuntimeException("no reimbursements item map for fiscal year "
-                                 + year);
+      throw new RuntimeException(NO_REIMBURSEMENTS_ITEM_MAP_ERROR + year);
     }
     com.poesys.accounting.dataloader.newaccounting.Item receivableItem =
       items.get(id);
@@ -679,6 +727,11 @@ public class OldDataBuilder implements IBuilder {
   @Override
   public com.poesys.accounting.dataloader.newaccounting.FiscalYear getFiscalYear() {
     return fiscalYear;
+  }
+
+  @Override
+  public CapitalStructure getCapitalStructure() {
+    return capitalStructure;
   }
 
   @Override
@@ -699,5 +752,10 @@ public class OldDataBuilder implements IBuilder {
    */
   Set<Balance> getBalanceDataSet() {
     return balanceDataSet;
+  }
+
+  @Override
+  public com.poesys.accounting.dataloader.newaccounting.Account getAccountByName(String name) {
+    return accountNameMap.get(name);
   }
 }

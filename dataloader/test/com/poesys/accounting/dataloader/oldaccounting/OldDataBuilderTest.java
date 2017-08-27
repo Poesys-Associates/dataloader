@@ -278,10 +278,10 @@ public class OldDataBuilderTest {
   @Test
   public void testBuildInvalidPath() {
     IParameters parameters = new UnitTestParametersInvalidPath();
-    IBuilder builder = new OldDataBuilder(parameters);
-    assertTrue("no builder created", builder != null);
-    builder.buildFiscalYear(YEAR);
     try {
+      IBuilder builder = new OldDataBuilder(parameters);
+      assertTrue("no builder created", builder != null);
+      builder.buildFiscalYear(YEAR);
       builder.buildAccountGroups();
       fail("no runtime exception from invalid path");
     } catch (RuntimeException e) {
@@ -515,8 +515,8 @@ public class OldDataBuilderTest {
       builder.buildTransactions();
       fail("no exception from invalid transaction");
     } catch (RuntimeException e) {
-      assertTrue("wrong exception",
-                 INVALID_TRANSACTIONS_ERROR.equals(e.getMessage()));
+      assertTrue("wrong exception: " + e.getMessage(),
+                 e.getMessage().contains(INVALID_TRANSACTIONS_ERROR));
       // success
     }
   }
@@ -524,22 +524,25 @@ public class OldDataBuilderTest {
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder#buildTransactions()}
-   * . Tests transaction data with a null in the last field position
+   * . Tests transaction data with a null in the last field position, the field
+   * value should default to false
    */
   @Test
   public void testBuildNullLastField() {
     IParameters parameters = new UnitTestParametersNullLastFields();
     IBuilder builder = new OldDataBuilder(parameters);
     assertTrue("no builder created", builder != null);
-    try {
-      builder.buildFiscalYear(YEAR);
-      builder.buildAccountGroups();
-      builder.buildAccountMap();
-      builder.buildAccounts();
-      builder.buildBalances();
-      builder.buildTransactions();
-    } catch (Throwable e) {
-      fail("exception testing null last field: " + e.getMessage());
+    builder.buildFiscalYear(YEAR);
+    builder.buildAccountGroups();
+    builder.buildAccountMap();
+    builder.buildAccounts();
+    builder.buildBalances();
+    builder.buildTransactions();
+    FiscalYear year = builder.getFiscalYear();
+    // Get the single transaction and test the checked field.
+    for (com.poesys.accounting.dataloader.newaccounting.Transaction transaction : year.getTransactions()) {
+      assertTrue("missing last field checked did not default to 'N' (false)",
+                 !transaction.isChecked());
     }
   }
 

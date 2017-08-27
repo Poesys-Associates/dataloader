@@ -93,6 +93,27 @@ public class Statement {
   }
 
   /**
+   * Get the balance (account total) for a specified account.
+   * 
+   * @param inputAccount the account for which to get the balance
+   * @return the balance in the account in the statement
+   */
+  public BigDecimal getAccountBalance(Account inputAccount) {
+    if (inputAccount == null) {
+      throw new RuntimeException(NULL_PARAMETER_ERROR);
+    }
+    BigDecimal accountTotal = BigDecimal.ZERO;
+    for (Account account : year.getAccounts()) {
+      if (account.equals(inputAccount)) {
+        Rollup rollup = new Rollup(this, account);
+        accountTotal = rollup.getTotal();
+        break;
+      }
+    }
+    return accountTotal;
+  }
+
+  /**
    * Get the year.
    * 
    * @return a year
@@ -142,8 +163,8 @@ public class Statement {
         case EQUITY:
           BigDecimal total = rollup.getTotal();
           balance = balance.add(total);
-          logger.debug("Balance Sheet account " + account.getName() + ": "
-                       + total + ", balance = " + balance);
+          logger.debug(name + " account " + account.getName() + ": " + total
+                       + ", balance = " + balance);
           break;
         default:
           // Ignore other type values, not part of balance sheet
@@ -156,8 +177,8 @@ public class Statement {
         case EXPENSE:
           BigDecimal total = rollup.getTotal();
           balance = balance.add(total);
-          logger.debug("Income statement account " + account.getName() + ": "
-                       + total + ", balance = " + balance);
+          logger.debug(name + " account " + account.getName() + ": " + total
+                       + ", balance = " + balance);
           break;
         default:
           // Ignore other type values, not part of income statement
@@ -228,7 +249,7 @@ public class Statement {
    * Append a data line to a builder building an output data set.
    * 
    * @param builder the in-progress builder
-   * @param delimeter the line delimiter to write before the data line; possibly
+   * @param delimiter the line delimiter to write before the data line; possibly
    *          empty string
    * @param rollup the rollup to output
    */
@@ -291,13 +312,16 @@ public class Statement {
    * Append a data details line set to a builder building an output data set.
    * 
    * @param builder the in-progress builder
-   * @param delimeter the line delimiter to write before the data line; possibly
+   * @param delimiter the line delimiter to write before the data line; possibly
    *          empty string
    * @param rollup the rollup to output
    */
   private void appendDataDetailsLines(StringBuilder builder, String delimiter,
                                       Rollup rollup) {
-    builder.append(delimiter);
-    builder.append(rollup.toDetailsData());
+    String detailData = rollup.toDetailsData();
+    if (detailData != null && !detailData.isEmpty()) {
+      builder.append(delimiter);
+      builder.append(rollup.toDetailsData());
+    }
   }
 }

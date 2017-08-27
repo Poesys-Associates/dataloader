@@ -61,7 +61,7 @@ public class Transaction {
   /**
    * Create a Transaction object.
    * 
-   * @param id unique id from old accounting system
+   * @param id unique id from old accounting system (required, used as key)
    * @param description text describing the nature of the transaction, including
    *          ids
    * @param date date and time at which the transaction occurred (required)
@@ -73,7 +73,7 @@ public class Transaction {
                      Timestamp date,
                      Boolean checked,
                      Boolean balance) {
-    if (date == null) {
+    if (id == null || date == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.id = id;

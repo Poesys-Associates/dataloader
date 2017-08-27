@@ -5,11 +5,17 @@ package com.poesys.accounting.dataloader;
 
 
 import java.io.Reader;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.poesys.accounting.dataloader.newaccounting.Account;
+import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
 import com.poesys.accounting.dataloader.newaccounting.AccountGroup;
+import com.poesys.accounting.dataloader.newaccounting.CapitalEntity;
+import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder.IBuildStrategy;
 
@@ -31,6 +37,9 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   private int reimbursementCalls = 0;
   private int balanceCalls = 0;
   private int transactionCalls = 0;
+
+  /** name of the income-summary account */
+  private static final String INCOME_SUMMARY_ACCOUNT = "Income Summary";
 
   @Override
   public void buildFiscalYear(Integer year) {
@@ -81,6 +90,18 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
       throw new RuntimeException("buildYear() not called before getting fiscal year");
     }
     return new FiscalYear(year);
+  }
+
+  @Override
+  public CapitalStructure getCapitalStructure() {
+    CapitalStructure structure = new CapitalStructure(INCOME_SUMMARY_ACCOUNT);
+    String capitalAccount = "Personal Capital";
+    String distributionAccount = null;
+    CapitalEntity entity = new CapitalEntity(capitalAccount, distributionAccount, BigDecimal.ONE);
+    List<CapitalEntity> entities = new ArrayList<CapitalEntity>();
+    entities.add(entity);
+    structure.addEntities(entities);
+    return structure;
   }
 
   @Override
@@ -160,5 +181,21 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   @Override
   public void readFile(Reader reader, IBuildStrategy strategy) {
     // Do nothing, not used
+  }
+
+  @Override
+  public Account getAccountByName(String name) {
+    Account account = null;
+    if (name != null) {
+    // Return an arbitrary, valid account with the specified name.
+    AccountType accountType = AccountType.INCOME;
+    account = new Account(name,
+                       "The " + name + " account",
+                       accountType,
+                       false,
+                       false,
+                       new AccountGroup("Test"));
+    }
+    return account;
   }
 }

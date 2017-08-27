@@ -32,6 +32,10 @@ import java.io.Writer;
  * 
  * @author Robert J. Muller
  */
+/**
+ * 
+ * @author Robert J. Muller
+ */
 public interface IParameters {
   /**
    * Get the file path to the input data files; this path points to a directory
@@ -50,6 +54,13 @@ public interface IParameters {
   String getEntity();
 
   /**
+   * Get the name of the income summary account for the entity.
+   * 
+   * @return the account name
+   */
+  String getIncomeSummaryAccountName();
+
+  /**
    * Get the year number of the first fiscal year in the sequence; this must
    * correspond to one year subdirectory in the file path; the data loader will
    * load balances from this year.
@@ -65,6 +76,13 @@ public interface IParameters {
    * @return the last fiscal year of the sequence
    */
   Integer getEndYear();
+  
+  /**
+   * Get a reader for the capital entity data.
+   * 
+    * @return a reader
+   */
+  Reader getCapitalEntityReader();
 
   /**
    * Get a reader for the account group data.
@@ -157,13 +175,6 @@ public interface IParameters {
   Writer getBalanceSheetWriter();
 
   /**
-   * Get a writer for the income statement data.
-   * 
-   * @return a writer
-   */
-  Writer getIncomeStatementWriter();
-
-  /**
    * Get the balance sheet data for unit test validation.
    * 
    * @param year the year of the balance sheet to get
@@ -172,6 +183,30 @@ public interface IParameters {
    *         data set
    */
   String getBalanceSheetData(int year);
+
+  /**
+   * Get a writer for the balance sheet details data (includes items).
+   * 
+   * @return a writer
+   */
+  Writer getBalanceSheetDetailsWriter();
+
+  /**
+   * Get the balance sheet details data for unit test validation.
+   * 
+   * @param year the year of the balance sheet to get
+   * 
+   * @return the balance sheet details data set as a String or null if there is
+   *         no such data set
+   */
+  String getBalanceSheetDetailsData(int year);
+
+  /**
+   * Get a writer for the income statement data.
+   * 
+   * @return a writer
+   */
+  Writer getIncomeStatementWriter();
 
   /**
    * Get the income statement data for unit test validation.
@@ -184,28 +219,11 @@ public interface IParameters {
   String getIncomeStatementData(int year);
 
   /**
-   * Get a writer for the balance sheet details data (includes items).
-   * 
-   * @return a writer
-   */
-  Writer getBalanceSheetDetailsWriter();
-
-  /**
    * Get a writer for the income statement details data (includes items).
    * 
    * @return a writer
    */
   Writer getIncomeStatementDetailsWriter();
-
-  /**
-   * Get the balance sheet details data for unit test validation.
-   * 
-   * @param year the year of the balance sheet to get
-   * 
-   * @return the balance sheet details data set as a String or null if there is
-   *         no such data set
-   */
-  String getBalanceSheetDetailsData(int year);
 
   /**
    * Get the income statement details data for unit test validation.

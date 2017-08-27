@@ -191,7 +191,8 @@ public class StatementTest {
   @Test
   public void testGetBalanceForBalanceSheetSingleYear() {
     FiscalYear year = new FiscalYear(YEAR);
-    createFiscalYearForBalance(year, getNextId(null));
+    BigInteger nextId = createBalances(year, BigInteger.ONE);
+    nextId = createFiscalYearForBalance(year, nextId);
     Statement statement =
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     BigDecimal balance = statement.getBalance();
@@ -222,21 +223,48 @@ public class StatementTest {
   public void testGetBalanceForBalanceSheetMultipleYears() {
     int yearNumber = YEAR;
     FiscalYear year1 = new FiscalYear(yearNumber);
-    createFiscalYearForBalance(year1, getNextId(null));
+    // First create the balances.
+    BigInteger nextId = createBalances(year1, BigInteger.ONE);
+    Statement statement =
+      new Statement(year1, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    logger.info("Initial Balances [\n" + statement.toDetailData() + "]");
+
+    // Now create the 3 fiscal years.
+    nextId = createFiscalYearForBalance(year1, nextId);
+    statement =
+      new Statement(year1, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    logger.info(year1.getYear() + " Transactions [\n" + statement.toDetailData() + "]");
     yearNumber++;
     FiscalYear year2 = new FiscalYear(yearNumber);
-    createFiscalYearForBalance(year2, getNextId(year1));
+    nextId = createFiscalYearForBalance(year2, nextId);
+    statement =
+      new Statement(year2, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    logger.info(year2.getYear() + " Transactions [\n" + statement.toDetailData() + "]");
     yearNumber++;
     FiscalYear year3 = new FiscalYear(yearNumber);
-    createFiscalYearForBalance(year3, getNextId(year2));
-    Statement statement =
-      new Statement(year2, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    nextId = createFiscalYearForBalance(year3, nextId);
+    statement =
+      new Statement(year3, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
+    logger.info(year3.getYear() + " Transactions [\n" + statement.toDetailData() + "]");
     BigDecimal balance = statement.getBalance();
     for (Rollup rollup : statement.getRollups().values()) {
       switch (rollup.getAccount().getAccountType()) {
       case ASSET:
+        BigDecimal checkAssetTotal = new BigDecimal("-6250.00").setScale(2);
+        assertTrue("Asset total is not -$6,250 (debit): " + rollup.getTotal(),
+                   rollup.getTotal().compareTo(checkAssetTotal) == 0);
+        logger.info(rollup.getAccount().getName() + " = " + rollup.getTotal());
+        break;
       case LIABILITY:
+        BigDecimal checkLiabilityTotal = new BigDecimal("245.00").setScale(2);
+        assertTrue("Liability total is not $245.00 (credit): " + rollup.getTotal(),
+                   rollup.getTotal().compareTo(checkLiabilityTotal) == 0);
+        logger.info(rollup.getAccount().getName() + " = " + rollup.getTotal());
+        break;
       case EQUITY:
+        BigDecimal checkEquityTotal = new BigDecimal("6080.00").setScale(2);
+        assertTrue("Asset total is not $6,080 (credit): " + rollup.getTotal(),
+                   rollup.getTotal().compareTo(checkEquityTotal) == 0);
         logger.info(rollup.getAccount().getName() + " = " + rollup.getTotal());
         break;
       default:
@@ -244,8 +272,8 @@ public class StatementTest {
       }
     }
     logger.info("Balance: " + balance);
-    BigDecimal checkBalance = new BigDecimal("25.00").setScale(2);
-    assertTrue("Balance is not $25 (credit) for Balance Sheet: " + balance,
+    BigDecimal checkBalance = new BigDecimal("75.00").setScale(2);
+    assertTrue("Balance is not $75 (credit) for Balance Sheet: " + balance,
                balance.compareTo(checkBalance) == 0);
   }
 
@@ -257,7 +285,8 @@ public class StatementTest {
   @Test
   public void testGetBalanceForIncomeStatement() {
     FiscalYear year = new FiscalYear(YEAR);
-    createFiscalYearForBalance(year, getNextId(null));
+    BigInteger nextId = createBalances(year, BigInteger.ONE);
+    nextId = createFiscalYearForBalance(year, nextId);
     Statement statement =
       new Statement(year, INCOME_STATEMENT_NAME, StatementType.INCOME_STATEMENT);
     BigDecimal balance = statement.getBalance();
@@ -279,44 +308,18 @@ public class StatementTest {
   }
 
   /**
-   * Get the next id to use given the transactions in a year. If the year is
-   * null, return the default initial id, ONE.
+   * Create a set of balances for the checking, credit card, and equity
+   * accounts.
    * 
-   * @param year optional fisal year
-   * @return the next id
+   * @param year the fiscal year in which to create the balances
+   * @param nextId the transaction id with which to start numbering
+   * @return the next transaction id to use
    */
-  private BigInteger getNextId(FiscalYear year) {
-    BigInteger nextId = BigInteger.ZERO;
-    if (year != null) {
-      for (Transaction transaction : year.getTransactions()) {
-        BigInteger id = transaction.getId();
-        if (id.compareTo(nextId) > 0) {
-          nextId = id;
-        }
-      }
-    }
-    nextId = nextId.add(BigInteger.ONE);
-    logger.debug("Next transaction id = " + nextId);
-    return nextId;
-  }
-
-  /**
-   * Create a set of transactions in the fiscal year that can be used to get a
-   * balance for a particular kind of statement. The transactions are against
-   * the full range of accounts so the set can form the basis of either a
-   * balance sheet or an income statement. There are also initial balances for
-   * balance sheet accounts (asset, liability, equity).
-   * 
-   * @param year the fiscal year in which to create transactions and accounts
-   * @param nextId the next transaction id to use
-   */
-  private void createFiscalYearForBalance(FiscalYear year, BigInteger nextId) {
-    // Add the five accounts to the fiscal year.
+  private BigInteger createBalances(FiscalYear year, BigInteger nextId) {
+    // Add the balance-sheet accounts to the fiscal year.
     year.addAccount(checkingAccount);
     year.addAccount(liabilityAccount);
     year.addAccount(equityAccount);
-    year.addAccount(incomeAccount);
-    year.addAccount(expenseAccount);
 
     Transaction transaction = null;
 
@@ -342,10 +345,38 @@ public class StatementTest {
     transaction.addItem(80.00D, equityAccount, CREDIT, CHECKED);
     year.addTransaction(transaction);
 
+    nextId = nextId.add(BigInteger.ONE);
+
+    return nextId;
+  }
+
+  /**
+   * Create a set of transactions in the fiscal year that can be used to get a
+   * balance for a particular kind of statement. The transactions are against
+   * the full range of accounts so the set can form the basis of either a
+   * balance sheet or an income statement.
+   * 
+   * @param year the fiscal year in which to create transactions and accounts
+   * @param nextId the next transaction id to use
+   * @return the next transaction id to use
+   */
+  private BigInteger createFiscalYearForBalance(FiscalYear year,
+                                                BigInteger nextId) {
+    // Add the five accounts to the fiscal year.
+    year.addAccount(checkingAccount);
+    year.addAccount(liabilityAccount);
+    year.addAccount(equityAccount);
+    year.addAccount(incomeAccount);
+    year.addAccount(expenseAccount);
+
+    Transaction transaction = null;
+
+    // Get the transaction date to use for all transactions.
+    Timestamp date = year.getStart();
+
     // Create two-item transactions against all five accounts.
 
     // Income transaction
-    nextId = nextId.add(BigInteger.ONE);
     transaction =
       new Transaction(nextId, DESCRIPTION, date, NOT_CHECKED, NOT_BALANCE);
     transaction.addItem(100.00D, checkingAccount, DEBIT, CHECKED);
@@ -379,6 +410,10 @@ public class StatementTest {
     transaction.addItem(2000.00D, equityAccount, CREDIT, CHECKED);
     assertTrue("equity transaction is not valid", transaction.isValid());
     year.addTransaction(transaction);
+
+    nextId = nextId.add(BigInteger.ONE);
+
+    return nextId;
   }
 
   /**
@@ -453,7 +488,8 @@ public class StatementTest {
   @Test
   public void testStatementToData() {
     FiscalYear year = new FiscalYear(YEAR);
-    createFiscalYearForBalance(year, getNextId(null));
+    BigInteger nextId = createBalances(year, BigInteger.ONE);
+    nextId = createFiscalYearForBalance(year, nextId);
     Statement statement =
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toData();
@@ -467,14 +503,13 @@ public class StatementTest {
   @Test
   public void testStatementToDetailData() {
     FiscalYear year = new FiscalYear(YEAR);
-    createFiscalYearForBalance(year, getNextId(null));
+    BigInteger nextId = createBalances(year, BigInteger.ONE);
+    nextId = createFiscalYearForBalance(year, nextId);
     Statement statement =
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toDetailData();
     assertTrue("detail data set incorrect for statement: " + data,
                "Liability\tCredit Accounts\tCredit Card\t6\t01-Jan-17\t75.00\nLiability\tCredit Accounts\tCredit Card\t2\t01-Jan-17\t20.00\nEquity\tPersonal Capital\tShared Capital\t7\t01-Jan-17\t2000.00\nEquity\tPersonal Capital\tShared Capital\t3\t01-Jan-17\t80.00\nAsset\tCash\tChecking\t5\t01-Jan-17\t50.00\nAsset\tCash\tChecking\t7\t01-Jan-17\t-2000.00\nAsset\tCash\tChecking\t1\t01-Jan-17\t-100.00\nAsset\tCash\tChecking\t4\t01-Jan-17\t-100.00".equals(data));
-    
-    
   }
 
   /**

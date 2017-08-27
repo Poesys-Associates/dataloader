@@ -33,7 +33,7 @@ public class PropertyFileParametersTest {
    * a properties file exists on the classpath with the name
    * "dataloader.properties"; the test just verifies value existence, it does
    * not test for specific values; tests the four getters for path, start year,
-   * end year, and entity name.
+   * end year, entity name, and income summary account name.
    */
   @Test
   public void testProperties() {
@@ -43,6 +43,21 @@ public class PropertyFileParametersTest {
     assertTrue("No start year found", parameters.getStartYear() != null);
     assertTrue("No end year found", parameters.getEndYear() != null);
     assertTrue("No entity name found", parameters.getEntity() != null);
+    assertTrue("No income summary account name found", parameters.getIncomeSummaryAccountName() != null);
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.properties.PropertyFileParameters#getCapitalEntityReader()}
+   * .
+   * 
+   * @throws IOException when reader.close fails
+   */
+  @Test
+  public void testGetCapitalEntityReader() throws IOException {
+    PropertyFileParameters parameters = new PropertyFileParameters();
+    Reader reader = parameters.getCapitalEntityReader();
+    reader.close();
   }
 
   /**

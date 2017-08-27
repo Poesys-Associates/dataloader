@@ -4,6 +4,7 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +39,8 @@ public class FiscalYear {
    */
   private final Set<Transaction> transactions = new HashSet<Transaction>();
 
+  private BigInteger maxId = null;
+
   /** a map of sets of transactions for each account, indexed on account */
   private final Map<Account, Set<Transaction>> transactionMap =
     new HashMap<Account, Set<Transaction>>();
@@ -51,6 +54,8 @@ public class FiscalYear {
     "Transaction to add to fiscal year is null";
   private static final String NULL_ACCOUNT_ERROR =
     "account to add is null but is required";
+  private static final String NO_DATE_ERROR =
+    "date for comparison is null but is required";
 
   /**
    * Create a FiscalYear object.
@@ -105,6 +110,16 @@ public class FiscalYear {
   }
 
   /**
+   * Get the largest transaction id in the set of transactions. This lets you
+   * create a new transaction with the "next" id in sequence as required.
+   * 
+   * @return the maximum id in the transaction set
+   */
+  public BigInteger getMaxId() {
+    return maxId;
+  }
+
+  /**
    * Add a transaction to the fiscal year, adding it to the set of transactions
    * and indexing the transactions by item accounts to optimize rollup.
    * 
@@ -115,6 +130,11 @@ public class FiscalYear {
       throw new InvalidParametersException(NULL_TRANSACTION_ERROR);
     }
     transactions.add(transaction);
+    // Set the new max id if the current id is larger.
+    if (maxId == null || transaction.getId().compareTo(maxId) > 0) {
+      // first id or new id greater than max id, set max id to current id
+      maxId = transaction.getId();
+    }
     // Add the transaction to the indexed map of transactions by account.
     for (Item item : transaction.getItems()) {
       Set<Transaction> set = transactionMap.get(item.getAccount());
@@ -135,8 +155,31 @@ public class FiscalYear {
    * @return true if the date is within the year, false if not
    */
   public Boolean isIn(Timestamp date) {
+    if (date == null) {
+      throw new InvalidParametersException(NO_DATE_ERROR);
+    }
     Boolean in = Boolean.FALSE;
     if (date.compareTo(start) >= 0 && date.compareTo(end) <= 0) {
+      in = Boolean.TRUE;
+    }
+    return in;
+  }
+
+  /**
+   * Is a date in the fiscal year or a previous year? That means the specified
+   * date is less than the end date of the fiscal year. This test helps identify
+   * items relevant to computing the balance sheet totals.
+   * 
+   * @param date the timestamp to test against the end date
+   * @return true if the date is less than the end date of the fiscal year,
+   *         false if greater than that date
+   */
+  public Boolean isInYearOrPriorYear(Timestamp date) {
+    if (date == null) {
+      throw new InvalidParametersException(NO_DATE_ERROR);
+    }
+    Boolean in = Boolean.FALSE;
+    if (date.compareTo(end) <= 0) {
       in = Boolean.TRUE;
     }
     return in;

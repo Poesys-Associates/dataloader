@@ -85,18 +85,8 @@ public abstract class AbstractStatementMaintainingParameters implements
   }
 
   @Override
-  public Writer getIncomeStatementWriter() {
-    return incomeStatementWriter;
-  }
-
-  @Override
   public String getBalanceSheetData(int year) {
     return balanceSheets.toString();
-  }
-
-  @Override
-  public String getIncomeStatementData(int year) {
-    return incomeStatements.toString();
   }
 
   @Override
@@ -105,13 +95,23 @@ public abstract class AbstractStatementMaintainingParameters implements
   }
 
   @Override
-  public Writer getIncomeStatementDetailsWriter() {
-    return incomeStatementDetailsWriter;
+  public String getBalanceSheetDetailsData(int year) {
+    return balanceSheetDetails.toString();
   }
 
   @Override
-  public String getBalanceSheetDetailsData(int year) {
-    return balanceSheetDetails.toString();
+  public Writer getIncomeStatementWriter() {
+    return incomeStatementWriter;
+  }
+
+  @Override
+  public String getIncomeStatementData(int year) {
+    return incomeStatements.toString();
+  }
+
+  @Override
+  public Writer getIncomeStatementDetailsWriter() {
+    return incomeStatementDetailsWriter;
   }
 
   @Override

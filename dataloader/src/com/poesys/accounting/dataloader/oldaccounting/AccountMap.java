@@ -26,7 +26,7 @@ public class AccountMap extends AbstractReaderDto {
   private String name;
 
   // messages
-  
+
   /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "Account Map parameters are required but one is null";
@@ -106,7 +106,8 @@ public class AccountMap extends AbstractReaderDto {
 
   @Override
   protected void init(String[] fields) {
-    if (fields[0] == null || fields[1] == null) {
+    if (fields[0] == null || fields[0].isEmpty() || fields[1] == null
+        || fields[1].isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.accountNumber = new Float(fields[0]);

@@ -207,7 +207,9 @@ public class Item {
               Boolean checked) {
     if (transaction == null || amount == null || account == null
         || debit == null) {
-      throw new InvalidParametersException(NULL_PARAMETER_ERROR);
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR + ": "
+                                           + transaction + ", " + amount + ", "
+                                           + account + ", " + debit);
     }
     this.transaction = transaction;
     this.amount = amount;
@@ -342,10 +344,11 @@ public class Item {
     }
     // Add the reimbursement to the set of reimbursements in both this item and
     // the reimbursing item (two-way visibility).
-    Reimbursement reimbursement = new Reimbursement(this,
-                                                    reimbursingItem,
-                                                    reimbursedAmount,
-                                                    allocatedAmount);
+    Reimbursement reimbursement =
+      new Reimbursement(this,
+                        reimbursingItem,
+                        reimbursedAmount,
+                        allocatedAmount);
     reimbursements.add(reimbursement);
     reimbursingItem.getReimbursements().add(reimbursement);
   }
@@ -354,7 +357,9 @@ public class Item {
   public String toString() {
     // Get only transaction id and description to avoid infinite loop in display
     // of items within transaction
-    return "Item [transaction=" + transaction.getId() + ": "
+    return "Item [transaction="
+           + (transaction.getId() == null ? "(no trans id)"
+               : transaction.getId()) + ", description="
            + transaction.getDescription() + ", amount=" + amount + ", account="
            + account + ", debit=" + debit + ", checked=" + checked + "]";
   }

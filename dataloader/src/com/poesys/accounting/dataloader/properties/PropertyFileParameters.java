@@ -50,10 +50,13 @@ public class PropertyFileParameters extends
   private static final String START_KEY = "start";
   private static final String END_KEY = "end";
   private static final String ENTITY = "entity";
+  private static final String INCOME_SUMMARY_ACCOUNT_NAME =
+    "income_summary_account_name";
 
   private static final String PATH_DELIMITER = "/";
 
   // keys in properties file for accounting system filenames
+  private static final String CAPITAL_ENTITY_FILE = "capital_entity_file";
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -104,6 +107,11 @@ public class PropertyFileParameters extends
   @Override
   public String getEntity() {
     return properties.getProperty(ENTITY);
+  }
+
+  @Override
+  public String getIncomeSummaryAccountName() {
+    return properties.getProperty(INCOME_SUMMARY_ACCOUNT_NAME);
   }
 
   @Override
@@ -173,8 +181,8 @@ public class PropertyFileParameters extends
    * and year, producing the fully qualified name. The path property, the year,
    * and the filename are all required for the function to succeed.
    * 
-   * @param year the fiscal year number (directory name)
-   * @param filename the simple file name
+   * @param year the fiscal year number (directory name) (required)
+   * @param filename the simple file name (required)
    * @return the fully qualified file name
    */
   private String getFullyQualifiedFilename(Integer year, String filename) {
@@ -189,6 +197,31 @@ public class PropertyFileParameters extends
     builder.append(PATH_DELIMITER);
     builder.append(properties.getProperty(filename));
     return builder.toString();
+  }
+
+  /**
+   * Get the fully qualified filename for a file at the top level of the
+   * accounting entity; this appends the file name from the properties file to
+   * the path, producing the fully qualified name. The path property is required
+   * for this method to succeed.
+   * 
+   * @param filename the simple file name (required)
+   * @return the fully qualified file name
+   */
+  private String getEntityFilename(String filename) {
+    String path = getPath();
+    if (path == null || path.isEmpty()) {
+      throw new InvalidParametersException(NULL_PARAMETERS);
+    }
+
+    StringBuilder builder = new StringBuilder(getPath());
+    builder.append(properties.getProperty(filename));
+    return builder.toString();
+  }
+
+  @Override
+  public Reader getCapitalEntityReader() {
+    return getReader(getEntityFilename(CAPITAL_ENTITY_FILE));
   }
 
   @Override

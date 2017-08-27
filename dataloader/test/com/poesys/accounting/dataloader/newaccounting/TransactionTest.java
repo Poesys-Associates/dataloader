@@ -690,7 +690,7 @@ public class TransactionTest {
       receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("toString failed: " + receivableTransaction,
-               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234: description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false], Item [transaction=1234: description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false]]]"));
+               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false], Item [transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false]]]"));
   }
 
   /**
@@ -790,6 +790,6 @@ public class TransactionTest {
     }
     assertTrue("Income item not found", incomeItem != null);
     assertTrue("item string incorrect: " + incomeItem,
-               incomeItem.toString().equals("Item [transaction=1234: description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]"));
+               incomeItem.toString().equals("Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]"));
   }
 }

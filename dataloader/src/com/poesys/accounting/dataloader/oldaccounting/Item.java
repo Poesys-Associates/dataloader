@@ -40,7 +40,7 @@ public class Item extends AbstractReaderDto {
   /**
    * Create an Item object.
    * 
-   * @param year the fiscal year of the parentamount transaction
+   * @param year the fiscal year of the parent transaction
    * @param transactionId the parent transaction that owns this item
    * @param accountNumber the account number of the account to which the amount
    *          applies

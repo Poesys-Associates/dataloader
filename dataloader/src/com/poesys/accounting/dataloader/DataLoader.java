@@ -5,7 +5,6 @@ package com.poesys.accounting.dataloader;
 
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +13,10 @@ import org.apache.log4j.Logger;
 import com.poesys.accounting.dataloader.newaccounting.AccountingDbService;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.Statement;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 // TODO restore this import after system testing is complete
@@ -63,9 +64,10 @@ public class DataLoader implements IDirector {
       // TODO: Use a non-storing storage manager for now until full system test
       // is complete, then uncomment above line and remove these two lines.
       IStorageManager storageManager = new NonStoringStorageManager();
+      // TODO replace with plugin approach to instantiate specific updater class
+      IFiscalYearUpdater updater = new PoesysFiscalYearUpdater();
       IDataAccessService dbService = new AccountingDbService();
-      // Construct the accounting system.
-      loader.construct(parameters, builder, storageManager, dbService);
+      loader.construct(parameters, builder, storageManager, dbService, updater);
       status = 0;
     } catch (Throwable e) {
       // Log fatal error before exiting.
@@ -77,8 +79,8 @@ public class DataLoader implements IDirector {
   @Override
   public void construct(IParameters parameters, IBuilder builder,
                         IStorageManager storageManager,
-                        IDataAccessService dbService) {
-    buildFiscalYears(builder, parameters);
+                        IDataAccessService dbService, IFiscalYearUpdater updater) {
+    buildFiscalYears(builder, parameters, updater);
     if (storageManager.validate(years)) {
       storageManager.store(parameters.getEntity(), years, dbService);
     } else {
@@ -92,8 +94,10 @@ public class DataLoader implements IDirector {
    * 
    * @param builder the IBuilder instance to use to build the fiscal years
    * @param parameters the IParameters object containing program parameters
+   * @param updater the updater that creates closing transactions
    */
-  private void buildFiscalYears(IBuilder builder, IParameters parameters) {
+  private void buildFiscalYears(IBuilder builder, IParameters parameters,
+                                IFiscalYearUpdater updater) {
     for (int year = parameters.getStartYear(); year <= parameters.getEndYear(); year++) {
       // Build the current fiscal year, clearing data from previous year.
       builder.buildFiscalYear(year);
@@ -111,8 +115,11 @@ public class DataLoader implements IDirector {
       builder.buildTransactions();
       builder.buildReimbursements();
 
-      // Add the new year to the list of years.
+      // Update fiscal year with any closing transactions.
       FiscalYear fiscalYear = builder.getFiscalYear();
+      updater.update(fiscalYear, builder, parameters);
+
+      // Add the new year to the list of years.
       years.add(fiscalYear);
 
       // Write the statements.
@@ -131,20 +138,22 @@ public class DataLoader implements IDirector {
   private void writeStatements(IParameters parameters, FiscalYear fiscalYear) {
     Statement balanceSheet =
       new Statement(fiscalYear, "Balance Sheet", StatementType.BALANCE_SHEET);
+    logger.debug("Balance sheet balance for " + fiscalYear.getYear() + ": "
+                 + balanceSheet.getBalance());
     Statement incomeStatement =
       new Statement(fiscalYear,
                     "Income Statement",
                     StatementType.INCOME_STATEMENT);
+    logger.debug("Income statement balance for " + fiscalYear.getYear() + ": "
+                 + incomeStatement.getBalance());
+
     try {
       parameters.createWriters(fiscalYear.getYear());
-      Writer balanceSheetWriter = parameters.getBalanceSheetWriter();
-      Writer incomeStmtWriter = parameters.getIncomeStatementWriter();
-      Writer balanceSheetDetailsWriter = parameters.getBalanceSheetDetailsWriter();
-      Writer incomeStmtDetailsWriter = parameters.getIncomeStatementDetailsWriter();
-      balanceSheetWriter.write(balanceSheet.toData());
-      incomeStmtWriter.write(incomeStatement.toData());
-      balanceSheetDetailsWriter.write(balanceSheet.toDetailData());
-      incomeStmtDetailsWriter.write(incomeStatement.toDetailData());
+
+      parameters.getBalanceSheetWriter().write(balanceSheet.toData());
+      parameters.getIncomeStatementWriter().write(incomeStatement.toData());
+      parameters.getBalanceSheetDetailsWriter().write(balanceSheet.toDetailData());
+      parameters.getIncomeStatementDetailsWriter().write(incomeStatement.toDetailData());
     } catch (IOException e) {
       logger.error(IO_ERROR, e);
       throw new RuntimeException(IO_ERROR, e);

@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -138,27 +139,6 @@ public class TransactionTest {
       // success
     } catch (Throwable e) {
       fail("Wrong throwable for badly formatted date: " + e.getMessage());
-    }
-  }
-
-  /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor with null year.
-   */
-  @Test
-  public void testTransactionIntegerBufferedReaderNullChecked() {
-    String input =
-      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t";
-    BufferedReader reader = new BufferedReader(new StringReader(input));
-
-    try {
-      new Transaction(null, reader);
-      fail("No exception for null checked");
-    } catch (InvalidParametersException e) {
-      // success
-    } catch (Throwable e) {
-      fail("Wrong throwable for null checked: " + e.getMessage());
     }
   }
 

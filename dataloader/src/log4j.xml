@@ -72,14 +72,34 @@
     <priority value="INFO" />
   </category>
 
+  <category name="com.poesys.accounting.dataloader.DataLoader">
+    <!-- debugging for DataLoader -->
+    <priority value="DEBUG" />
+  </category>
+
   <category name="com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager">
     <!-- debugging for DataLoader storage manager -->
     <priority value="DEBUG" />
   </category>
 
-  <category name="com.poesys.accounting.dataloader.newaccounting.Statement">
-    <!-- debugging for DataLoader storage manager -->
+  <category name="com.poesys.accounting.dataloader.newaccounting.StorageManagerTest">
+    <!-- debugging for DataLoader storage manager JUnit tests -->
     <priority value="INFO" />
+  </category>
+
+  <category name="com.poesys.accounting.dataloader.newaccounting.Statement">
+    <!-- debugging for statements -->
+    <priority value="DEBUG" />
+  </category>
+
+  <category name="com.poesys.accounting.dataloader.newaccounting.Rollup">
+    <!-- debugging for detailed rollup debugging -->
+    <priority value="DEBUG" />
+  </category>
+
+  <category name="com.poesys.accounting.dataloader.newaccounting.CapitalStructure">
+    <!-- debugging for detailed capital transfer debugging -->
+    <priority value="DEBUG" />
   </category>
 
   <!-- ========================= Setup the Root category ========================= -->

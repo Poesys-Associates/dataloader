@@ -24,7 +24,8 @@ import com.poesys.db.InvalidParametersException;
  */
 public class FiscalYearTest {
   private static final Integer YEAR = 2017;
-  private static final Integer DIFFERENT_YEAR = 2016;
+  private static final Integer PRIOR_YEAR = 2016;
+  private static final Integer LATER_YEAR = 2018;
 
   /**
    * Test method for
@@ -65,7 +66,7 @@ public class FiscalYearTest {
   @Test
   public void testHashCodeInequality() {
     FiscalYear year1 = new FiscalYear(YEAR);
-    FiscalYear year2 = new FiscalYear(DIFFERENT_YEAR);
+    FiscalYear year2 = new FiscalYear(PRIOR_YEAR);
     assertTrue("different year but same hash code",
                year1.hashCode() != year2.hashCode());
   }
@@ -90,7 +91,7 @@ public class FiscalYearTest {
   @Test
   public void testEqualsInequality() {
     FiscalYear year1 = new FiscalYear(YEAR);
-    FiscalYear year2 = new FiscalYear(DIFFERENT_YEAR);
+    FiscalYear year2 = new FiscalYear(PRIOR_YEAR);
     assertTrue("different year but equals true", !year1.equals(year2));
   }
 
@@ -129,6 +130,42 @@ public class FiscalYearTest {
     assertTrue("date in year but isIn is false", year.isIn(date));
     date = Timestamp.valueOf("2016-05-01 00:00:00");
     assertTrue("date not in year but isIn is true", !year.isIn(date));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
+   * .
+   */
+  @Test
+  public void testIsInYearOrPriorYearSameYear() {
+    FiscalYear year = new FiscalYear(YEAR);
+    Timestamp date = Timestamp.valueOf(YEAR + "-05-01 00:00:00");
+    assertTrue("date in year but isInYearOrPriorYear is false", year.isInYearOrPriorYear(date));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
+   * .
+   */
+  @Test
+  public void testIsInYearOrPriorYearPriorYear() {
+    FiscalYear year = new FiscalYear(YEAR);
+    Timestamp date = Timestamp.valueOf(PRIOR_YEAR + "-05-01 00:00:00");
+    assertTrue("date in prior year but isInYearOrPriorYear is false", year.isInYearOrPriorYear(date));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
+   * .
+   */
+  @Test
+  public void testIsInYearOrPriorYearLaterYear() {
+    FiscalYear year = new FiscalYear(YEAR);
+    Timestamp date = Timestamp.valueOf(LATER_YEAR + "-05-01 00:00:00");
+    assertTrue("date in later year but isInYearOrPriorYear is true", !year.isInYearOrPriorYear(date));
   }
 
   /**

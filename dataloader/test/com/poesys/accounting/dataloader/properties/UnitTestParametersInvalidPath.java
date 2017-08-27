@@ -19,10 +19,12 @@ public class UnitTestParametersInvalidPath extends
     AbstractStatementMaintainingParameters {
   private int pathCalls = 0;
   private int entityCalls = 0;
+  private int incomeSummaryCalls = 0;
   private int startCalls = 0;
   private int endCalls = 0;
 
   // keys in properties file for accounting system filenames
+  private static final String CAPITAL_ENTITY_FILE = "capital_entity_file";
   private static final String ACCOUNT_GROUP_FILE = "account_group_file";
   private static final String ACCOUNT_MAP_FILE = "account_map_file";
   private static final String ACCOUNT_FILE = "account_file";
@@ -47,6 +49,11 @@ public class UnitTestParametersInvalidPath extends
   public String getEntity() {
     entityCalls++;
     return "Poesys Associates";
+  }
+
+  @Override
+  public String getIncomeSummaryAccountName() {
+    return "Income Summary";
   }
 
   @Override
@@ -80,6 +87,15 @@ public class UnitTestParametersInvalidPath extends
   }
 
   /**
+   * Get the count of getIncomeSummaryAccountName() calls.
+   * 
+   * @return a count
+   */
+  public int getIncomeSummaryCalls() {
+    return incomeSummaryCalls;
+  }
+
+  /**
    * Get the count of getStartYear() calls.
    * 
    * @return a count
@@ -95,6 +111,11 @@ public class UnitTestParametersInvalidPath extends
    */
   public int getEndCalls() {
     return endCalls;
+  }
+
+  @Override
+  public Reader getCapitalEntityReader() {
+    throw new RuntimeException(FILE_NOT_FOUND + CAPITAL_ENTITY_FILE);
   }
 
   @Override

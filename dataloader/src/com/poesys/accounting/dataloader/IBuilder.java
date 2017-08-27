@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.poesys.accounting.dataloader.newaccounting.Account;
 import com.poesys.accounting.dataloader.newaccounting.AccountGroup;
+import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder.IBuildStrategy;
 
@@ -91,6 +92,14 @@ public interface IBuilder {
   public FiscalYear getFiscalYear();
 
   /**
+   * Get the accounting system's capital structure. This is available
+   * immediately after construction of the builder.
+   * 
+   * @return the capital structure
+   */
+  public CapitalStructure getCapitalStructure();
+
+  /**
    * Get the set of account groups.
    * 
    * @return the set of account groups
@@ -103,6 +112,16 @@ public interface IBuilder {
    * @return the set of accounts
    */
   public Set<Account> getAccounts();
+
+  /**
+   * Get an account by looking it up by its name.
+   * 
+   * @param name the name to look up
+   * 
+   * @return the account corresponding to the name, or null if there is none by
+   *         that name
+   */
+  public Account getAccountByName(String name);
 
   /**
    * Internal method to read a file
