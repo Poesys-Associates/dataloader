@@ -9,9 +9,12 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+
 
 // import org.apache.logging.log4j.LogManager;
 // import org.apache.logging.log4j.Logger;
@@ -35,6 +38,7 @@ public class Transaction {
   /** Logger for this class */
   private static final Logger logger = Logger.getLogger(Transaction.class);
 
+  /** unique id within year from old accounting system */
   private final BigInteger id;
   /** text describing the nature of the transaction, including ids */
   private final String description;
@@ -87,6 +91,7 @@ public class Transaction {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + (getYear());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     return result;
   }
@@ -100,6 +105,11 @@ public class Transaction {
     if (getClass() != obj.getClass())
       return false;
     Transaction other = (Transaction)obj;
+    if (date == null) {
+      if (other.date != null)
+        return false;
+    } else if (!(getYear() == other.getYear()))
+      return false;
     if (id == null) {
       if (other.id != null)
         return false;
@@ -133,6 +143,16 @@ public class Transaction {
    */
   public Timestamp getDate() {
     return date;
+  }
+  
+  /**
+   * Get the calendar year of the date.
+   * @return a year
+   */
+  public int getYear() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    return calendar.get(Calendar.YEAR);
   }
 
   /**

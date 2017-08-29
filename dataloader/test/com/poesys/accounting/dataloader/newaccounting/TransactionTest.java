@@ -9,7 +9,7 @@ import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Set;
+import java.util.Collection;
 
 import org.junit.Test;
 
@@ -35,34 +35,34 @@ public class TransactionTest {
   private static final Double ALLOCATED_AMOUNT = 0.00D;
   private static final Boolean DEBIT = Boolean.TRUE;
   private static final Boolean CREDIT = Boolean.FALSE;
-  
+
   private static final AccountType INCOME_TYPE = AccountType.INCOME;
   private static final AccountType ASSET_TYPE = AccountType.ASSET;
   private static final AccountType EQUITY_TYPE = AccountType.EQUITY;
   private static final AccountType EXPENSE_TYPE = AccountType.EXPENSE;
-  
+
   private static final Boolean DEBIT_DEFAULT = Boolean.TRUE;
   private static final Boolean CREDIT_DEFAULT = Boolean.FALSE;
   private static final Boolean NOT_RECEIVABLE = Boolean.FALSE;
   private static final Boolean RECEIVABLE = Boolean.TRUE;
-  
+
   // account groups for testing
-  
+
   private static final String CASH_GROUP_NAME = "Cash";
   private static final AccountGroup CASH_GROUP =
     new AccountGroup(CASH_GROUP_NAME);
   private static final String INCOME_GROUP_NAME = "Income";
   private static final AccountGroup INCOME_GROUP =
-      new AccountGroup(INCOME_GROUP_NAME);
+    new AccountGroup(INCOME_GROUP_NAME);
   private static final String CAPITAL_GROUP_NAME = "Personal Capital";
   private static final AccountGroup CAPITAL_GROUP =
-      new AccountGroup(CAPITAL_GROUP_NAME);
+    new AccountGroup(CAPITAL_GROUP_NAME);
   private static final String UTILITIES_GROUP_NAME = "Utilities";
   private static final AccountGroup UTILITIES_GROUP =
-      new AccountGroup(UTILITIES_GROUP_NAME);
+    new AccountGroup(UTILITIES_GROUP_NAME);
 
   // accounts for testing
-  
+
   private static final String INCOME_ACCOUNT_NAME = "Revenue";
   private static final Account INCOME_ACCOUNT =
     new Account(INCOME_ACCOUNT_NAME,
@@ -87,26 +87,29 @@ public class TransactionTest {
                                                         RECEIVABLE,
                                                         CASH_GROUP);
   private static final String CAPITAL_ACCOUNT_NAME_1 = "Partner 1 Basis";
-  private static final Account CAPITAL_ACCOUNT_1 = new Account(CAPITAL_ACCOUNT_NAME_1,
-                                                        DESCRIPTION,
-                                                        EQUITY_TYPE,
-                                                        CREDIT_DEFAULT,
-                                                        NOT_RECEIVABLE,
-                                                        CAPITAL_GROUP);
+  private static final Account CAPITAL_ACCOUNT_1 =
+    new Account(CAPITAL_ACCOUNT_NAME_1,
+                DESCRIPTION,
+                EQUITY_TYPE,
+                CREDIT_DEFAULT,
+                NOT_RECEIVABLE,
+                CAPITAL_GROUP);
   private static final String CAPITAL_ACCOUNT_NAME_2 = "Partner 2 Basis";
-  private static final Account CAPITAL_ACCOUNT_2 = new Account(CAPITAL_ACCOUNT_NAME_2,
-                                                        DESCRIPTION,
-                                                        EQUITY_TYPE,
-                                                        CREDIT_DEFAULT,
-                                                        NOT_RECEIVABLE,
-                                                        CAPITAL_GROUP);
+  private static final Account CAPITAL_ACCOUNT_2 =
+    new Account(CAPITAL_ACCOUNT_NAME_2,
+                DESCRIPTION,
+                EQUITY_TYPE,
+                CREDIT_DEFAULT,
+                NOT_RECEIVABLE,
+                CAPITAL_GROUP);
   private static final String INTERNET_ACCOUNT_NAME = "Internet Service";
-  private static final Account INTERNET_ACCOUNT = new Account(INTERNET_ACCOUNT_NAME,
-                                                        DESCRIPTION,
-                                                        EXPENSE_TYPE,
-                                                        DEBIT_DEFAULT,
-                                                        NOT_RECEIVABLE,
-                                                        UTILITIES_GROUP);
+  private static final Account INTERNET_ACCOUNT =
+    new Account(INTERNET_ACCOUNT_NAME,
+                DESCRIPTION,
+                EXPENSE_TYPE,
+                DEBIT_DEFAULT,
+                NOT_RECEIVABLE,
+                UTILITIES_GROUP);
 
   /**
    * Test method for
@@ -178,7 +181,7 @@ public class TransactionTest {
     assertTrue("checked flag getter failed",
                NOT_CHECKED.equals(item.isChecked()));
     int found = 0;
-    Set<Item> items = CHECKING_ACCOUNT.getItems();
+    Collection<Item> items = CHECKING_ACCOUNT.getItems();
     for (Item accountItem : items) {
       if (accountItem.equals(item)) {
         found++;
@@ -622,8 +625,7 @@ public class TransactionTest {
                       DATE,
                       NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("3-item transaction constructor failed",
-               transaction != null);
+    assertTrue("3-item transaction constructor failed", transaction != null);
     // personal capital 1 item
     Item cap1 =
       transaction.addItem(7.48D, CAPITAL_ACCOUNT_1, CREDIT, NOT_CHECKED);
@@ -636,8 +638,8 @@ public class TransactionTest {
     Item internet =
       transaction.addItem(14.95D, INTERNET_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("internet item constructor failed", internet != null);
-    assertTrue("invalid transaction but same amounts: "
-               + transaction, transaction.isValid());
+    assertTrue("invalid transaction but same amounts: " + transaction,
+               transaction.isValid());
   }
 
   /**
@@ -690,7 +692,8 @@ public class TransactionTest {
       receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("toString failed: " + receivableTransaction,
-               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false], Item [transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false]]]"));
+               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false], Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]]]"));
+                                                       
   }
 
   /**
