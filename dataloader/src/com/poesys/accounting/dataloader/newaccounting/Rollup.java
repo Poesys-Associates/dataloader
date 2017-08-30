@@ -5,11 +5,9 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
@@ -85,16 +83,6 @@ public class Rollup {
     for (Item item : account.getItems()) {
       Transaction transaction = item.getTransaction();
       Statement.StatementType type = statement.getType();
-      // TODO remove debugging code
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(item.getTransaction().getDate());
-      boolean year1998 = calendar.get(Calendar.YEAR) == 1998;
-      boolean copies = item.getTransaction().getId().equals(new BigInteger("106"));
-      boolean ira = item.getTransaction().getId().equals(new BigInteger("9"));
-      boolean visa = item.getTransaction().getId().equals(new BigInteger("37"));
-      if (year1998 && (copies || ira || visa)) {
-        logger.debug("Found cash item for transaction 109 in 1998");
-      }
       // Iterate through all years up to the current year for balance sheet,
       // only current year for income statement.
       if ((type.equals(StatementType.BALANCE_SHEET) && year.isInYearOrPriorYear(transaction.getDate()))
