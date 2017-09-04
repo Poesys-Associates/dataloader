@@ -58,9 +58,13 @@ public class CapitalStructure {
   /** description for distribution transactions */
   private static final String DISTRIBUTION_DESCRIPTION =
     "Transfer distribution to capital for ";
+  /** description for capital account adjustment transaction */
+  private static final String ADJUST_DESCRIPTION =
+    "Adjust capital accounts to ownership";
+
   /** constant divisor to translate integer to monetary amount */
   private static final BigDecimal DIVISOR =
-    new BigDecimal("100.00").setScale(2);
+    new BigDecimal("100.00").setScale(CapitalEntity.SCALE);
 
   /** the ordered list of entities in the capital structure */
   private final List<CapitalEntity> entities = new ArrayList<CapitalEntity>(2);
@@ -141,6 +145,53 @@ public class CapitalStructure {
       }
     }
     return valid;
+  }
+
+  /**
+   * Get a transaction that transfers money between capital accounts to bring
+   * all the accounts to their desired balances based on the capital ownership
+   * structure and tolerance of the accounting system. If there is only one
+   * capital entity, the method returns null as there is never an adjusting
+   * transaction for a single-entity system. If there is no change required
+   * based on the current balances and ownership percentages, the method returns
+   * null.
+   * 
+   * @param builder the builder containing the accounts, capital structure, and
+   *          transactions of the accounting system
+   * @return an adjusting transaction or null if no change is required
+   */
+  public Transaction getCapitalAdjustmentTransaction(IBuilder builder) {
+    FiscalYear year = builder.getFiscalYear();
+    Transaction transaction = null;
+    Statement balanceSheet =
+      new Statement(year, "Balance Sheet", StatementType.BALANCE_SHEET);
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO.setScale(CapitalEntity.SCALE));
+
+    // Add the capital account balances to the distributor.
+    for (CapitalEntity entity : entities) {
+      Account account = builder.getAccountByName(entity.getCapitalAccount());
+      distributor.addBalance(account, balanceSheet.getAccountBalance(account));
+    }
+
+    // Equalize the capital accounts.
+    boolean adjusted = distributor.equalize();
+
+    if (adjusted) {
+      BigInteger id = year.getMaxId().add(BigInteger.ONE);
+      transaction =
+        new Transaction(id, ADJUST_DESCRIPTION, year.getEnd(), false, false);
+      for (CapitalEntity entity : entities) {
+        Account account = builder.getAccountByName(entity.getCapitalAccount());
+        BigDecimal item = distributor.getItemAmount(account);
+        if (!item.equals(BigDecimal.ZERO.setScale(CapitalEntity.SCALE))) {
+          boolean debit =
+            item.compareTo(BigDecimal.ZERO.setScale(CapitalEntity.SCALE)) < 0;
+          transaction.addItem(item.abs().doubleValue(), account, debit, false);
+        }
+      }
+    }
+    return transaction;
   }
 
   /**
@@ -234,7 +285,7 @@ public class CapitalStructure {
     // Get the distributor amount, which will be positive for a net gain or
     // negative for a net loss in the income statement.
     BigDecimal netIncome =
-      new BigDecimal(distributor.getAmount()).divide(DIVISOR).setScale(2);
+      new BigDecimal(distributor.getAmount()).divide(DIVISOR).setScale(CapitalEntity.SCALE);
 
     // Translate the net income to unsigned amount and appropriate debit/credit
     // flag. The latter depends on the sign of the net income. For a net gain,
@@ -279,6 +330,7 @@ public class CapitalStructure {
   }
 
   /**
+   * <p>
    * Get a set of transactions that help to close a fiscal year by transferring
    * distributions or draws from the distribution accounts to the corresponding
    * capital accounts. There is always a capital account, but for some
@@ -293,13 +345,25 @@ public class CapitalStructure {
    * usually credits, unless there is a reversal of a distribution. Also, the
    * usual case for no distribution account is a single-entity capital
    * structure, and hence the returned list will usually be empty.
+   * </p>
+   * <p>
+   * Note that the method assumes a straight transfer of amounts from the
+   * distribution accounts to the corresponding capital accounts for each
+   * capital entity. If there is a requirement that the capital accounts divide
+   * up by the ownership percentage, such a transfer may throw the capital
+   * accounts out of whack. In this case, the caller is responsible for
+   * re-balancing the capital accounts with an appropriate transaction between
+   * those accounts. This method will log a warning message to highlight a
+   * possible problem in the data.
+   * </p>
+   * 
    * 
    * @param year the fiscal year for which to create distribution transactions
    * @param builder the builder containing the set of accounts
    * @return a list of transactions, one per capital entity
    */
-  public List<Transaction> getDistributionFromCapitalTransactions(FiscalYear year,
-                                                                  IBuilder builder) {
+  public List<Transaction> getDistributionTransactions(FiscalYear year,
+                                                       IBuilder builder) {
     List<Transaction> transactions =
       new ArrayList<Transaction>(entities.size());
 
@@ -330,7 +394,8 @@ public class CapitalStructure {
         // Set debit flag by sign of balance. A debit balance is a positive
         // distribution (contra account).
         Boolean debit =
-          balance.compareTo(BigDecimal.ZERO.setScale(2)) < 0 ? true : false;
+          balance.compareTo(BigDecimal.ZERO.setScale(CapitalEntity.SCALE)) < 0 ? true
+              : false;
         // Zero out distribution account for this entity.
         transaction.addItem(amount, distAccount, !debit, false);
         // Transfer distribution to capital account for this entity.

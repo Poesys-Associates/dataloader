@@ -38,34 +38,36 @@ import com.poesys.db.InvalidParametersException;
  */
 public class AccountCollectionDistributor {
   /** the amount to distribute */
-  private final Integer amount;
+  protected Integer amount;
   /** map of integer balances indexed by Account */
-  private final Map<Account, Integer> balances =
+  protected final Map<Account, Integer> balances =
     new HashMap<Account, Integer>();
   /** map of decimal item credits/debit amounts indexed by Account */
   private final Map<Account, Integer> itemAmounts =
     new HashMap<Account, Integer>();
   /** ordered list of balance accounts */
-  private Account firstAccount = null;
-  
+  protected Account firstAccount = null;
+
   // constants
+  /** the scale for BigDecimal values */
+  protected static final int SCALE = 2;
   /** the multiplier that converts a BigDecimal monetary amount to integer */
-  private static final BigDecimal MULTIPLIER =
-    new BigDecimal("100.00").setScale(2);
+  protected static final BigDecimal MULTIPLIER =
+    new BigDecimal("100.00").setScale(SCALE);
   /** the amount by which accounts may differ */
-  private static final Integer PENNY = 1;
+  protected static final Integer PENNY = 1;
 
   // messages
-  private static final String INVALID_COLLECTION_ERROR =
+  protected static final String INVALID_COLLECTION_ERROR =
     "invalid balances, check whether balances were added and that amounts are equal or at most one penny different";
-  private static final String NULL_ACCOUNT_ERROR =
+  protected static final String NULL_ACCOUNT_ERROR =
     "account is required but is null";
-  private static final String NULL_BALANCE_ERROR =
+  protected static final String NULL_BALANCE_ERROR =
     "balance is required but is null";
-  private static final String ACCOUNT_NOT_ADDED_ERROR = "account not added: ";
-  private static final String NO_BALANCE_ERROR = "no balance for account ";
-  private static final String NO_AMOUNT_ERROR = "no item amount for account ";
-  private static final String NO_BALANCES_ERROR = "no balances";
+  protected static final String ACCOUNT_NOT_ADDED_ERROR = "account not added: ";
+  protected static final String NO_BALANCE_ERROR = "no balance for account ";
+  protected static final String NO_AMOUNT_ERROR = "no item amount for account ";
+  protected static final String NO_BALANCES_ERROR = "no balances";
 
   /**
    * Create a AccountCollectionDistributor object.
@@ -87,12 +89,12 @@ public class AccountCollectionDistributor {
 
   /**
    * Add an account and its current balance to the balance map, converting the
-   * BigDecimal monetary amount (scale 2) into an integer amount for computation
-   * with integer arithmetic. Add the account to the ordered list of accounts,
-   * which imposes an order on the set of accounts.
+   * BigDecimal monetary amount (scale SCALE) into an integer amount for
+   * computation with integer arithmetic. Add the account to the ordered list of
+   * accounts, which imposes an order on the set of accounts.
    * 
    * @param account the account that has the balance
-   * @param balance the decimal monetary amount (scale 2)
+   * @param balance the decimal monetary amount (scale SCALE)
    */
   public void addBalance(Account account, BigDecimal balance) {
     if (account == null) {
@@ -111,10 +113,10 @@ public class AccountCollectionDistributor {
 
   /**
    * Get the current balance for an account as a BigDecimal monetary amount
-   * (scale 2).
+   * (scale SCALE).
    * 
    * @param account the account for which to get the balance
-   * @return the balance as a monetary amount (scale 2)
+   * @return the balance as a monetary amount (scale SCALE)
    */
   public BigDecimal getBalance(Account account) {
     if (account == null) {
@@ -124,16 +126,16 @@ public class AccountCollectionDistributor {
     if (balance == null) {
       throw new InvalidParametersException(ACCOUNT_NOT_ADDED_ERROR + account);
     }
-    BigDecimal decimalBalance = new BigDecimal(balance).setScale(2);
-    return decimalBalance.divide(MULTIPLIER).setScale(2);
+    BigDecimal decimalBalance = new BigDecimal(balance).setScale(SCALE);
+    return decimalBalance.divide(MULTIPLIER).setScale(SCALE);
   }
 
   /**
    * Get the current item amount for an account as a BigDecimal monetary amount
-   * (scale 2).
+   * (scale SCALE).
    * 
    * @param account the account for which to get the amount
-   * @return the balance as a monetary amount (scale 2)
+   * @return the balance as a monetary amount (scale SCALE)
    */
   public BigDecimal getItemAmount(Account account) {
     if (account == null) {
@@ -143,8 +145,8 @@ public class AccountCollectionDistributor {
     if (amount == null) {
       throw new InvalidParametersException(ACCOUNT_NOT_ADDED_ERROR + account);
     }
-    BigDecimal decimalAmount = new BigDecimal(amount).setScale(2);
-    return decimalAmount.divide(MULTIPLIER).setScale(2);
+    BigDecimal decimalAmount = new BigDecimal(amount).setScale(SCALE);
+    return decimalAmount.divide(MULTIPLIER).setScale(SCALE);
   }
 
   /**
@@ -179,6 +181,42 @@ public class AccountCollectionDistributor {
   }
 
   /**
+   * Equalize the balances by shifting pennies between the accounts until the
+   * account balances are equal or differ by at most a penny. The direction of
+   * penny-shifting depends on the sign of the balances, negative or positive.
+   * @return true if balances were equalized, false if they were unchanged
+   */
+  public boolean equalize() {
+    boolean equalized = false;
+    if (!equal()) {
+      // At least a penny difference somewhere, possibly more
+      // Get the min and max accounts and shift a penny, then recurse.
+      Account min = getMinimumBalanceAccount();
+      Account max = getMaximumBalanceAccount();
+      Integer minBalance = balances.get(min);
+      Integer maxBalance = balances.get(max);
+      Integer minItemAmount = itemAmounts.get(min);
+      Integer maxItemAmount = itemAmounts.get(max);
+
+      if (Math.abs(maxBalance - minBalance) > 1) {
+        equalized = true;
+        // more than a penny different
+        minBalance++;
+        balances.put(min, minBalance);
+        minItemAmount++;
+        itemAmounts.put(min, minItemAmount);
+        maxBalance--;
+        balances.put(max, maxBalance);
+        maxItemAmount--;
+        itemAmounts.put(max, maxItemAmount);
+        // Set flag if not already true and result is true
+        equalized = equalize() && !equalized ? equalized = true : equalized;
+      }
+    }
+    return equalized;
+  }
+
+  /**
    * Distribute the amount across the current set of account balances, changing
    * the balances to the distributed amounts plus the original amounts. This
    * distributes an equal amount, leaving a remainder of zero or more pennies.
@@ -191,8 +229,8 @@ public class AccountCollectionDistributor {
     if (!isValid()) {
       throw new RuntimeException(INVALID_COLLECTION_ERROR);
     }
-    // Get the initial distribution amount and the remainder. Note that the
-    // remainder will be negative if the amount is negative.
+    // Get the initial distribution amount by equally dividing by the count of
+    // the balances.
     Integer distAmount = amount / balances.size();
 
     for (Account account : balances.keySet()) {
@@ -299,7 +337,8 @@ public class AccountCollectionDistributor {
    * Compute a revised balance for an account from a remainder and set that
    * balance into the balances map, then return the decremented remainder. If
    * there is no balance for the specified account, the method throws a
-   * RuntimeException.
+   * RuntimeException. The method adds a penny to the balance and decrements a
+   * penny from the remainder.
    * 
    * @param remainder the current remainder
    * @param account the account to set

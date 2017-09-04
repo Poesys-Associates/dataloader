@@ -22,6 +22,7 @@ import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneE
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneEntityTwoYearsNoDistribution;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneEntityTwoYearsWithDistribution;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalPoesys1997Bug;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalPoesys1998Bug;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalTwoEntitiesOneYear;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalTwoEntitiesTwoYears;
 
@@ -154,7 +155,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for a single capital entity in a single fiscal
    * year with no distribution account and no distribution transactions.
    */
@@ -177,7 +178,7 @@ public class CapitalStructureTest {
     assertTrue("no capital accounts transaction created", transaction != null);
     year.addTransaction(transaction);
     List<Transaction> transactions =
-      capStruct.getDistributionFromCapitalTransactions(year, builder);
+      capStruct.getDistributionTransactions(year, builder);
     assertTrue("no distribution transaction list created", transactions != null);
     assertTrue("distribution transaction list is not empty for structure with no distribution account",
                transactions.isEmpty());
@@ -191,7 +192,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for a single capital entity in a single fiscal
    * year.
    */
@@ -220,7 +221,7 @@ public class CapitalStructureTest {
 
     // Transfer distribution account to capital account
     List<Transaction> transactions =
-      capStruct.getDistributionFromCapitalTransactions(year, builder);
+      capStruct.getDistributionTransactions(year, builder);
     assertTrue("no distribution transaction list created", transactions != null);
     assertTrue("distribution transaction list is empty for structure with distribution account and transactions",
                !transactions.isEmpty());
@@ -277,7 +278,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for two capital entities in a single fiscal
    * year.
    */
@@ -300,7 +301,7 @@ public class CapitalStructureTest {
     assertTrue("no capital accounts transaction created", transaction != null);
     year.addTransaction(transaction);
     List<Transaction> transactions =
-      capStruct.getDistributionFromCapitalTransactions(year, builder);
+      capStruct.getDistributionTransactions(year, builder);
     assertTrue("no distribution transaction list created", transactions != null);
     assertTrue("distribution transaction list is empty for structure with no distribution account",
                !transactions.isEmpty());
@@ -359,7 +360,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for a single capital entity across two fiscal
    * years with no distribution account or distribution transactions.
    */
@@ -383,7 +384,7 @@ public class CapitalStructureTest {
       assertTrue("no capital accounts transaction created", transaction != null);
       fiscalYear.addTransaction(transaction);
       List<Transaction> transactions =
-        capStruct.getDistributionFromCapitalTransactions(fiscalYear, builder);
+        capStruct.getDistributionTransactions(fiscalYear, builder);
       assertTrue("no distribution transaction list created",
                  transactions != null);
       assertTrue("distribution transaction list is not empty for structure with distribution account for year "
@@ -398,7 +399,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for a single capital entity across two fiscal
    * years with a distribution account and 2 distribution transactions.
    */
@@ -428,7 +429,7 @@ public class CapitalStructureTest {
 
       // Transfer distribution account to capital account
       List<Transaction> transactions =
-        capStruct.getDistributionFromCapitalTransactions(fiscalYear, builder);
+        capStruct.getDistributionTransactions(fiscalYear, builder);
       assertTrue("no distribution transaction list created",
                  transactions != null);
       assertTrue("distribution transaction list is empty for structure with distribution account and transactions",
@@ -457,7 +458,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests a bug with computing the two income summary transaction items being
    * added to the wrong accounts, resulting in more than a penny's difference
    * between the two capital accounts. This bug was a result of computing the
@@ -532,6 +533,82 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * . Tests a bug with computing the two income summary transaction items being
+   * added to the wrong accounts, resulting in more than a penny's difference
+   * between the two capital accounts. This bug was a result of computing the
+   * net income using the wrong sign, so the signs got reversed and the
+   * remainder was added to the "larger" capital balance rather than the smaller
+   * one.
+   */
+  @Test
+  public void testGetCapitalAdjustTwoEntitiesUnequalAmounts() {
+    IParameters parameters = new UnitTestParametersCapitalPoesys1998Bug();
+    IBuilder builder = new OldDataBuilder(parameters);
+    builder.buildFiscalYear(parameters.getStartYear());
+    builder.buildAccountGroups();
+    builder.buildAccountMap();
+    builder.buildAccounts();
+    builder.buildBalances();
+    builder.buildTransactions();
+
+    FiscalYear year = builder.getFiscalYear();
+    CapitalStructure capStruct = builder.getCapitalStructure();
+
+    logger.info("Starting income summary transfer");
+    Transaction transaction =
+      capStruct.getIncomeToCapitalTransaction(year, builder);
+    assertTrue("no capital accounts transaction created", transaction != null);
+    year.addTransaction(transaction);
+    logger.info("Done with income summary transfer");
+
+    logger.info("Starting distribution transfer");
+    List<Transaction> transactions =
+      capStruct.getDistributionTransactions(year, builder);
+    assertTrue("no distribution transaction list created", transactions != null);
+    assertTrue("distribution transaction list is empty for structure with no distribution account",
+               !transactions.isEmpty());
+    for (Transaction distTransaction : transactions) {
+      year.addTransaction(distTransaction);
+    }
+    logger.info("Done with distribution transfer");
+    Transaction adjustingTransaction = capStruct.getCapitalAdjustmentTransaction(builder);
+    assertTrue("did not get adjusting transaction", adjustingTransaction != null);
+    year.addTransaction(adjustingTransaction);
+
+    Statement stmt =
+      new Statement(year,
+                    "Poesys Associates 1997 Balance Sheet",
+                    StatementType.BALANCE_SHEET);
+    logger.info("\nBalance Sheet Poesys 1998 Bug\n" + stmt.toData()
+                + "\n--------------------------------\n");
+    logger.info("\nBalance Sheet Detail Poesys 1998 Bug\n"
+                + stmt.toDetailData() + "\n--------------------------------\n");
+    assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
+               stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
+    Account distAccount1 = builder.getAccountByName(DIST_ACCOUNT_1_NAME);
+    assertTrue("distribution account 1 balance is not zero: "
+                   + stmt.getAccountBalance(distAccount1),
+               stmt.getAccountBalance(distAccount1).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
+    Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
+    assertTrue("distribution account 2 balance is not zero: "
+                   + stmt.getAccountBalance(distAccount2),
+               stmt.getAccountBalance(distAccount2).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
+
+    Account capAccount1 = builder.getAccountByName(CAP_ACCOUNT_1_NAME);
+    BigDecimal cap1Balance = stmt.getAccountBalance(capAccount1);
+    Account capAccount2 = builder.getAccountByName(CAP_ACCOUNT_2_NAME);
+    BigDecimal cap2Balance = stmt.getAccountBalance(capAccount2);
+    // Test the bug in the Poesys 1998 balance sheet, 2-cent difference
+    logger.info("capital balances: " + cap1Balance + " : " + cap2Balance);
+    logger.info("difference: " + cap1Balance.subtract(cap2Balance).abs());
+    assertTrue("capital accounts differ by more than a penny: " + cap1Balance
+                   + " : " + cap2Balance,
+               cap1Balance.subtract(cap2Balance).abs().compareTo(new BigDecimal(".01").setScale(2)) <= 0);
+  }
+
+  /**
+   * Test method for
    * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getIncomeToCapitalTransaction(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transaction for two capital entities across two fiscal
    * years.
@@ -565,7 +642,7 @@ public class CapitalStructureTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionFromCapitalTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getDistributionTransactions(com.poesys.accounting.dataloader.newaccounting.FiscalYear, com.poesys.accounting.dataloader.IBuilder)}
    * . Tests getting transactions for two capital entities across two fiscal
    * years.
    */
@@ -594,7 +671,7 @@ public class CapitalStructureTest {
 
       // Transfer distribution account to capital account
       List<Transaction> transactions =
-        capStruct.getDistributionFromCapitalTransactions(fiscalYear, builder);
+        capStruct.getDistributionTransactions(fiscalYear, builder);
       assertTrue("no distribution transaction list created",
                  transactions != null);
       assertTrue("distribution transaction list is empty for structure with distribution account and transactions",
@@ -640,5 +717,93 @@ public class CapitalStructureTest {
     assertTrue("could not create capital structure", capStruct != null);
     assertTrue("string representation is wrong: " + capStruct,
                capStruct.toString().equals("CapitalStructure [incomeSummaryAccountName=Income Summary, entities=[CapitalEntity [capitalAccount=Personal Capital Partner 1, distributionAccount=Distributions to Partner 1, ownership=0.500], CapitalEntity [capitalAccount=Personal Capital Partner 2, distributionAccount=Distributions to Partner 2, ownership=0.500]]]"));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getCapitalAdjustmentTransaction(com.poesys.accounting.dataloader.IBuilder)}
+   * . Tests capital adjustment for single-entity, single-year accounts
+   */
+  @Test
+  public void testGetCapitalAdjustSingleEntitySingleYear() {
+    IParameters parameters =
+      new UnitTestParametersCapitalOneEntityOneYearNoDistribution();
+    IBuilder builder = new OldDataBuilder(parameters);
+    builder.buildFiscalYear(YEAR1);
+    builder.buildAccountGroups();
+    builder.buildAccountMap();
+    builder.buildAccounts();
+    builder.buildBalances();
+    builder.buildTransactions();
+
+    FiscalYear year = builder.getFiscalYear();
+    CapitalStructure capStruct = builder.getCapitalStructure();
+    Transaction transaction =
+      capStruct.getIncomeToCapitalTransaction(year, builder);
+    assertTrue("no capital accounts transaction created", transaction != null);
+    year.addTransaction(transaction);
+    List<Transaction> transactions =
+      capStruct.getDistributionTransactions(year, builder);
+    assertTrue("no distribution transaction list created", transactions != null);
+    assertTrue("distribution transaction list is not empty for structure with no distribution account",
+               transactions.isEmpty());
+    Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
+    assertTrue("adjusting transaction created but should not have been", adjust == null);
+    Statement stmt =
+      new Statement(year,
+                    "1 Entity 1 Year Balance Sheet",
+                    StatementType.BALANCE_SHEET);
+    assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
+               stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getCapitalAdjustmentTransaction(com.poesys.accounting.dataloader.IBuilder)}
+   * . Tests getting transactions for two capital entities in a single fiscal
+   * year.
+   */
+  @Test
+  public void testGetCapitalAdjustTwoEntitiesSingleYear() {
+    IParameters parameters = new UnitTestParametersCapitalTwoEntitiesOneYear();
+    IBuilder builder = new OldDataBuilder(parameters);
+    builder.buildFiscalYear(YEAR1);
+    builder.buildAccountGroups();
+    builder.buildAccountMap();
+    builder.buildAccounts();
+    builder.buildBalances();
+    builder.buildTransactions();
+
+    FiscalYear year = builder.getFiscalYear();
+    CapitalStructure capStruct = builder.getCapitalStructure();
+
+    Transaction transaction =
+      capStruct.getIncomeToCapitalTransaction(year, builder);
+    assertTrue("no capital accounts transaction created", transaction != null);
+    year.addTransaction(transaction);
+    List<Transaction> transactions =
+      capStruct.getDistributionTransactions(year, builder);
+    assertTrue("no distribution transaction list created", transactions != null);
+    assertTrue("distribution transaction list is empty for structure with no distribution account",
+               !transactions.isEmpty());
+    for (Transaction distTransaction : transactions) {
+      year.addTransaction(distTransaction);
+    }
+    Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
+    assertTrue("adjusting transaction created but should not have been", adjust == null);
+    Statement stmt =
+      new Statement(year,
+                    "2 Entities 1 Year Balance Sheet",
+                    StatementType.BALANCE_SHEET);
+    assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
+               stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
+    Account distAccount1 = builder.getAccountByName(DIST_ACCOUNT_1_NAME);
+    assertTrue("distribution account 1 balance is not zero: "
+                   + stmt.getAccountBalance(distAccount1),
+               stmt.getAccountBalance(distAccount1).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
+    Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
+    assertTrue("distribution account 2 balance is not zero: "
+                   + stmt.getAccountBalance(distAccount2),
+               stmt.getAccountBalance(distAccount2).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
   }
 }

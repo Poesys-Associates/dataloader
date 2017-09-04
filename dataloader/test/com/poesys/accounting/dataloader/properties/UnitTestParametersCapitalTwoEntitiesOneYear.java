@@ -56,7 +56,7 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
   private static final Float CREDIT_START = 200.00F;
   private static final Float CREDIT_END = 209.99F;
   private static final Float CAPITAL_START = 300.00F;
-  private static final Float CAPITAL_END = 309.99F;
+  private static final Float CAPITAL_END = 319.99F;
   private static final Float INCOME_START = 400.00F;
   private static final Float INCOME_END = 409.99F;
   private static final Float TAXES_START = 500.00F;
@@ -82,10 +82,10 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
   private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_1_NAME =
     "Distributions to Partner 1";
-  private static final Float DIST_ACCOUNT_1 = 300.0F;
+  private static final Float DIST_ACCOUNT_1 = 310.0F;
   private static final String DIST_ACCOUNT_2_NAME =
     "Distributions to Partner 2";
-  private static final Float DIST_ACCOUNT_2 = 301.0F;
+  private static final Float DIST_ACCOUNT_2 = 311.0F;
 
   private static final Float REVENUE_ACCOUNT = 400.0F;
   private static final String REVENUE_ACCOUNT_NAME = "Revenue";

@@ -18,11 +18,12 @@ import java.io.Writer;
  * call the parameters, to make sure the method does make the required calls.
  * This particular version creates a complete set of transactions that set up a
  * test of year closing through the capital accounts for a single capital entity
- * over a single fiscal year.
+ * over a single fiscal year with the capital accounts being unbalanced
+ * (different more than a set tolerance of one penny).
  * 
  * @author Robert J. Muller
  */
-public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
+public class UnitTestParametersCapitalTwoEntitiesOneYearUnbalanced extends
     AbstractStatementMaintainingParameters {
 
   // test counters
@@ -38,8 +39,9 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
 
   private static final String DOUBLE_ENTITY_NAME = "Doe Partnership LLP";
 
-  private static final Integer YEAR_1 = 2016;
-  private static final Integer YEAR_2 = 2017;
+  private static final Integer YEAR = 2017;
+
+  private static final Double OWNERSHIP = 0.5D;
 
   private static final String CASH_GROUP = "Cash";
   private static final String AR_GROUP = "Accounts Receivable";
@@ -86,8 +88,6 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
     "Distributions to Partner 2";
   private static final Float DIST_ACCOUNT_2 = 311.0F;
 
-  private static final Double OWNERSHIP = 0.5D;
-
   private static final Float REVENUE_ACCOUNT = 400.0F;
   private static final String REVENUE_ACCOUNT_NAME = "Revenue";
 
@@ -100,17 +100,12 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   private static final Double REC_AMOUNT = 100.00D;
   private static final double INCOME_AMOUNT = 5000.00D;
   private static final double EXPENSE_AMOUNT = 237.45D;
-  private static final double DIST_AMOUNT_1 = 10.00D;
-  private static final double DIST_AMOUNT_2 = 15.50D;
 
-  private static final double CHECKING_BALANCE_AMOUNT = 1000.01D;
+  private static final double CHECKING_BALANCE_AMOUNT = 1000.04D;
   private static final double CASH_BALANCE_AMOUNT = 20.00D;
   private static final double CREDIT_BALANCE_AMOUNT = 143.00D;
-  
-  // penny difference between two capital account balances
-  private static final double CAP_1_BALANCE_AMOUNT = 438.51D;
-  private static final double CAP_2_BALANCE_AMOUNT = 438.50D;
-  
+  private static final double CAP_1_BALANCE_AMOUNT = 438.50D;
+  private static final double CAP_2_BALANCE_AMOUNT = 438.54D;
   private static final double DIST_1_BALANCE_AMOUNT = 0.00D;
   private static final double DIST_2_BALANCE_AMOUNT = 0.00D;
 
@@ -120,10 +115,6 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   private static final Integer REIMBURSEMENT_TRANS_ID = 400;
   private static final Integer INCOME_TRANS_ID = 300;
   private static final Integer EXPENSE_TRANS_ID = 500;
-  private static final Integer DIST_TRANS_ID_1 = 600;
-  private static final Integer DIST_TRANS_ID_2 = 610;
-  private static final Integer DIST_TRANS_ID_3 = 620;
-  private static final Integer DIST_TRANS_ID_4 = 630;
 
   private static final String CREDIT = "CR";
   private static final String DEBIT = "DR";
@@ -143,20 +134,15 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
    */
   private static final String EXPENSE_DESC =
     "\"credit card payment of taxes              \"";
-  /** description for distribution transaction in quotes with trailing blanks */
-  private static final String DIST_DESC = "\"owner draw              \"";
 
   /** balance date as Oracle-formatted string representation */
-  private static final String BALANCE_DATE_1 = "01-JAN-16";
+  private static final String BALANCE_DATE = "01-JAN-17";
   /** transaction date as Oracle-formatted string representation */
-  private static final String TRANS_DATE_1 = "01-APR-16";
+  private static final String TRANS_DATE = "01-APR-17";
   /** receivable date as Oracle-formatted string representation */
-  private static final String RECEIVABLE_DATE_1 = "26-JUN-16";
+  private static final String RECEIVABLE_DATE = "26-JUN-17";
   /** reimbursement date as Oracle-formatted string representation */
-  private static final String REIMBURSEMENT_DATE_1 = "20-JUL-16";
-
-  /** transaction date as Oracle-formatted string representation */
-  private static final String TRANS_DATE_2 = "01-APR-17";
+  private static final String REIMBURSEMENT_DATE = "20-JUL-17";
 
   // writers
   private Writer balanceSheetWriter = null;
@@ -182,13 +168,13 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   @Override
   public Integer getStartYear() {
     startCalls++;
-    return YEAR_1;
+    return YEAR;
   }
 
   @Override
   public Integer getEndYear() {
     endCalls++;
-    return YEAR_2;
+    return YEAR;
   }
 
   /**
@@ -269,27 +255,28 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
 
   @Override
   public Reader getAccountReader(Integer year) {
-    // @formatter:off
     String input =
-            CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET 
-          + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET 
-          + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET 
-          + CREDIT_ACCOUNT + DELIM + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET 
-          + CAP_ACCOUNT_1 + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT + LINE_RET
-          + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM + CREDIT + LINE_RET 
-          + DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME + DELIM + DEBIT + LINE_RET
-          + DIST_ACCOUNT_2 + DELIM + DIST_ACCOUNT_2_NAME + DELIM + DEBIT + LINE_RET 
-          + REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET 
-          + INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET
-          + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME + DELIM + DEBIT;
-    // @formatter:on
+      CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT
+          + LINE_RET + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME
+          + DELIM + DEBIT + LINE_RET + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME
+          + DELIM + CREDIT + LINE_RET + CREDIT_ACCOUNT + DELIM
+          + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET + CAP_ACCOUNT_1
+          + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT + LINE_RET
+          + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM + CREDIT
+          + LINE_RET + DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME + DELIM
+          + DEBIT + LINE_RET + DIST_ACCOUNT_2 + DELIM + DIST_ACCOUNT_2_NAME
+          + DELIM + DEBIT + LINE_RET + REVENUE_ACCOUNT + DELIM
+          + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET
+          + INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME
+          + DELIM + DEBIT + LINE_RET + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME
+          + DELIM + DEBIT;
     return new StringReader(input);
   }
 
   @Override
   public Reader getReimbursementReader(Integer year) {
     String input =
-      REIMBURSEMENT_TRANS_ID + DELIM + YEAR_1 + DELIM + RECEIVABLE_TRANS_ID
+      REIMBURSEMENT_TRANS_ID + DELIM + YEAR + DELIM + RECEIVABLE_TRANS_ID
           + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM
           + ALLOCATED_AMOUNT;
     return new StringReader(input);
@@ -299,13 +286,13 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   public Reader getBalanceReader(Integer year) {
     // @formatter:off
     String input =
-            CHECKING_ACCOUNT + DELIM + BALANCE_DATE_1 + DELIM + DEBIT + DELIM + CHECKING_BALANCE_AMOUNT + LINE_RET 
-          + CASH_ACCOUNT + DELIM + BALANCE_DATE_1 + DELIM + DEBIT + DELIM + CASH_BALANCE_AMOUNT + LINE_RET 
-          + CREDIT_ACCOUNT + DELIM + BALANCE_DATE_1 + DELIM + CREDIT + DELIM + CREDIT_BALANCE_AMOUNT + LINE_RET
-          + CAP_ACCOUNT_1 + DELIM + BALANCE_DATE_1 + DELIM + CREDIT + DELIM + CAP_1_BALANCE_AMOUNT + LINE_RET 
-          + CAP_ACCOUNT_2 + DELIM + BALANCE_DATE_1 + DELIM + CREDIT + DELIM + CAP_2_BALANCE_AMOUNT + LINE_RET 
-          + DIST_ACCOUNT_1 + DELIM + BALANCE_DATE_1 + DELIM + CREDIT + DELIM + DIST_1_BALANCE_AMOUNT + LINE_RET 
-          + DIST_ACCOUNT_2 + DELIM + BALANCE_DATE_1 + DELIM + CREDIT + DELIM + DIST_2_BALANCE_AMOUNT;
+            CHECKING_ACCOUNT + DELIM + BALANCE_DATE + DELIM + DEBIT + DELIM + CHECKING_BALANCE_AMOUNT + LINE_RET 
+          + CASH_ACCOUNT + DELIM + BALANCE_DATE + DELIM + DEBIT + DELIM + CASH_BALANCE_AMOUNT + LINE_RET 
+          + CREDIT_ACCOUNT + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CREDIT_BALANCE_AMOUNT + LINE_RET
+          + CAP_ACCOUNT_1 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CAP_1_BALANCE_AMOUNT + LINE_RET 
+          + CAP_ACCOUNT_2 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CAP_2_BALANCE_AMOUNT + LINE_RET
+          + DIST_ACCOUNT_1 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + DIST_1_BALANCE_AMOUNT + LINE_RET 
+          + DIST_ACCOUNT_2 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + DIST_2_BALANCE_AMOUNT;
     // @formatter:on
     return new StringReader(input);
   }
@@ -313,31 +300,13 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   @Override
   public Reader getTransactionReader(Integer year) {
     // Transactions include receivable, reimbursement, income, expense
-    String input = null;
-    if (year.equals(YEAR_1)) {
-      // @formatter:off
-      input = RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_DESC + DELIM + RECEIVABLE_DATE_1 + DELIM + FALSE + LINE_RET 
-            + REIMBURSEMENT_TRANS_ID + DELIM + REIMBURSEMENT_DESC + DELIM + REIMBURSEMENT_DATE_1 + DELIM + FALSE + LINE_RET 
-            + INCOME_TRANS_ID + DELIM + INCOME_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE + LINE_RET 
-            + EXPENSE_TRANS_ID + DELIM + EXPENSE_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + DIST_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + DIST_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + DIST_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + DIST_DESC + DELIM + TRANS_DATE_1 + DELIM + FALSE;
-      // @formatter:on
-    } else if (year.equals(YEAR_2)) {
-      // @formatter:off
-      input = INCOME_TRANS_ID + DELIM + INCOME_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE + LINE_RET  
-            + EXPENSE_TRANS_ID + DELIM + EXPENSE_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + DIST_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + DIST_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + DIST_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + DIST_DESC + DELIM + TRANS_DATE_2 + DELIM + FALSE;
-      // @formatter:on
-    } else {
-      throw new RuntimeException("invalid year " + year);
-    }
-
+    // @formatter:off
+    String input =
+            RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_DESC + DELIM + RECEIVABLE_DATE + DELIM + FALSE + LINE_RET 
+          + REIMBURSEMENT_TRANS_ID + DELIM + REIMBURSEMENT_DESC + DELIM + REIMBURSEMENT_DATE + DELIM + FALSE + LINE_RET 
+          + INCOME_TRANS_ID + DELIM + INCOME_DESC + DELIM + TRANS_DATE + DELIM + FALSE + LINE_RET 
+          + EXPENSE_TRANS_ID + DELIM + EXPENSE_DESC + DELIM + TRANS_DATE + DELIM + FALSE;
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -347,43 +316,17 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
     // Reimbursement: debit checking, credit receivable
     // Income: debit checking, credit revenue
     // Expense: debit tax expense, credit credit card
-
-    String input = null;
-    if (year.equals(YEAR_1)) {
-      // @formatter:off
-      input = RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
-            + RECEIVABLE_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + REIMBURSEMENT_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + REC_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
-            + REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
-            + INCOME_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + EXPENSE_TRANS_ID + DELIM + TAX_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
-            + EXPENSE_TRANS_ID + DELIM + CREDIT_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT_1 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_1 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT_2 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_2 + DELIM + CREDIT + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT_1 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_1 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT_2 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_2 + DELIM + CREDIT + DELIM + FALSE;
-      // @formatter:on
-    } else if (year.equals(YEAR_2)) {
-      // @formatter:off
-      input = INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
-            + INCOME_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + EXPENSE_TRANS_ID + DELIM + TAX_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
-            + EXPENSE_TRANS_ID + DELIM + CREDIT_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT_1 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_1 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_1 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT_2 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_2 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_2 + DELIM + CREDIT + DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT_1 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET
-            + DIST_TRANS_ID_3 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_1 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT_2 + DELIM + DEBIT +  DELIM + FALSE + LINE_RET 
-            + DIST_TRANS_ID_4 + DELIM + CASH_ACCOUNT + DELIM + DIST_AMOUNT_2 + DELIM + CREDIT + DELIM + FALSE;
-      // @formatter:on
-    }
+    // @formatter:off
+    String input =
+            RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
+          + RECEIVABLE_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + REIMBURSEMENT_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + REC_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET 
+          + REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
+          + INCOME_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + EXPENSE_TRANS_ID + DELIM + TAX_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
+          + EXPENSE_TRANS_ID + DELIM + CREDIT_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + CREDIT + DELIM + FALSE;
+    // @formatter:on
     return new StringReader(input);
   }
 

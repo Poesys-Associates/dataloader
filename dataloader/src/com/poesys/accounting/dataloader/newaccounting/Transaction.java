@@ -149,7 +149,7 @@ public class Transaction {
    * Get the calendar year of the date.
    * @return a year
    */
-  public int getYear() {
+  public Integer getYear() {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
     return calendar.get(Calendar.YEAR);

@@ -4,11 +4,11 @@
 package com.poesys.accounting.dataloader.oldaccounting;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

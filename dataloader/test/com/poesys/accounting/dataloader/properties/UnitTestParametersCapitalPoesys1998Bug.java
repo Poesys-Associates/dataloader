@@ -24,7 +24,7 @@ import java.io.Writer;
  * 
  * @author Robert J. Muller
  */
-public class UnitTestParametersCapitalPoesys1997Bug extends
+public class UnitTestParametersCapitalPoesys1998Bug extends
     AbstractStatementMaintainingParameters {
 
   // test counters
@@ -67,13 +67,13 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final Float TAXES_START = 500.00F;
   private static final Float TAXES_END = 509.99F;
 
-  private static final Float CHECKING_ACCOUNT = 100.0F;
-  private static final String CHECKING_ACCOUNT_NAME =
+  private static final Float CHECKING_ACCOUNT_1 = 100.0F;
+  private static final Float CHECKING_ACCOUNT_2 = 101.0F;
+  private static final String CHECKING_ACCOUNT_1_NAME =
     "Citicorp Checking (111222333444)";
-  private static final String NEW_CHECKING_ACCOUNT_NAME = "Citicorp Checking";
-
-  private static final Float CASH_ACCOUNT = 109.0F;
-  private static final String CASH_ACCOUNT_NAME = "Other Cash";
+  private static final String NEW_CHECKING_ACCOUNT_1_NAME = "Citicorp Checking";
+  private static final String CHECKING_ACCOUNT_2_NAME = "Schwab One";
+  private static final String NEW_CHECKING_ACCOUNT_2_NAME = "Invested Checking";
 
   private static final Float RECEIVABLE_ACCOUNT = 110.0F;
   private static final String RECEIVABLE_ACCOUNT_NAME = "Accounts Receivable";
@@ -101,17 +101,25 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final Float TAX_ACCOUNT = 500.0F;
   private static final String TAX_ACCOUNT_NAME = "Federal Tax";
 
-  private static final double FULL_DIST_AMOUNT = 69638.48D; // full amount
-  private static final double DIST_AMOUNT = 34819.24D; // 1/2 of full amount
-  private static final double INCOME_AMOUNT = 43964.37D;
-  private static final double CHECKING_BALANCE_AMOUNT = 2458.47D;
-  private static final double CREDIT_BALANCE_AMOUNT = 935.50D;
-  private static final double CAP_1_BALANCE_AMOUNT = 761.48D;
-  private static final double CAP_2_BALANCE_AMOUNT = 761.49D;
+  private static final double FULL_DIST_AMOUNT = 29038.35D; // full amount
+  private static final double DIST_AMOUNT_1 = 14519.17D; // 1/2 of full amount
+  private static final double DIST_AMOUNT_2 = 14519.18D; // 1/2 of full amount
+  private static final double INCOME_AMOUNT = 18502.41D;
+  private static final double CAP_INFUSION_AMOUNT_1 = 3577.09D;
+  private static final double CAP_INFUSION_AMOUNT_2 = 3577.08D;
+  private static final double CAP_INFUSION_AMOUNT = CAP_INFUSION_AMOUNT_1
+                                                    + CAP_INFUSION_AMOUNT_2;
+
+  private static final double CHECKING_1_BALANCE_AMOUNT = FULL_DIST_AMOUNT
+                                                          - INCOME_AMOUNT;
+  private static final double CREDIT_BALANCE_AMOUNT = 399.63D;
+  private static final double CAP_1_BALANCE_AMOUNT = 5068.15D;
+  private static final double CAP_2_BALANCE_AMOUNT = 5068.16D;
   private static final double DIST_1_BALANCE_AMOUNT = 0.00D;
   private static final double DIST_2_BALANCE_AMOUNT = 0.00D;
 
   private static final Integer INCOME_TRANS_ID = 300;
+  private static final Integer CAP_INFUSION_TRANS_ID = 301;
   private static final Integer DIST_TRANS_ID = 600;
 
   private static final String CREDIT = "CR";
@@ -121,6 +129,12 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /** description for income transaction enclosed in quotes with trailing blanks */
   private static final String INCOME_DESC = "\"cash income              \"";
+
+  /**
+   * description for capital transaction enclosed in quotes with trailing blanks
+   */
+  private static final String CAP_INFUSION_DESC =
+    "\"capital infusion to new checking account              \"";
 
   /** description for dist transaction enclosed in quotes with trailing blanks */
   private static final String DIST_DESC =
@@ -236,27 +250,29 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   @Override
   public Reader getAccountMapReader(Integer year) {
-    String input = CHECKING_ACCOUNT + DELIM + NEW_CHECKING_ACCOUNT_NAME;
+    String input =
+      CHECKING_ACCOUNT_1 + DELIM + NEW_CHECKING_ACCOUNT_1_NAME + LINE_RET
+          + CHECKING_ACCOUNT_2 + DELIM + NEW_CHECKING_ACCOUNT_2_NAME;
     return new StringReader(input);
   }
 
   @Override
   public Reader getAccountReader(Integer year) {
     String input =
-      CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME
-          + DELIM + DEBIT + LINE_RET + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME
-          + DELIM + CREDIT + LINE_RET + CREDIT_ACCOUNT + DELIM
-          + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET + CAP_ACCOUNT_1
-          + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT + LINE_RET
-          + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM + CREDIT
-          + LINE_RET + DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME + DELIM
-          + DEBIT + LINE_RET + DIST_ACCOUNT_2 + DELIM + DIST_ACCOUNT_2_NAME
-          + DELIM + DEBIT + LINE_RET + REVENUE_ACCOUNT + DELIM
-          + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET
-          + INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME
-          + DELIM + DEBIT + LINE_RET + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME
-          + DELIM + DEBIT;
+      CHECKING_ACCOUNT_1 + DELIM + CHECKING_ACCOUNT_1_NAME + DELIM + CREDIT
+          + LINE_RET + CHECKING_ACCOUNT_2 + DELIM + CHECKING_ACCOUNT_2_NAME
+          + DELIM + CREDIT + LINE_RET + RECEIVABLE_ACCOUNT + DELIM
+          + RECEIVABLE_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET
+          + CREDIT_ACCOUNT + DELIM + CREDIT_ACCOUNT_NAME + DELIM + CREDIT
+          + LINE_RET + CAP_ACCOUNT_1 + DELIM + CAP_ACCOUNT_1_NAME + DELIM
+          + CREDIT + LINE_RET + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME
+          + DELIM + CREDIT + LINE_RET + DIST_ACCOUNT_1 + DELIM
+          + DIST_ACCOUNT_1_NAME + DELIM + DEBIT + LINE_RET + DIST_ACCOUNT_2
+          + DELIM + DIST_ACCOUNT_2_NAME + DELIM + DEBIT + LINE_RET
+          + REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT
+          + LINE_RET + INCOME_SUMMARY_ACCOUNT + DELIM
+          + INCOME_SUMMARY_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET
+          + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME + DELIM + DEBIT;
     return new StringReader(input);
   }
 
@@ -271,8 +287,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   public Reader getBalanceReader(Integer year) {
     // @formatter:off
     String input =
-            CHECKING_ACCOUNT + DELIM + BALANCE_DATE + DELIM + DEBIT + DELIM + CHECKING_BALANCE_AMOUNT + LINE_RET 
-          + CASH_ACCOUNT + DELIM + BALANCE_DATE + DELIM + DEBIT + DELIM + 00.00D + LINE_RET 
+            CHECKING_ACCOUNT_1 + DELIM + BALANCE_DATE + DELIM + DEBIT + DELIM + CHECKING_1_BALANCE_AMOUNT + LINE_RET 
           + CREDIT_ACCOUNT + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CREDIT_BALANCE_AMOUNT + LINE_RET
           + CAP_ACCOUNT_1 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CAP_1_BALANCE_AMOUNT + LINE_RET 
           + CAP_ACCOUNT_2 + DELIM + BALANCE_DATE + DELIM + CREDIT + DELIM + CAP_2_BALANCE_AMOUNT + LINE_RET 
@@ -288,6 +303,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
     // @formatter:off
     String input =
             INCOME_TRANS_ID + DELIM + INCOME_DESC + DELIM + TRANS_DATE + DELIM + FALSE + LINE_RET 
+          + CAP_INFUSION_TRANS_ID + DELIM + CAP_INFUSION_DESC + DELIM + TRANS_DATE + DELIM + FALSE + LINE_RET 
           + DIST_TRANS_ID + DELIM + DIST_DESC + DELIM + TRANS_DATE + DELIM + FALSE;
     // @formatter:on
     return new StringReader(input);
@@ -299,11 +315,14 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
     // Distribution: credit checking account, debit distribution accounts (2)
     // @formatter:off
     String input =
-            INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
+            INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT_1 + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
           + INCOME_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-          + DIST_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + FULL_DIST_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-          + DIST_TRANS_ID + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT + DELIM + DEBIT + DELIM + FALSE+ LINE_RET 
-          + DIST_TRANS_ID + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT + DELIM + DEBIT + DELIM + FALSE;
+          + CAP_INFUSION_TRANS_ID + DELIM + CHECKING_ACCOUNT_2 + DELIM + CAP_INFUSION_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
+          + CAP_INFUSION_TRANS_ID + DELIM + CAP_ACCOUNT_1 + DELIM + CAP_INFUSION_AMOUNT_1 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + CAP_INFUSION_TRANS_ID + DELIM + CAP_ACCOUNT_2 + DELIM + CAP_INFUSION_AMOUNT_2 + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + DIST_TRANS_ID + DELIM + CHECKING_ACCOUNT_1 + DELIM + FULL_DIST_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
+          + DIST_TRANS_ID + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT_1 + DELIM + DEBIT + DELIM + FALSE+ LINE_RET 
+          + DIST_TRANS_ID + DELIM + DIST_ACCOUNT_2 + DELIM + DIST_AMOUNT_2 + DELIM + DEBIT + DELIM + FALSE;
     // @formatter:on
     return new StringReader(input);
   }

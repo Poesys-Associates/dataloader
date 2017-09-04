@@ -34,9 +34,17 @@ public class PoesysFiscalYearUpdater implements IFiscalYearUpdater {
     // Add transactions to close the distributions accounts by removing the
     // distributions from the capital accounts.
     List<Transaction> distTransactions =
-      capStruct.getDistributionFromCapitalTransactions(fiscalYear, builder);
+      capStruct.getDistributionTransactions(fiscalYear, builder);
     for (Transaction transaction : distTransactions) {
       fiscalYear.addTransaction(transaction);
+    }
+
+    // Ensure that the capital accounts are nearly equal. Create a balance sheet
+    // and a distributor.
+    Transaction adjustingTransaction =
+      capStruct.getCapitalAdjustmentTransaction(builder);
+    if (adjustingTransaction != null) {
+      fiscalYear.addTransaction(adjustingTransaction);
     }
   }
 }

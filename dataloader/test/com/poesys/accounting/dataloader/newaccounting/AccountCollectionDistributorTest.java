@@ -21,14 +21,18 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class AccountCollectionDistributorTest {
-  private static final BigDecimal PENNY = new BigDecimal(".01");
-
-  private static final BigDecimal NEG_PENNY = new BigDecimal("-.01");
-
   /** logger for this class */
   // private static final Logger logger =
   // Logger.getLogger(AccountCollectionDistributorTest.class);
 
+  /** one cent in decimal form */
+  private static final BigDecimal PENNY = new BigDecimal(".01");
+  /** negative one cent in decimal form */
+  private static final BigDecimal NEG_PENNY = new BigDecimal("-.01");
+  
+  /** BigDecimal scale for arithmetic and comparisons */
+  private static final int SCALE = 2;
+  
   /** multiplier for converting money to integer value */
   private static final BigDecimal CONVERTER = new BigDecimal("100");
 
@@ -45,6 +49,10 @@ public class AccountCollectionDistributorTest {
   // integer (x100) versions of the above decimals
   // private static final Integer INT_NEAR_AMOUNT = 2345519;
   // private static final Integer INT_NEAR_NEG_AMOUNT = -2345619;
+
+  // unequal amount to use in combination with above amounts
+  private static final BigDecimal UNEQUAL_AMOUNT = new BigDecimal("23455.18");
+  private static final BigDecimal UNEQUAL_NEG_AMOUNT = new BigDecimal("-23456.18");
 
   // amounts not divisible by 2 ("odd", remainder 1)
   private static final BigDecimal ODD_AMOUNT = new BigDecimal("23456.25");
@@ -310,7 +318,7 @@ public class AccountCollectionDistributorTest {
       new AccountCollectionDistributor(AMOUNT);
     distributor.addBalance(equityAccount1, AMOUNT);
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("0.01").setScale(2)));
+                           AMOUNT.add(new BigDecimal("0.01").setScale(SCALE)));
     assertTrue("valid distributor tests as invalid (nearly equal balances)",
                distributor.isValid());
   }
@@ -327,9 +335,9 @@ public class AccountCollectionDistributorTest {
       new AccountCollectionDistributor(AMOUNT);
     distributor.addBalance(equityAccount1, AMOUNT);
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("0.01").setScale(2)));
+                           AMOUNT.add(new BigDecimal("0.01").setScale(SCALE)));
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("-0.01").setScale(2)));
+                           AMOUNT.add(new BigDecimal("-0.01").setScale(SCALE)));
     assertTrue("valid distributor tests as invalid (nearly equal balances)",
                distributor.isValid());
   }
@@ -346,7 +354,7 @@ public class AccountCollectionDistributorTest {
       new AccountCollectionDistributor(AMOUNT);
     distributor.addBalance(equityAccount1, AMOUNT);
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("0.05").setScale(2)));
+                           AMOUNT.add(new BigDecimal("0.05").setScale(SCALE)));
     assertTrue("invalid distributor tests as valid (unequal balances)",
                !distributor.isValid());
   }
@@ -363,9 +371,9 @@ public class AccountCollectionDistributorTest {
       new AccountCollectionDistributor(AMOUNT);
     distributor.addBalance(equityAccount1, AMOUNT);
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("0.05").setScale(2)));
+                           AMOUNT.add(new BigDecimal("0.05").setScale(SCALE)));
     distributor.addBalance(equityAccount3,
-                           AMOUNT.add(new BigDecimal("-0.05").setScale(2)));
+                           AMOUNT.add(new BigDecimal("-0.05").setScale(SCALE)));
     assertTrue("valid distributor tests as invalid (nearly equal balances)",
                !distributor.isValid());
   }
@@ -746,7 +754,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_DIV_AMOUNT / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -786,7 +794,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_DIV_AMOUNT / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = NEG_AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -826,7 +834,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_NEG_DIV_AMOUNT / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -866,7 +874,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_NEG_DIV_AMOUNT / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = NEG_AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -906,7 +914,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_INDIV_AMOUNT_R2 / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -946,7 +954,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_INDIV_AMOUNT_R2 / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = NEG_AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -986,7 +994,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_NEG_INDIV_AMOUNT_R2 / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -1026,7 +1034,7 @@ public class AccountCollectionDistributorTest {
     // Use integer arithmetic to avoid non-terminating decimal expansion
     Integer intAmountToAdd = INT_NEG_INDIV_AMOUNT_R2 / 3;
     BigDecimal amountToAdd =
-      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(2);
+      new BigDecimal(intAmountToAdd).divide(CONVERTER).setScale(SCALE);
     BigDecimal testBalance = NEG_AMOUNT.add(amountToAdd);
     assertTrue("wrong balance 1 " + newBalance1 + ", expecting " + testBalance,
                newBalance1.compareTo(testBalance) == 0);
@@ -1097,9 +1105,9 @@ public class AccountCollectionDistributorTest {
     AccountCollectionDistributor distributor =
       new AccountCollectionDistributor(AMOUNT);
     distributor.addBalance(equityAccount1,
-                           AMOUNT.add(new BigDecimal("0.05").setScale(2)));
+                           AMOUNT.add(new BigDecimal("0.05").setScale(SCALE)));
     distributor.addBalance(equityAccount2,
-                           AMOUNT.add(new BigDecimal("-0.05").setScale(2)));
+                           AMOUNT.add(new BigDecimal("-0.05").setScale(SCALE)));
     try {
       distributor.distributeAmount();
       fail("remainder distribution did not throw invalid-collection exception");
@@ -1444,7 +1452,7 @@ public class AccountCollectionDistributorTest {
                amount2.compareTo(BigDecimal.ZERO) == 0);
     assertTrue("item amount 3 not as expected: " + amount3 + " != " + PENNY,
                amount3.compareTo(PENNY) == 0);
-}
+  }
 
   /**
    * Test method for
@@ -1882,5 +1890,263 @@ public class AccountCollectionDistributorTest {
     distributor.addBalance(equityAccount3, NEAR_AMOUNT);
 
     assertTrue("balances equal", !distributor.equal());
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether one balance is left alone.
+   */
+  @Test
+  public void testEqualize1Account() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances not equal", distributor.equal());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("wrongly equalized", !equalized);
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 2 equal balances are left alone.
+   */
+  @Test
+  public void testEqualize2Equal() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not equal", distributor.equal());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 3 equal balances are left alone.
+   */
+  @Test
+  public void testEqualize3Equal() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, AMOUNT);
+    distributor.addBalance(equityAccount3, AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not equal", distributor.equal());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 3 amount not zero: "
+        + distributor.getItemAmount(equityAccount3),
+               distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 2 nearly equal balances are left alone.
+   */
+  @Test
+  public void testEqualize2NearlyEqual() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 3 nearly equal balances are left alone.
+   */
+  @Test
+  public void testEqualize3NearlyEqual() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_AMOUNT);
+    distributor.addBalance(equityAccount3, NEAR_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 3 amount not zero: "
+        + distributor.getItemAmount(equityAccount3),
+               distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 2 unequal balances are equalized.
+   */
+  @Test
+  public void testEqualize2Unequal() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, UNEQUAL_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances not equalized", equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not correct: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
+    assertTrue("Item 2 amount not correct: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(PENNY.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 3 unequal balances are equalized.
+   */
+  @Test
+  public void testEqualize3Unequal() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_AMOUNT);
+    distributor.addBalance(equityAccount3, UNEQUAL_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances not equalized", equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not correct: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
+    assertTrue("Item 2 amount not correct: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 3 amount not correct: "
+        + distributor.getItemAmount(equityAccount3),
+               distributor.getItemAmount(equityAccount3).equals(PENNY.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 2 nearly equal negative-value balances are left alone.
+   */
+  @Test
+  public void testEqualize2NearlyEqualNeg() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, NEG_AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_NEG_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 3 nearly equal negative-value balances are left alone.
+   */
+  @Test
+  public void testEqualize3NearlyEqualNeg() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, NEG_AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_NEG_AMOUNT);
+    distributor.addBalance(equityAccount3, NEAR_NEG_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances equalized", !equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not zero: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 2 amount not zero: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 3 amount not zero: "
+        + distributor.getItemAmount(equityAccount3),
+               distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 2 nearly equal negative-valued balances are equalized.
+   */
+  @Test
+  public void testEqualize2UnequalNeg() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, NEG_AMOUNT);
+    distributor.addBalance(equityAccount2, UNEQUAL_NEG_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances not equalized", equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not correct: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
+    assertTrue("Item 2 amount not correct: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(NEG_PENNY.setScale(SCALE)));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.AccountCollectionDistributor#equal()}
+   * . Tests whether 3 nearly equal negative-valued balances are equalized.
+   */
+  @Test
+  public void testEqualize3UnequalNeg() {
+    AccountCollectionDistributor distributor =
+      new AccountCollectionDistributor(BigDecimal.ZERO);
+    distributor.addBalance(equityAccount1, NEG_AMOUNT);
+    distributor.addBalance(equityAccount2, NEAR_NEG_AMOUNT);
+    distributor.addBalance(equityAccount3, UNEQUAL_NEG_AMOUNT);
+    boolean equalized = distributor.equalize();
+    assertTrue("balances not equalized", equalized);
+    assertTrue("balances not nearly equal", distributor.isValid());
+    assertTrue("Item 1 amount not correct: "
+        + distributor.getItemAmount(equityAccount1),
+    distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
+    assertTrue("Item 2 amount not correct: "
+        + distributor.getItemAmount(equityAccount2),
+               distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
+    assertTrue("Item 3 amount not correct: "
+        + distributor.getItemAmount(equityAccount3),
+               distributor.getItemAmount(equityAccount3).equals(NEG_PENNY.setScale(SCALE)));
   }
 }
