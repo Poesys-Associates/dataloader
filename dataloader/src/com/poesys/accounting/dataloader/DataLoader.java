@@ -166,7 +166,7 @@ public class DataLoader implements IDirector {
     if (difference.compareTo(BigDecimal.ZERO) != 0) {
       logger.warn(MATCH_WARNING + fiscalYear.getYear() + ": $"
                   + balanceSheetBalance + " vs. $" + incomeStatementBalance);
-    } else if (!balanceSheetBalance.equals(BigDecimal.ZERO)) {
+    } else if (!balanceSheetBalance.equals(BigDecimal.ZERO.setScale(SCALE))) {
       logger.warn(NON_ZERO_BALANCE_WARNING + fiscalYear.getYear() + ": $"
                   + balanceSheetBalance + " vs. $" + incomeStatementBalance);
     } else {
