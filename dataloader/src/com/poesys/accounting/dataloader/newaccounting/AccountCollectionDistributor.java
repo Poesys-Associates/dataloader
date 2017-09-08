@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.poesys.db.InvalidParametersException;
 
 
@@ -37,6 +39,9 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class AccountCollectionDistributor {
+  /** logger for this class */
+  private static final Logger logger =
+    Logger.getLogger(AccountCollectionDistributor.class);
   /** the amount to distribute */
   protected Integer amount;
   /** map of integer balances indexed by Account */
@@ -59,7 +64,7 @@ public class AccountCollectionDistributor {
 
   // messages
   protected static final String INVALID_COLLECTION_ERROR =
-    "invalid balances, check whether balances were added and that amounts are equal or at most one penny different";
+    "invalid balances, check whether balances were added to distributor and that balance amounts are equal or at most one penny different";
   protected static final String NULL_ACCOUNT_ERROR =
     "account is required but is null";
   protected static final String NULL_BALANCE_ERROR =
@@ -167,6 +172,11 @@ public class AccountCollectionDistributor {
               difference = -difference;
             }
             if (difference != 0 && difference != PENNY) {
+              logger.warn("Imbalance between capital accounts "
+                          + account.getName() + " and "
+                          + otherAccount.getName() + ": "
+                          + balances.get(account) + " vs. "
+                          + balances.get(otherAccount));
               valid = false;
               break outer;
             }
@@ -175,6 +185,7 @@ public class AccountCollectionDistributor {
       }
     } else {
       // no balances, mark invalid
+      logger.warn("No balances added to distributor");
       valid = false;
     }
     return valid;
@@ -184,6 +195,7 @@ public class AccountCollectionDistributor {
    * Equalize the balances by shifting pennies between the accounts until the
    * account balances are equal or differ by at most a penny. The direction of
    * penny-shifting depends on the sign of the balances, negative or positive.
+   * 
    * @return true if balances were equalized, false if they were unchanged
    */
   public boolean equalize() {

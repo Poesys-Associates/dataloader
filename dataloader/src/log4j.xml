@@ -79,7 +79,7 @@
 
   <category name="com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager">
     <!-- debugging for DataLoader storage manager -->
-    <priority value="DEBUG" />
+    <priority value="INFO" />
   </category>
 
   <category name="com.poesys.accounting.dataloader.newaccounting.StorageManagerTest">

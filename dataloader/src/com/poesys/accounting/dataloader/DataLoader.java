@@ -5,6 +5,7 @@ package com.poesys.accounting.dataloader;
 
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,12 +40,21 @@ public class DataLoader implements IDirector {
   /** the set of fiscal year objects */
   private final List<FiscalYear> years = new ArrayList<FiscalYear>();
 
+  /** the BigDecimal scale constant for money amounts */
+  private static final int SCALE = 2;
+
   // messages
+
   private static final String IO_ERROR = "IO exception writing statements";
   private static final String FATAL_LOADING_ERROR =
     "Fatal error loading accounting data";
   private static final String FATAL_BALANCE_ERROR =
     "Fatal error: statements don't balance";
+  private static final String BALANCES_OK_MSG =
+    "balances are zero and match for ";
+  private static final String NON_ZERO_BALANCE_WARNING =
+    "balances are not zero for ";
+  private static final String MATCH_WARNING = "balances do not match for ";
 
   /**
    * Main entry point for Poesys Data Loader; exits with 0 status code if
@@ -130,7 +140,7 @@ public class DataLoader implements IDirector {
   /**
    * Generate a balance sheet and income statement for a fiscal year and write
    * those statements out with the appropriate writers from the program
-   * parameters.
+   * parameters. Inform the user of the balance status of the statements.
    * 
    * @param parameters the program parameters
    * @param fiscalYear the fiscal year for which to generate statements
@@ -138,15 +148,46 @@ public class DataLoader implements IDirector {
   private void writeStatements(IParameters parameters, FiscalYear fiscalYear) {
     Statement balanceSheet =
       new Statement(fiscalYear, "Balance Sheet", StatementType.BALANCE_SHEET);
+    BigDecimal balanceSheetBalance = balanceSheet.getBalance().setScale(SCALE);
     logger.debug("Balance sheet balance for " + fiscalYear.getYear() + ": "
-                 + balanceSheet.getBalance());
+                 + balanceSheetBalance);
     Statement incomeStatement =
       new Statement(fiscalYear,
                     "Income Statement",
                     StatementType.INCOME_STATEMENT);
+    BigDecimal incomeStatementBalance =
+      incomeStatement.getBalance().setScale(SCALE);
     logger.debug("Income statement balance for " + fiscalYear.getYear() + ": "
-                 + incomeStatement.getBalance());
+                 + incomeStatementBalance);
+    BigDecimal difference =
+      incomeStatementBalance.subtract(balanceSheetBalance).setScale(SCALE);
 
+    // Report balance status to the user as warning or information.
+    if (difference.compareTo(BigDecimal.ZERO) != 0) {
+      logger.warn(MATCH_WARNING + fiscalYear.getYear() + ": $"
+                  + balanceSheetBalance + " vs. $" + incomeStatementBalance);
+    } else if (!balanceSheetBalance.equals(BigDecimal.ZERO)) {
+      logger.warn(NON_ZERO_BALANCE_WARNING + fiscalYear.getYear() + ": $"
+                  + balanceSheetBalance + " vs. $" + incomeStatementBalance);
+    } else {
+      logger.info(BALANCES_OK_MSG + fiscalYear.getYear());
+    }
+
+    writeStatementData(parameters, fiscalYear, balanceSheet, incomeStatement);
+  }
+
+  /**
+   * Write out the files containing statements and statement data for a fiscal
+   * year.
+   * 
+   * @param parameters the parameters object giving writer access
+   * @param fiscalYear the fiscal year to write
+   * @param balanceSheet the balance sheet to write
+   * @param incomeStatement the income statement to write
+   */
+  public void writeStatementData(IParameters parameters, FiscalYear fiscalYear,
+                                 Statement balanceSheet,
+                                 Statement incomeStatement) {
     try {
       parameters.createWriters(fiscalYear.getYear());
 

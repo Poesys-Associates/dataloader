@@ -171,6 +171,11 @@ public class OldDataBuilder implements IBuilder {
     void build(BufferedReader r);
   }
 
+  /**
+   * A capital entity is an entity that owns some part of the capital of the
+   * accounting system. Each system has one or more entities with accompanying
+   * capital and distribution accounts.
+   */
   private class CapitalEntityStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -179,6 +184,9 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * The system groups accounts into categories (Cash, Credit Cards, and so on).
+   */
   private class AccountGroupStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -198,6 +206,18 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * The old accounting system was implemented separately for each fiscal year,
+   * allowing for changes to the account name and the changing of account
+   * numbers from year to year. The account map associates a particular
+   * new-accounting name with an account number in a given year and later years.
+   * The buildFiscalYear() method does not clear the account map. The data file
+   * for a given fiscal year thus contains one row for each account number that
+   * represents a specific account shifted to that number from the prior year.
+   * Later years will associate that number to that name unless the account map
+   * in the subsequent year replaces the name with another name. You only need
+   * to set the account number once for all subsequent years.
+   */
   private class AccountMapStrategy implements IBuildStrategy {
 
     @Override
@@ -282,6 +302,11 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * Balances get set in the first fiscal year processed, associating an initial
+   * balance with an account. The buildFiscalYear() method does not clear the
+   * balances.
+   */
   private class BalanceStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -290,6 +315,10 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * Reimbursements link reimbursing transactions to receivable transactions in
+   * the current or prior fiscal years. These get cleared for each fiscal year.
+   */
   private class ReimbursementStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -298,6 +327,10 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * Transactions contain the set of transactions for each fiscal year. These
+   * get cleared for each fiscal year.
+   */
   private class TransactionStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
@@ -306,6 +339,14 @@ public class OldDataBuilder implements IBuilder {
     }
   }
 
+  /**
+   * Transaction items associate with a transaction by id and an account by
+   * number, specifying the debit or credit amount by which the transaction
+   * changes the value of the account.These get cleared for each fiscal year.
+   * 
+   * 
+   * @author Robert J. Muller
+   */
   private class ItemStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {

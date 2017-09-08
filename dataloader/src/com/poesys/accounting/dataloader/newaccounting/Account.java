@@ -5,6 +5,7 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -254,12 +255,12 @@ public class Account {
   }
 
   /**
-   * Get the items.
+   * Get the items associated with this account.
    * 
-   * @return a items
+   * @return an unmodifiable set of items
    */
   public Set<Item> getItems() {
-    return items;
+    return Collections.unmodifiableSet(items);
   }
 
   /**

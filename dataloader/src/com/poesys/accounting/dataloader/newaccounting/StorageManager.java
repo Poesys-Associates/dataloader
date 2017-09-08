@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * Production implementation of the IStorageManager interface
@@ -15,6 +17,13 @@ import java.util.Set;
  * @author Robert J. Muller
  */
 public class StorageManager extends AbstractValidatingStorageManager {
+  /** logger for this class */
+  private static final Logger logger = Logger.getLogger(StorageManager.class);
+  
+  // messages
+  
+  private static final String STORED_MSG = "stored objects for all years";
+
   @Override
   public void store(String entityName, List<FiscalYear> years,
                     IDataAccessService storageService) {
@@ -34,5 +43,7 @@ public class StorageManager extends AbstractValidatingStorageManager {
       throw new RuntimeException("exception in fiscal year storage operation",
                                  e);
     }
+    
+    logger.info(STORED_MSG);
   }
 }
