@@ -7,6 +7,13 @@ package com.poesys.accounting.dataloader.properties;
 import java.io.Reader;
 import java.io.Writer;
 
+import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
+
 
 /**
  * An implementation of IParameters that returns the parameters for a unit test
@@ -173,5 +180,20 @@ public class UnitTestParametersInvalidPath extends
   public Writer getIncomeStatementWriter() {
     // fails by returning null
     return null;
+  }
+
+  @Override
+  public IFiscalYearUpdater getUpdater() {
+    return new RjmMlsFiscalYearUpdater();
+  }
+
+  @Override
+  public IDataAccessService getDataAccessService() {
+    return new UnitTestNoExceptionDataService();
+  }
+
+  @Override
+  public IStorageManager getStorageManager() {
+    return new UnitTestNoExceptionsStorageManager();
   }
 }

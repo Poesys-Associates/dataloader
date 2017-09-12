@@ -18,7 +18,8 @@ import com.poesys.db.InvalidParametersException;
 public abstract class AbstractValidatingStorageManager implements
     IStorageManager {
   /** logger for this class */
-  static final Logger logger = Logger.getLogger(NonStoringStorageManager.class);
+  static final Logger logger =
+    Logger.getLogger(AbstractValidatingStorageManager.class);
 
   // messages
 

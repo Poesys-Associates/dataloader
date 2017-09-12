@@ -509,7 +509,7 @@ public class StatementTest {
       new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toDetailData();
     assertTrue("detail data set incorrect for statement: " + data,
-               "Liability\tCredit Accounts\tCredit Card\t6\t01-Jan-17\t75.00\nLiability\tCredit Accounts\tCredit Card\t2\t01-Jan-17\t20.00\nEquity\tPersonal Capital\tShared Capital\t7\t01-Jan-17\t2000.00\nEquity\tPersonal Capital\tShared Capital\t3\t01-Jan-17\t80.00\nAsset\tCash\tChecking\t5\t01-Jan-17\t50.00\nAsset\tCash\tChecking\t7\t01-Jan-17\t-2000.00\nAsset\tCash\tChecking\t1\t01-Jan-17\t-100.00\nAsset\tCash\tChecking\t4\t01-Jan-17\t-100.00".equals(data));
+               "Liability\tCredit Accounts\tCredit Card\t6\t01-Jan-17\t75.00\nLiability\tCredit Accounts\tCredit Card\t2\t01-Jan-17\t20.00\nEquity\tPersonal Capital\tShared Capital\t7\t01-Jan-17\t2000.00\nEquity\tPersonal Capital\tShared Capital\t3\t01-Jan-17\t80.00\nAsset\tCash\tChecking\t7\t01-Jan-17\t-2000.00\nAsset\tCash\tChecking\t4\t01-Jan-17\t-100.00\nAsset\tCash\tChecking\t5\t01-Jan-17\t50.00\nAsset\tCash\tChecking\t1\t01-Jan-17\t-100.00".equals(data));
   }
 
   /**

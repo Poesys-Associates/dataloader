@@ -8,10 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
-import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
-import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
-import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneEntityOneYearNoDistribution;
 
 
@@ -37,11 +36,10 @@ public class DataLoaderTest {
     UnitTestParametersCapitalOneEntityOneYearNoDistribution parameters =
       new UnitTestParametersCapitalOneEntityOneYearNoDistribution();
     UnitTestNoExceptionsBuilder builder = new UnitTestNoExceptionsBuilder();
-    UnitTestNoExceptionsStorageManager storageManager =
-      new UnitTestNoExceptionsStorageManager();
-    UnitTestNoExceptionDataService dbService =
-      new UnitTestNoExceptionDataService();
-    IFiscalYearUpdater updater = new PoesysFiscalYearUpdater();
+    IStorageManager storageManager = parameters.getStorageManager();
+    IDataAccessService dbService = parameters.getDataAccessService();
+    IFiscalYearUpdater updater = parameters.getUpdater();
+
     // Construct the accounting system.
     loader.construct(parameters, builder, storageManager, dbService, updater);
 

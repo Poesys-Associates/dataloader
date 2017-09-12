@@ -15,6 +15,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.poesys.accounting.dataloader.FatalProgramException;
+import com.poesys.accounting.dataloader.newaccounting.AccountingDbService;
+import com.poesys.accounting.dataloader.newaccounting.DoNothingDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -38,9 +48,6 @@ public class PropertyFileParameters extends
   /** IO error closing file */
   private static final String PROPERTIES_FILE_CLOSE_ERROR =
     "IO Error closing properties file ";
-
-  /** name of the properties file in the classpath */
-  private static final String PROP_FILE = "dataloader.properties";
 
   /** properties object initialized from properties file */
   private static final Properties properties = new Properties();
@@ -73,6 +80,14 @@ public class PropertyFileParameters extends
   private static final String INCOME_STMT_DETAILS_FILE =
     "income_statement_details_file";
 
+  // plug-in class specifications
+  /** keyword for updater */
+  private static final String UPDATER = "updater";
+  /** keyword for data access service */
+  private static final String DATA_ACCESS_SERVICE = "data_access_service";
+  /** keyword for storage manager */
+  private static final String STORAGE_MGR = "storage_manager";
+
   // messages
   private static final String FILE_NOT_FOUND = "file not found: ";
   private static final String NULL_PARAMETERS = "null file parameters";
@@ -80,25 +95,36 @@ public class PropertyFileParameters extends
   /**
    * Create a PropertyFileParameters object. This constructor reads the
    * properties file and sets the internal properties from the file as read-only
-   * (final) values.
+   * (final) values. The name of the property file should correspond to a file
+   * on the classpath. Supplying the name as a parameter lets you create
+   * separate property files for unit tests.
+   * 
+   * @param propertyFileName the name of the property file to use
+   * @throws FatalProgramException when there is a fatal error reading the
+   *           properties file
    */
-  public PropertyFileParameters() {
+  public PropertyFileParameters(String propertyFileName)
+      throws FatalProgramException {
     InputStream stream = null;
     try {
       stream =
-        PropertyFileParameters.class.getClassLoader().getResourceAsStream(PROP_FILE);
-      properties.load(stream);
+        PropertyFileParameters.class.getClassLoader().getResourceAsStream(propertyFileName);
+      if (stream != null) {
+        properties.load(stream);
+      } else {
+        throw new IOException("cannot open stream for properties file "
+                              + propertyFileName);
+      }
     } catch (IOException e) {
-      logger.fatal(PROPERTIES_FILE_ERROR + PROP_FILE, e);
-      // Fatal error, exit program
-      System.exit(-1);
+      logger.fatal(PROPERTIES_FILE_ERROR + propertyFileName, e);
+      throw new FatalProgramException(e.getMessage(), e);
     } finally {
       if (stream != null) {
         try {
           stream.close();
         } catch (IOException e) {
-          logger.fatal(PROPERTIES_FILE_CLOSE_ERROR + PROP_FILE, e);
-          System.exit(-1);
+          logger.fatal(PROPERTIES_FILE_CLOSE_ERROR + propertyFileName, e);
+          throw new FatalProgramException(e.getMessage(), e);
         }
       }
     }
@@ -271,5 +297,60 @@ public class PropertyFileParameters extends
       getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_DETAILS_FILE));
     incomeStatementDetailsWriter =
       getWriter(getFullyQualifiedFilename(year, INCOME_STMT_DETAILS_FILE));
+  }
+
+  @Override
+  public IFiscalYearUpdater getUpdater() {
+    IFiscalYearUpdater updater = null;
+    String plugin = properties.getProperty(UPDATER);
+    switch (plugin) {
+    case "RjmMlsFiscalYearUpdater":
+      updater = new RjmMlsFiscalYearUpdater();
+      break;
+    case "PoesysFiscalYearUpdater":
+      updater = new PoesysFiscalYearUpdater();
+      break;
+    default:
+      logger.warn("updater parameter value not supported: " + plugin);
+      updater = new RjmMlsFiscalYearUpdater();
+    }
+    return updater;
+  }
+
+  @Override
+  public IDataAccessService getDataAccessService() {
+    IDataAccessService service = null;
+    String plugin = properties.getProperty(DATA_ACCESS_SERVICE);
+    switch (plugin) {
+    case "DoNothingDataAccessService":
+      service = new DoNothingDataAccessService();
+      break;
+    case "AccountingDbService":
+      service = new AccountingDbService();
+      break;
+    default:
+      logger.warn("data_access_service parameter value not supported: "
+                  + plugin);
+      service = new DoNothingDataAccessService();
+    }
+    return service;
+  }
+
+  @Override
+  public IStorageManager getStorageManager() {
+    IStorageManager manager = null;
+    String plugin = properties.getProperty(STORAGE_MGR);
+    switch (plugin) {
+    case "NonStoringStorageManager":
+      manager = new NonStoringStorageManager();
+      break;
+    case "StorageManager":
+      manager = new StorageManager();
+      break;
+    default:
+      logger.warn("storage_manager parameter value not supported: " + plugin);
+      manager = new NonStoringStorageManager();
+    }
+    return manager;
   }
 }

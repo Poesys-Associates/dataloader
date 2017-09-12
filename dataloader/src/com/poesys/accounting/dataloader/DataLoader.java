@@ -11,17 +11,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.poesys.accounting.dataloader.newaccounting.AccountingDbService;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.Statement;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
-// TODO restore this import after system testing is complete
-// import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder;
 import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.accounting.dataloader.properties.PropertyFileParameters;
@@ -39,6 +34,9 @@ public class DataLoader implements IDirector {
 
   /** the set of fiscal year objects */
   private final List<FiscalYear> years = new ArrayList<FiscalYear>();
+  
+  /** property file name, file should be in classpath */
+  private static final String PROPFILE = "dataloader.properties";
 
   /** the BigDecimal scale constant for money amounts */
   private static final int SCALE = 2;
@@ -68,17 +66,19 @@ public class DataLoader implements IDirector {
       // Create the data loader.
       DataLoader loader = new DataLoader();
       // Create the production interface implementations for the loader.
-      IParameters parameters = new PropertyFileParameters();
+      IParameters parameters = new PropertyFileParameters(PROPFILE);
       IBuilder builder = new OldDataBuilder(parameters);
-      // IStorageManager storageManager = new StorageManager();
-      // TODO: Use a non-storing storage manager for now until full system test
-      // is complete, then uncomment above line and remove these two lines.
-      IStorageManager storageManager = new NonStoringStorageManager();
-      // TODO replace with plugin approach to instantiate specific updater class
-      IFiscalYearUpdater updater = new PoesysFiscalYearUpdater();
-      IDataAccessService dbService = new AccountingDbService();
+      IStorageManager storageManager = parameters.getStorageManager();
+      IFiscalYearUpdater updater = parameters.getUpdater();
+      IDataAccessService dbService = parameters.getDataAccessService();
+
       loader.construct(parameters, builder, storageManager, dbService, updater);
+
+      // Everything is OK, return 0 retcode.
       status = 0;
+    } catch (FatalProgramException e) {
+      // Log the thrown fatal error before exiting
+      logger.fatal(e.getMessage(), e);
     } catch (Throwable e) {
       // Log fatal error before exiting.
       logger.fatal(FATAL_LOADING_ERROR, e);

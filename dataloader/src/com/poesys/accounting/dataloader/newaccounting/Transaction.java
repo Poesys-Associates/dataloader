@@ -108,7 +108,7 @@ public class Transaction {
     if (date == null) {
       if (other.date != null)
         return false;
-    } else if (!(getYear() == other.getYear()))
+    } else if (!(getYear().equals(other.getYear())))
       return false;
     if (id == null) {
       if (other.id != null)

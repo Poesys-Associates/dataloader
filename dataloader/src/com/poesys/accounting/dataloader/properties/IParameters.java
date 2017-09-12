@@ -4,35 +4,13 @@ package com.poesys.accounting.dataloader.properties;
 import java.io.Reader;
 import java.io.Writer;
 
+import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+
 
 /**
- * <p>
- * Interface that allows a client to get the parameters of the data loader;
- * implementations may read properties from a file or provide properties
- * directly from the implementation for unit testing; the get-reader and
- * get-writer methods implement Reader and Writer opening and filename handling
- * but also permit other implementations for unit testing
- * </p>
- * Properties you define in the accounting.properties file:
- * <ul>
- * <li>entity</li>
- * <li>path</li>
- * <li>start</li>
- * <li>end</li>
- * <li>account_group_file</li>
- * <li>account_map_file</li>
- * <li>account_file</li>
- * <li>reimbursement_file</li>
- * <li>balance_file</li>
- * <li>transaction_file</li>
- * <li>item_file</li>
- * <li>balance_sheet_file</li>
- * <li>income_statement_file</li>
- * </ul>
- * 
- * @author Robert J. Muller
- */
-/**
+ * Interface for program parameters
  * 
  * @author Robert J. Muller
  */
@@ -76,11 +54,11 @@ public interface IParameters {
    * @return the last fiscal year of the sequence
    */
   Integer getEndYear();
-  
+
   /**
    * Get a reader for the capital entity data.
    * 
-    * @return a reader
+   * @return a reader
    */
   Reader getCapitalEntityReader();
 
@@ -234,4 +212,28 @@ public interface IParameters {
    *         is no such data set
    */
   String getIncomeStatementDetailsData(int year);
+
+  /**
+   * Get the fiscal-year updater based on a program parameter. This is a factory
+   * method for updaters.
+   * 
+   * @return the fiscal-year updater object
+   */
+  IFiscalYearUpdater getUpdater();
+
+  /**
+   * Get the data access service based on a program parameter. This is a factory
+   * method for data access services.
+   * 
+   * @return the data access service object
+   */
+  IDataAccessService getDataAccessService();
+
+  /**
+   * Get the storage manager based on a program parameter. This is a factory
+   * method for storage managers.
+   * 
+   * @return the storage manager
+   */
+  IStorageManager getStorageManager();
 }

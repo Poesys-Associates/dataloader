@@ -10,6 +10,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
+import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
+
 
 /**
  * An implementation of IParameters that returns the parameters for a unit test
@@ -429,5 +436,20 @@ public class UnitTestParametersCapitalTwoEntitiesTwoYears extends
   @Override
   public Writer getIncomeStatementWriter() {
     return incomeStatementWriter;
+  }
+
+  @Override
+  public IFiscalYearUpdater getUpdater() {
+    return new RjmMlsFiscalYearUpdater();
+  }
+
+  @Override
+  public IDataAccessService getDataAccessService() {
+    return new UnitTestNoExceptionDataService();
+  }
+
+  @Override
+  public IStorageManager getStorageManager() {
+    return new UnitTestNoExceptionsStorageManager();
   }
 }

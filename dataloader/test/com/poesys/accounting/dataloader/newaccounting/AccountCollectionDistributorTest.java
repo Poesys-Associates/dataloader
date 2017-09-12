@@ -131,7 +131,8 @@ public class AccountCollectionDistributorTest {
 
   // messages for comparison
   private static final String INVALID_COLLECTION_ERROR =
-    "invalid balances, check whether balances were added and that amounts are equal or at most one penny different";
+      "invalid balances, check whether balances were added to distributor and that balance amounts are equal or at most one penny different";
+
   private static final String NULL_ACCOUNT_ERROR =
     "account is required but is null";
   private static final String NULL_BALANCE_ERROR =
