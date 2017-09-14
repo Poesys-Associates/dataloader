@@ -140,7 +140,7 @@ public class Account extends AbstractReaderDto {
       type = AccountType.EQUITY;
     } else if (accountNumber >= 400 && accountNumber < 600) {
       type = AccountType.INCOME;
-    } else if (accountNumber >= 600 && accountNumber < 800) {
+    } else if (accountNumber >= 600 && accountNumber < 900) {
       type = AccountType.EXPENSE;
     }
     return type;
