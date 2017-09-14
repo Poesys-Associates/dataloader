@@ -41,7 +41,7 @@ public class OldDataBuilder implements IBuilder {
 
   // operational constants
   /** limit on number of rows from file, prevents infinite loop */
-  private static final int LIMIT = 5000;
+  private static final int LIMIT = 10000;
   /**
    * integer id for the start of the integer id series for balance transactions,
    * because the old accounting system doesn't actually have transaction ids for
