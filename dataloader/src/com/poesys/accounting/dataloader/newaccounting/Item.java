@@ -38,6 +38,23 @@ public class Item {
   private final Set<Reimbursement> reimbursements =
     new HashSet<Reimbursement>();
 
+  // messages
+  
+  private static final String NULL_PARAMETER_ERROR =
+    "item parameters are required but one is null";
+  private static final String NOT_SAME_ACCOUNT_ERROR =
+    "reimbursement must have same receivable account as receivable: ";
+  private static final String NOT_RECEIVABLE_ACCOUNT_ERROR =
+    "account is not receivable account: ";
+  private static final String INVALID_AMOUNT_ERROR =
+    "reimbursed amount must be less than or equal to item amount ";
+  private static final String NULL_AMOUNT_ERROR =
+    "reimbursement requires a reimbursed amount";
+  private static final String NULL_REIMBURSEMENT_ERROR =
+    "reimbursement requires a reimbursing item";
+  private static final String NULL_RECEIVABLE_ERROR =
+    "reimbursement requires a receivable item";
+
   /**
    * An association class that links this item to a reimbursing item; valid only
    * for items with receivable accounts.
@@ -67,13 +84,13 @@ public class Item {
                          Double reimbursedAmount,
                          Double allocatedAmount) {
       if (receivable == null) {
-        throw new InvalidParametersException("Reimbursement requires a receivable item");
+        throw new InvalidParametersException(NULL_RECEIVABLE_ERROR);
       }
       if (reimbursingItem == null) {
-        throw new InvalidParametersException("Reimbursement requires a reimbursing item");
+        throw new InvalidParametersException(NULL_REIMBURSEMENT_ERROR);
       }
       if (reimbursedAmount == null) {
-        throw new InvalidParametersException("Reimbursement requires a reimbursed amount");
+        throw new InvalidParametersException(NULL_AMOUNT_ERROR);
       }
       this.receivable = receivable;
       this.reimbursingItem = reimbursingItem;
@@ -83,17 +100,21 @@ public class Item {
 
       // Validate reimbursed amount against reimbursing item amount
       if (reimbursedAmount.compareTo(reimbursingItem.amount) > 0) {
-        throw new InvalidParametersException("Reimbursed amount "
-                                             + reimbursedAmount
-                                             + " must be less than or equal to item amount "
-                                             + reimbursingItem.amount);
+        throw new InvalidParametersException(INVALID_AMOUNT_ERROR
+                                             + reimbursingItem.amount + ": "
+                                             + reimbursedAmount);
 
       }
 
+      if (!receivable.getAccount().isReceivable()) {
+        throw new InvalidParametersException(NOT_RECEIVABLE_ACCOUNT_ERROR
+                                             + receivable.getAccount());
+      }
+
       // Ensure that both items are against the same receivable account.
-      if (!(receivable.getAccount().isReceivable() && receivable.getAccount().equals(reimbursingItem.getAccount()))) {
-        throw new InvalidParametersException("Reimbursement must have same receivable account as receivable: "
-                                             + receivable.getAmount()
+      if (!receivable.getAccount().equals(reimbursingItem.getAccount())) {
+        throw new InvalidParametersException(NOT_SAME_ACCOUNT_ERROR
+                                             + receivable.getAccount()
                                              + " vs. "
                                              + reimbursingItem.getAccount());
       }
@@ -183,12 +204,6 @@ public class Item {
              + ", allocatedAmount=" + allocatedAmount + "]";
     }
   }
-
-  // Messages
-
-  /** null parameter to constructor */
-  private static final String NULL_PARAMETER_ERROR =
-    "Item parameters are required but one is null";
 
   /**
    * Create an Item object.
