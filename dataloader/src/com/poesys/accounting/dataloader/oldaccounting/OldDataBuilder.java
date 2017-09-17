@@ -42,6 +42,7 @@ public class OldDataBuilder implements IBuilder {
   // operational constants
   /** limit on number of rows from file, prevents infinite loop */
   private static final int LIMIT = 10000;
+
   /**
    * integer id for the start of the integer id series for balance transactions,
    * because the old accounting system doesn't actually have transaction ids for
@@ -60,6 +61,12 @@ public class OldDataBuilder implements IBuilder {
     new HashSet<com.poesys.accounting.dataloader.newaccounting.Account>();
 
   // Messages
+  private static final String ZERO_RECEIVABLE_ID_ERROR =
+    "zero receivable id for transaction not in first year";
+  private static final String NO_BALANCE_ERROR =
+    "no balance for receivable account ";
+  private static final String ZERO_BALANCE_ERROR = "zero balance for account ";
+  private static final String ACCOUNT_ERROR = "cannot find account ";
   private static final String NULL_FILE_PATH_ERROR =
     "Null file path in parameter file";
   private static final String FILE_READER_CLOSE_ERROR =
@@ -84,6 +91,8 @@ public class OldDataBuilder implements IBuilder {
     "no reimbursements item map for fiscal year ";
   private static final String NO_RECEIVABLES_ITEM_MAP_ERROR =
     "no receivables item map for fiscal year ";
+  private static final String NOT_RECEIVABLE_ACCOUNT_ERROR =
+    "indexing receivable item but account is not a receivable account: ";
 
   // lookup maps
 
@@ -129,19 +138,82 @@ public class OldDataBuilder implements IBuilder {
     new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Transaction>();
 
   /**
-   * the shared lookup map of fiscal year maps of receivable items indexed by
-   * year, then transaction id (that is, Map(year, Map(tranId, item)); the
-   * buildFiscalYear() method initializes the nested map for the year
+   * Map index object that indexes items by a combination of transaction id and
+   * account; used in item lookup maps for receivables
    */
-  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> receivablesMap =
-    new HashMap<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>>();
+  private class ItemIndex {
+    private final Integer id;
+    private final Float accountNumber;
+
+    /**
+     * Create a ItemIndex object.
+     * 
+     * @param id the transaction id
+     * @param accountNumber the account number (float, for example 111.1)
+     */
+    public ItemIndex(Integer id, Float accountNumber) {
+      this.id = id;
+      this.accountNumber = accountNumber;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + getOuterType().hashCode();
+      result =
+        prime * result
+            + ((accountNumber == null) ? 0 : accountNumber.hashCode());
+      result = prime * result + ((id == null) ? 0 : id.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ItemIndex other = (ItemIndex)obj;
+      if (!getOuterType().equals(other.getOuterType()))
+        return false;
+      if (accountNumber == null) {
+        if (other.accountNumber != null)
+          return false;
+      } else if (!accountNumber.equals(other.accountNumber))
+        return false;
+      if (id == null) {
+        if (other.id != null)
+          return false;
+      } else if (!id.equals(other.id))
+        return false;
+      return true;
+    }
+
+    private OldDataBuilder getOuterType() {
+      return OldDataBuilder.this;
+    }
+  }
+
+  /**
+   * the shared lookup map of fiscal year maps of receivable items indexed by
+   * year, then by the ItemIndex combination of transaction id and account (that
+   * is, Map(year, Map(itemIndex, item)); the buildFiscalYear() method
+   * initializes the nested map for the year
+   */
+  private final Map<Integer, Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>> receivablesMap =
+    new HashMap<Integer, Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>>();
+
   /**
    * the shared lookup map of fiscal year maps of reimbursing items indexed by
-   * year, then transaction id (that is, Map(year, Map(tranId, item)); the
-   * buildFiscalYear() method initializes the nested map for the year
+   * year, then by the ItemIndex combination of transaction id and account (that
+   * is, Map(year, Map(itemIndex, item)); the buildFiscalYear() method
+   * initializes the nested map for the year
    */
-  private final Map<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>> reimbursementsMap =
-    new HashMap<Integer, Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item>>();
+  private final Map<Integer, Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>> reimbursementsMap =
+    new HashMap<Integer, Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>>();
 
   // list of capital entities read directly
   private final List<CapitalEntity> entities = new ArrayList<CapitalEntity>();
@@ -295,6 +367,7 @@ public class OldDataBuilder implements IBuilder {
       // regardless of whether a previous year created the shared new-accounting
       // account.
       accountNumberMap.put(accountNumber, newAccount);
+      logger.debug("Indexed account " + account.getAccountNumber());
 
       // Add the account to the fiscal year. This links the account to the
       // fiscal year by creating a linking object in the database on store().
@@ -410,11 +483,11 @@ public class OldDataBuilder implements IBuilder {
 
     // Add the sub-map for the receivables.
     receivablesMap.put(year,
-                       new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Item>());
+                       new HashMap<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>());
 
     // Add the sub-map for the reimbursements.
     reimbursementsMap.put(year,
-                          new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.Item>());
+                          new HashMap<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item>());
 
     // Clear the temporary data sets for the fiscal year.
     reimbursementDataSet.clear();
@@ -536,6 +609,13 @@ public class OldDataBuilder implements IBuilder {
       }
       // add the transaction to the fiscal year
       fiscalYear.addTransaction(transaction);
+      // for receivable accounts, index the balance item
+      if (account.isReceivable()) {
+        indexReceivableItem(id.intValue(),
+                            balance.getAccountNumber(),
+                            balance.isDebit(),
+                            transaction.getItem(account));
+      }
       // increment the transaction id; assign because BigInteger is immutable
       id = id.add(BigInteger.ONE);
     }
@@ -640,19 +720,50 @@ public class OldDataBuilder implements IBuilder {
                             item.isChecked());
 
       // Index the item in receivables or reimbursements as required.
-      if (account.isReceivable() && item.isDebit()) {
-        // Receivable item, add to map indexed by year and transaction id
-        logger.debug("Adding receivable item to receivables map: "
-                     + fiscalYear.getYear() + " - " + item.getTransactionId());
-        receivablesMap.get(fiscalYear.getYear()).put(item.getTransactionId(),
-                                                     newItem);
-      } else if (account.isReceivable() && !item.isDebit()) {
-        // Reimbursing item, add to map indexed by year and transaction id
-        logger.debug("Adding reimbursing item to reimbursements map: "
-                     + fiscalYear.getYear() + " - " + item.getTransactionId());
-        reimbursementsMap.get(fiscalYear.getYear()).put(item.getTransactionId(),
-                                                        newItem);
+      if (account.isReceivable()) {
+        indexReceivableItem(item.getTransactionId(),
+                            item.getAccountNumber(),
+                            item.isDebit(),
+                            newItem);
       }
+    }
+  }
+
+  /**
+   * Put a receivable account item into the receivables (debit) or
+   * reimbursements (credit) map.
+   * 
+   * @param id the transaction id for the item
+   * @param accountNumber the account number for the item; must be a receivable
+   *          account number
+   * @param debit whether the item is debit (true) or credit (false)
+   * @param newItem the new-accounting version of the item
+   */
+  public void indexReceivableItem(Integer id,
+                                  Float accountNumber,
+                                  boolean debit,
+                                  com.poesys.accounting.dataloader.newaccounting.Item newItem) {
+
+    // Check for receivable account
+    Integer key = new Float(accountNumber * 100F).intValue();
+    com.poesys.accounting.dataloader.newaccounting.Account account =
+      accountNumberMap.get(key);
+    if (!account.isReceivable()) {
+      throw new RuntimeException(NOT_RECEIVABLE_ACCOUNT_ERROR + accountNumber);
+    }
+    ItemIndex index = new ItemIndex(id, accountNumber);
+    if (debit) {
+      // Receivable item, add to map indexed by year and transaction id
+      logger.debug("Adding receivable item to receivables map: "
+                   + fiscalYear.getYear() + " - " + id + " for account "
+                   + accountNumber);
+      receivablesMap.get(fiscalYear.getYear()).put(index, newItem);
+    } else {
+      // Reimbursing item, add to map indexed by year and transaction id
+      logger.debug("Adding reimbursing item to reimbursements map: "
+                   + fiscalYear.getYear() + " - " + id + " for account "
+                   + accountNumber);
+      reimbursementsMap.get(fiscalYear.getYear()).put(index, newItem);
     }
   }
 
@@ -688,12 +799,25 @@ public class OldDataBuilder implements IBuilder {
     for (Reimbursement reimbursement : reimbursementDataSet) {
       Integer receivableYear = reimbursement.getReceivableYear();
       Integer receivableId = reimbursement.getReceivableTransactionId();
+      Float receivableAccountNumber = reimbursement.getAccountNumber();
+      if (receivableId.equals(0)) {
+        // unchanged prior year reimbursement, determine whether this is an
+        // oversight or whether to link the reimbursement to the balance
+        // transaction for the account.
+        receivableId =
+          getBalanceReceivableId(receivableYear, receivableAccountNumber);
+        logger.debug("Reimbursement is for 0 id, balance id is " + receivableId);
+      }
       com.poesys.accounting.dataloader.newaccounting.Item receivableItem =
-        lookupReceivableItem(receivableYear, receivableId);
+        lookupReceivableItem(receivableYear,
+                             receivableId,
+                             receivableAccountNumber);
       Integer reimbursementYear = reimbursement.getReimbursementYear();
       Integer reimbursementId = reimbursement.getReimbursementTransactionId();
       com.poesys.accounting.dataloader.newaccounting.Item reimbursementItem =
-        lookupReimbursingItem(reimbursementYear, reimbursementId);
+        lookupReimbursingItem(reimbursementYear,
+                              reimbursementId,
+                              receivableAccountNumber);
 
       // if both there, link the items.
       if (receivableItem != null && reimbursementItem != null) {
@@ -719,23 +843,108 @@ public class OldDataBuilder implements IBuilder {
   }
 
   /**
+   * Get the balance id for a receivable account if the balance year is the same
+   * as the receivable year; otherwise, throw a runtime exception. Make sure the
+   * balance for the account is non-zero, and if it is zero, throw a runtime
+   * exception.
+   * 
+   * @param receivableYear the designated receivable year of a reimbursement
+   * @param receivableAccountNumber the old-accounting account number for the
+   *          receivable account
+   * @return the transaction id for the balance transaction for the receivable
+   *         account
+   */
+  private Integer getBalanceReceivableId(Integer receivableYear,
+                                         Float receivableAccountNumber) {
+    com.poesys.accounting.dataloader.newaccounting.Account account =
+      getAccountFromNumber(receivableYear, receivableAccountNumber);
+    // Find the balance transaction for the account.
+    com.poesys.accounting.dataloader.newaccounting.Transaction balanceTransaction =
+      null;
+    for (com.poesys.accounting.dataloader.newaccounting.Item item : account.getItems()) {
+      if (item.getTransaction().isBalance()) {
+        balanceTransaction = item.getTransaction();
+        validateBalanceReceivable(receivableYear,
+                                  receivableAccountNumber,
+                                  balanceTransaction,
+                                  item);
+      }
+    }
+
+    return balanceTransaction.getId().intValue();
+  }
+
+  /**
+   * Get a new-accounting Account object from a fiscal year and account number.
+   * Note that the old-accounting account numbers are unique only within a
+   * fiscal year, so you need to know the fiscal year if there is an error.
+   * 
+   * @param year the fiscal year (used in error message)
+   * @param accountNumber the account number in the fiscal year
+   * @return the account
+   */
+  public com.poesys.accounting.dataloader.newaccounting.Account getAccountFromNumber(Integer year,
+                                                                                     Float accountNumber) {
+    // Get the account.
+    Integer number = new Float(accountNumber * 100F).intValue();
+    com.poesys.accounting.dataloader.newaccounting.Account account =
+      accountNumberMap.get(number);
+    if (account == null) {
+      throw new RuntimeException(ACCOUNT_ERROR + accountNumber + " for year "
+                                 + year);
+    }
+    return account;
+  }
+
+  /**
+   * Validate a balance transaction:
+   * <ul>
+   * <li>Is the item amount non-zero? Balance must be positive.</li>
+   * <li>Is the balance transaction non-null?</li>
+   * <li>Is the year of the transaction the same as the receivable year?</li>
+   * </ul>
+   * 
+   * @param receivableYear the year of the receivable in the reimbursement
+   * @param receivableAccountNumber the receivable account (for error report)
+   * @param balanceTransaction the balance transaction to check
+   * @param item the balance item to check
+   */
+  public void validateBalanceReceivable(Integer receivableYear,
+                                        Float receivableAccountNumber,
+                                        com.poesys.accounting.dataloader.newaccounting.Transaction balanceTransaction,
+                                        com.poesys.accounting.dataloader.newaccounting.Item item) {
+    if (balanceTransaction == null) {
+      throw new RuntimeException(NO_BALANCE_ERROR + receivableAccountNumber);
+    }
+    if (item.getAmount().equals(0.00D)) {
+      throw new RuntimeException(ZERO_BALANCE_ERROR + receivableAccountNumber);
+    }
+    if (!balanceTransaction.getYear().equals(receivableYear)) {
+      throw new RuntimeException(ZERO_RECEIVABLE_ID_ERROR);
+    }
+  }
+
+  /**
    * Look up a receivable item in the receivables map.
    * 
    * @param year the fiscal year of the item
    * @param id the transaction id of the item
+   * @param accountNumber the account number of the item
    * @return the receivable item
    */
   private com.poesys.accounting.dataloader.newaccounting.Item lookupReceivableItem(Integer year,
-                                                                                   Integer id) {
+                                                                                   Integer id,
+                                                                                   Float accountNumber) {
     logger.debug("Looking up receivable item for reimbursement: " + year
                  + " - " + id);
-    Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item> items =
+    Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item> items =
       receivablesMap.get(year);
     if (items == null) {
       throw new RuntimeException(NO_RECEIVABLES_ITEM_MAP_ERROR + year);
     }
+    ItemIndex index = new ItemIndex(id, accountNumber);
     com.poesys.accounting.dataloader.newaccounting.Item receivableItem =
-      items.get(id);
+      items.get(index);
     return receivableItem;
   }
 
@@ -744,19 +953,22 @@ public class OldDataBuilder implements IBuilder {
    * 
    * @param year the fiscal year of the item
    * @param id the transaction id of the item
+   * @param accountNumber the account number of the item
    * @return the reimbursing item
    */
   private com.poesys.accounting.dataloader.newaccounting.Item lookupReimbursingItem(Integer year,
-                                                                                    Integer id) {
+                                                                                    Integer id,
+                                                                                    Float accountNumber) {
     logger.debug("Looking up reimbursing item for receivable: " + year + " - "
                  + id);
-    Map<Integer, com.poesys.accounting.dataloader.newaccounting.Item> items =
+    Map<ItemIndex, com.poesys.accounting.dataloader.newaccounting.Item> items =
       reimbursementsMap.get(year);
     if (items == null) {
       throw new RuntimeException(NO_REIMBURSEMENTS_ITEM_MAP_ERROR + year);
     }
+    ItemIndex index = new ItemIndex(id, accountNumber);
     com.poesys.accounting.dataloader.newaccounting.Item receivableItem =
-      items.get(id);
+      items.get(index);
     return receivableItem;
   }
 

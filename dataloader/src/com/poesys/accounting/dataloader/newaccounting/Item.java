@@ -39,7 +39,7 @@ public class Item {
     new HashSet<Reimbursement>();
 
   // messages
-  
+
   private static final String NULL_PARAMETER_ERROR =
     "item parameters are required but one is null";
   private static final String NOT_SAME_ACCOUNT_ERROR =
@@ -116,7 +116,8 @@ public class Item {
         throw new InvalidParametersException(NOT_SAME_ACCOUNT_ERROR
                                              + receivable.getAccount()
                                              + " vs. "
-                                             + reimbursingItem.getAccount());
+                                             + reimbursingItem.getAccount()
+                                             + " for " + reimbursingItem);
       }
     }
 

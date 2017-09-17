@@ -269,6 +269,7 @@ public class AccountingDbServiceIntegrationTest {
     years.add(year3);
 
     try {
+      clearDatabase();
       IDataAccessService service = new AccountingDbService();
       service.storeEntity(ENTITY_NAME, years);
       // Build a complete set of transactions for all the years.

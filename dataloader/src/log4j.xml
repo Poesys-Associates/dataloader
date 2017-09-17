@@ -77,6 +77,11 @@
     <priority value="DEBUG" />
   </category>
 
+  <category name="com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder">
+    <!-- debugging for OldDataBuilder -->
+    <priority value="INFO" />
+  </category>
+
   <category name="com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager">
     <!-- debugging for DataLoader storage manager -->
     <priority value="INFO" />
