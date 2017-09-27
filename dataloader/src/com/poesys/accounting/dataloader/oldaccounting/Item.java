@@ -82,10 +82,33 @@ public class Item extends AbstractReaderDto {
 
   @Override
   protected void init(String[] fields) {
-    transactionId = new Integer(fields[0]);
-    accountNumber = new Float(fields[1]);
-    amount = new Double(fields[2]);
+    String idString = fields[0];
+    if (idString != null && !idString.isEmpty()) {
+      transactionId = new Integer(idString);
+    } else {
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR
+                                           + ": item transaction id");
+    }
+
+    String acctString = fields[1];
+    if (acctString != null && !acctString.isEmpty()) {
+      accountNumber = new Float(acctString);
+    } else {
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR
+                                           + ": item account number");
+    }
+
+    String amountString = fields[2];
+    if (amountString != null && !amountString.isEmpty()) {
+      amount = new Double(amountString);
+    } else {
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR
+                                           + ": item amount");
+    }
+
+    // default to credit (false) for empty string
     debit = fields[3].equalsIgnoreCase("DR");
+    // default to not checked (false) for empty string
     checked = fields[4].equalsIgnoreCase("Y");
   }
 

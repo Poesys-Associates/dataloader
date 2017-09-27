@@ -203,6 +203,72 @@ public class ItemTest {
 
   /**
    * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
+   * . Tests buffered reader constructor with null transaction id
+   */
+  @Test
+  public void testItemIntegerBufferedReaderNullId() {
+    String input =
+      "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t"
+          + "N";
+    BufferedReader reader = new BufferedReader(new StringReader(input));
+
+    try {
+      new Item(YEAR_1, reader);
+      fail("No exception for null item transaction id");
+    } catch (InvalidParametersException e) {
+      // success
+    } catch (Throwable e) {
+      fail("Wrong throwable for null item transaction id: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
+   * . Tests buffered reader constructor with null account number
+   */
+  @Test
+  public void testItemIntegerBufferedReaderNullAccountNumber() {
+    String input =
+        TRANS_ID_1 + "\t" + "\t" + AMOUNT + "\t" + "DR" + "\t"
+          + "N";
+    BufferedReader reader = new BufferedReader(new StringReader(input));
+
+    try {
+      new Item(YEAR_1, reader);
+      fail("No exception for null item account");
+    } catch (InvalidParametersException e) {
+      // success
+    } catch (Throwable e) {
+      fail("Wrong throwable for null item account: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
+   * . Tests buffered reader constructor with null amount
+   */
+  @Test
+  public void testItemIntegerBufferedReaderNullAmount() {
+    String input =
+        TRANS_ID_1 + "\t" + ACCOUNT_NO_1  + "\t" + "\t" + "DR" + "\t"
+          + "N";
+    BufferedReader reader = new BufferedReader(new StringReader(input));
+
+    try {
+      new Item(YEAR_1, reader);
+      fail("No exception for null item amount");
+    } catch (InvalidParametersException e) {
+      // success
+    } catch (Throwable e) {
+      fail("Wrong throwable for null item amount: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}.
    * Tests hashCode on same objects
    */
