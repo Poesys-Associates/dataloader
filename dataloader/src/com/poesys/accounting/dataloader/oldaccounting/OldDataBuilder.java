@@ -814,9 +814,6 @@ public class OldDataBuilder implements IBuilder {
                              receivableAccountNumber);
       Integer reimbursementYear = reimbursement.getReimbursementYear();
       Integer reimbursementId = reimbursement.getReimbursementTransactionId();
-      if (reimbursementYear.equals(2010) && reimbursementId.equals(1212)) {
-        logger.info("Found reimbursement");
-      }
       com.poesys.accounting.dataloader.newaccounting.Item reimbursementItem =
         lookupReimbursingItem(reimbursementYear,
                               reimbursementId,
