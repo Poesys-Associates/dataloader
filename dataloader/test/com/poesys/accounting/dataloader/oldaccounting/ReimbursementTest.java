@@ -29,6 +29,7 @@ public class ReimbursementTest {
   private static final Integer REIM_ID = 400;
   private static final Integer REIM_ID_2 = 500;
   private static final Double AMOUNT = 100.00D;
+  private static final Double ZERO_AMOUNT = 0.00D;
   private static final Double ALLOCATED_AMOUNT = 50.00D;
 
   /**
@@ -241,6 +242,40 @@ public class ReimbursementTest {
     assertTrue("wrong reimbursed amount: "
                    + reimbursement.getReimbursedAmount(),
                reimbursement.getReimbursedAmount().equals(AMOUNT));
+    assertTrue("wrong allocated amount: " + reimbursement.getAllocatedAmount(),
+               reimbursement.getAllocatedAmount().equals(ALLOCATED_AMOUNT));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Reimbursement#Reimbursement(java.lang.Float, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Double, java.lang.Double)}
+   * . Tests reader constructor and getters when reimbursement is zero and
+   * allocation is positive.
+   */
+  @Test
+  public void testReimbursementReaderValidAllocationOnly() {
+    String input =
+      REIM_ID + "\t" + REC_YEAR + "\t" + REC_ID + "\t" + ACCOUNT_NUMBER + "\t"
+          + ZERO_AMOUNT + "\t" + ALLOCATED_AMOUNT;
+    BufferedReader reader = new BufferedReader(new StringReader(input));
+    Reimbursement reimbursement = new Reimbursement(REIM_YEAR, reader);
+
+    assertTrue("wrong account number: " + reimbursement.getAccountNumber(),
+               reimbursement.getAccountNumber().equals(ACCOUNT_NUMBER));
+    assertTrue("wrong receivable year: " + reimbursement.getReceivableYear(),
+               reimbursement.getReceivableYear().equals(REC_YEAR));
+    assertTrue("wrong receivable transaction id: "
+                   + reimbursement.getReceivableTransactionId(),
+               reimbursement.getReceivableTransactionId().equals(REC_ID));
+    assertTrue("wrong reimbursement year: "
+                   + reimbursement.getReimbursementYear(),
+               reimbursement.getReimbursementYear().equals(REIM_YEAR));
+    assertTrue("wrong reimbursement transaction id: "
+                   + reimbursement.getReimbursementTransactionId(),
+               reimbursement.getReimbursementTransactionId().equals(REIM_ID));
+    assertTrue("wrong reimbursed amount, should be zero: "
+                   + reimbursement.getReimbursedAmount(),
+               reimbursement.getReimbursedAmount().equals(ZERO_AMOUNT));
     assertTrue("wrong allocated amount: " + reimbursement.getAllocatedAmount(),
                reimbursement.getAllocatedAmount().equals(ALLOCATED_AMOUNT));
   }

@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
@@ -23,11 +24,14 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class TransactionTest {
+  private static final Logger logger = Logger.getLogger(TransactionTest.class);
 
   private static final BigInteger TRANSACTION_ID = new BigInteger("1234");
   private static final String DESCRIPTION = "description";
   private static final Timestamp DATE =
-    Timestamp.valueOf("2017-05-01 00:00:00");
+      Timestamp.valueOf("2017-05-01 00:00:00");
+  private static final Timestamp PRIOR_DATE =
+      Timestamp.valueOf("2016-06-01 00:00:00");
   private static final Boolean NOT_CHECKED = Boolean.FALSE;
   private static final Boolean CHECKED = Boolean.TRUE;
   private static final Boolean NOT_BALANCE = Boolean.FALSE;
@@ -344,6 +348,193 @@ public class TransactionTest {
       // Test the allocatedAmount getter for the reimbursement.
       assertTrue("could not get allocated amount for reimbursement",
                  reimbursement.getAllocatedAmount().equals(ALLOCATED_AMOUNT));
+    }
+  }
+
+  /**
+   * Test system around valid receivable and reimbursement items and the
+   * com.poesys.accounting.dataloader.newaccounting.Item.reimburse() method,
+   * along with the getters for reimbursements and receivable. Also tests
+   * Transaction.addItem(), Transaction.isValid(), Item.getReimbursements(),
+   * Reimbursement.getReceivable(), Reimbursement.getReimbursingItem(),
+   * Reimbursement.getReimbursedAmount, and Reimbursement.getAllocatedAmount().
+   * This version tests a reimbursement that allocates the complete amount with
+   * no reimbursement amount.
+   */
+  @Test
+  public void testValidAllocationReimbursement() {
+    // Create the receivable transaction with items.
+    Transaction receivableTransaction =
+      new Transaction(TRANSACTION_ID,
+                      DESCRIPTION,
+                      DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("receivable transaction constructor failed",
+               receivableTransaction != null);
+    // income item
+    Item income =
+      receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
+    assertTrue("income item constructor failed", income != null);
+    // receivable item
+    Item receivable =
+      receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("receivable item constructor failed", receivable != null);
+    assertTrue("invalid receivable transaction",
+               receivableTransaction.isValid());
+
+    // Create the reimbursing transaction with items.
+    Transaction reimbursingTransaction =
+      new Transaction(TRANSACTION_ID.add(BigInteger.ONE),
+                      DESCRIPTION,
+                      DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("reimbursing transaction constructor failed",
+               receivableTransaction != null);
+    Double reimbursementAmount = 1.17D;
+    Double reimbursedAmount = 0.00D;
+    // cash payment item
+    Item payment =
+      reimbursingTransaction.addItem(reimbursementAmount,
+                                     CHECKING_ACCOUNT,
+                                     DEBIT,
+                                     NOT_CHECKED);
+    assertTrue("payment item constructor failed", payment != null);
+    // receivable reimbursement item
+    Item reimbursingItem =
+      reimbursingTransaction.addItem(reimbursementAmount,
+                                     AR_ACCOUNT,
+                                     CREDIT,
+                                     NOT_CHECKED);
+    assertTrue("reverse receivable item constructor failed",
+               reimbursingItem != null);
+    assertTrue("invalid reimbursing transaction",
+               receivableTransaction.isValid());
+
+    // Reimburse the receivable.
+    receivable.reimburse(reimbursingItem, reimbursedAmount, reimbursementAmount);
+
+    // Test the getReimbursements getter.
+    assertTrue("no reimbursements in receivable",
+               receivable.getReimbursements().size() > 0);
+
+    for (Item.Reimbursement reimbursement : receivable.getReimbursements()) {
+      // Test the reimbursement item getter and the item itself.
+      assertTrue("wrong reimbursement in receivable",
+                 reimbursement.getReimbursingItem().equals(reimbursingItem));
+      // Test the receivable getter for the reimbursement.
+      assertTrue("could not get receivable for reimbursement",
+                 reimbursement.getReceivable().equals(receivable));
+      // Test the allocatedAmount getter for the reimbursement.
+      assertTrue("could not get reimbursement amount for reimbursement",
+                 reimbursement.getReimbursedAmount().equals(reimbursedAmount));
+      // Test the allocatedAmount getter for the reimbursement.
+      assertTrue("could not get allocated amount for reimbursement",
+                 reimbursement.getAllocatedAmount().equals(reimbursementAmount));
+    }
+    for (Item.Reimbursement reimbursement : reimbursingItem.getReimbursements()) {
+      // Test the reimbursement item getter and the item itself.
+      assertTrue("wrong reimbursement in receivable",
+                 reimbursement.getReimbursingItem().equals(reimbursingItem));
+      // Test the receivable getter for the reimbursement.
+      assertTrue("could not get receivable for reimbursement",
+                 reimbursement.getReceivable().equals(receivable));
+      // Test the allocatedAmount getter for the reimbursement.
+      assertTrue("could not get reimbursement amount for reimbursement",
+                 reimbursement.getReimbursedAmount().equals(reimbursedAmount));
+      // Test the allocatedAmount getter for the reimbursement.
+      assertTrue("could not get allocated amount for reimbursement",
+                 reimbursement.getAllocatedAmount().equals(reimbursementAmount));
+    }
+  }
+
+  /**
+   * Test error condition when the reimbursement has already occurred in a
+   * previous year.
+   */
+  @Test
+  public void testPriorYearReimbursement() {
+    // Create the receivable transaction with items.
+    Transaction receivableTransaction =
+      new Transaction(TRANSACTION_ID,
+                      DESCRIPTION,
+                      PRIOR_DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("receivable transaction constructor failed",
+               receivableTransaction != null);
+    // income item
+    Item income =
+      receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
+    assertTrue("income item constructor failed", income != null);
+    // receivable item
+    Item receivable =
+      receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("receivable item constructor failed", receivable != null);
+    assertTrue("invalid receivable transaction",
+               receivableTransaction.isValid());
+
+    // Create the prior-year reimbursing transaction with items.
+    BigInteger transactionId = TRANSACTION_ID;
+    
+    Transaction reimbursingTransaction1 =
+      new Transaction(transactionId.add(BigInteger.ONE),
+                      DESCRIPTION,
+                      PRIOR_DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("reimbursing transaction constructor failed",
+               receivableTransaction != null);
+    // cash payment item
+    Item payment1 =
+      reimbursingTransaction1.addItem(AMOUNT,
+                                     CHECKING_ACCOUNT,
+                                     DEBIT,
+                                     NOT_CHECKED);
+    assertTrue("payment item constructor failed", payment1 != null);
+    // receivable reimbursement item
+    Item reimbursingItem1 =
+      reimbursingTransaction1.addItem(AMOUNT, AR_ACCOUNT, CREDIT, NOT_CHECKED);
+    assertTrue("reverse receivable item constructor failed",
+               reimbursingItem1 != null);
+    assertTrue("invalid reimbursing transaction",
+               receivableTransaction.isValid());
+
+    // Reimburse the receivable.
+    receivable.reimburse(reimbursingItem1, AMOUNT, ALLOCATED_AMOUNT);
+
+    // Create the reimbursing transaction with items.
+    Transaction reimbursingTransaction2 =
+      new Transaction(transactionId.add(BigInteger.ONE),
+                      DESCRIPTION,
+                      DATE,
+                      NOT_CHECKED,
+                      NOT_BALANCE);
+    assertTrue("reimbursing transaction constructor failed",
+               receivableTransaction != null);
+    // cash payment item
+    Item payment2 =
+      reimbursingTransaction2.addItem(AMOUNT,
+                                     CHECKING_ACCOUNT,
+                                     DEBIT,
+                                     NOT_CHECKED);
+    assertTrue("payment item constructor failed", payment2 != null);
+    // receivable reimbursement item
+    Item reimbursingItem2 =
+      reimbursingTransaction2.addItem(AMOUNT, AR_ACCOUNT, CREDIT, NOT_CHECKED);
+    assertTrue("reverse receivable item constructor failed",
+               reimbursingItem2 != null);
+    assertTrue("invalid reimbursing transaction",
+               receivableTransaction.isValid());
+
+    try {
+      // Reimburse the receivable.
+      receivable.reimburse(reimbursingItem2, AMOUNT, ALLOCATED_AMOUNT);
+      fail("Prior year reimbursement test did not generate exception");
+    } catch (Exception e) {
+      assertTrue("wrong exception for prior-year reimbursement error", e.getMessage().contains("check for prior-year reimbursement"));
+      logger.error(e.getMessage());
     }
   }
 
@@ -693,7 +884,7 @@ public class TransactionTest {
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("toString failed: " + receivableTransaction,
                receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false], Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]]]"));
-                                                       
+
   }
 
   /**

@@ -354,9 +354,12 @@ public class Item {
     }
     // Total must be less than or equal to the receivable amount.
     if (total.compareTo(amount) > 0) {
-      throw new InvalidParametersException("Total reimbursement is " + total
+      throw new InvalidParametersException("Total reimbursement is "
+                                           + total
                                            + " but receivable amount is "
-                                           + amount);
+                                           + amount
+                                           + "; check for prior-year reimbursement of receivable in these reimbursements "
+                                           + reimbursements + ")");
     }
     // Add the reimbursement to the set of reimbursements in both this item and
     // the reimbursing item (two-way visibility).
@@ -373,7 +376,9 @@ public class Item {
   public String toString() {
     // Get only transaction id and description to avoid infinite loop in display
     // of items within transaction
-    return "Item [transaction="
+    return "Item [year="
+           + transaction.getYear()
+           + ", transaction="
            + (transaction.getId() == null ? "(no trans id)"
                : transaction.getId()) + ", description="
            + transaction.getDescription() + ", amount=" + amount + ", account="
