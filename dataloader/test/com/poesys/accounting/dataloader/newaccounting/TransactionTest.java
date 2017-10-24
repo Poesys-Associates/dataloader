@@ -29,9 +29,9 @@ public class TransactionTest {
   private static final BigInteger TRANSACTION_ID = new BigInteger("1234");
   private static final String DESCRIPTION = "description";
   private static final Timestamp DATE =
-      Timestamp.valueOf("2017-05-01 00:00:00");
+    Timestamp.valueOf("2017-05-01 00:00:00");
   private static final Timestamp PRIOR_DATE =
-      Timestamp.valueOf("2016-06-01 00:00:00");
+    Timestamp.valueOf("2016-06-01 00:00:00");
   private static final Boolean NOT_CHECKED = Boolean.FALSE;
   private static final Boolean CHECKED = Boolean.TRUE;
   private static final Boolean NOT_BALANCE = Boolean.FALSE;
@@ -477,7 +477,7 @@ public class TransactionTest {
 
     // Create the prior-year reimbursing transaction with items.
     BigInteger transactionId = TRANSACTION_ID;
-    
+
     Transaction reimbursingTransaction1 =
       new Transaction(transactionId.add(BigInteger.ONE),
                       DESCRIPTION,
@@ -489,9 +489,9 @@ public class TransactionTest {
     // cash payment item
     Item payment1 =
       reimbursingTransaction1.addItem(AMOUNT,
-                                     CHECKING_ACCOUNT,
-                                     DEBIT,
-                                     NOT_CHECKED);
+                                      CHECKING_ACCOUNT,
+                                      DEBIT,
+                                      NOT_CHECKED);
     assertTrue("payment item constructor failed", payment1 != null);
     // receivable reimbursement item
     Item reimbursingItem1 =
@@ -516,9 +516,9 @@ public class TransactionTest {
     // cash payment item
     Item payment2 =
       reimbursingTransaction2.addItem(AMOUNT,
-                                     CHECKING_ACCOUNT,
-                                     DEBIT,
-                                     NOT_CHECKED);
+                                      CHECKING_ACCOUNT,
+                                      DEBIT,
+                                      NOT_CHECKED);
     assertTrue("payment item constructor failed", payment2 != null);
     // receivable reimbursement item
     Item reimbursingItem2 =
@@ -533,7 +533,8 @@ public class TransactionTest {
       receivable.reimburse(reimbursingItem2, AMOUNT, ALLOCATED_AMOUNT);
       fail("Prior year reimbursement test did not generate exception");
     } catch (Exception e) {
-      assertTrue("wrong exception for prior-year reimbursement error", e.getMessage().contains("check for prior-year reimbursement"));
+      assertTrue("wrong exception for prior-year reimbursement error",
+                 e.getMessage().contains("check for prior-year reimbursement"));
       logger.error(e.getMessage());
     }
   }
@@ -883,8 +884,7 @@ public class TransactionTest {
       receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("toString failed: " + receivableTransaction,
-               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false], Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]]]"));
-
+               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false], Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]]]"));
   }
 
   /**
@@ -984,6 +984,6 @@ public class TransactionTest {
     }
     assertTrue("Income item not found", incomeItem != null);
     assertTrue("item string incorrect: " + incomeItem,
-               incomeItem.toString().equals("Item [transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]"));
+               incomeItem.toString().equals("Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]"));
   }
 }

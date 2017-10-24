@@ -20,6 +20,7 @@ import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder;
 import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.accounting.dataloader.properties.PropertyFileParameters;
+import com.poesys.db.InvalidParametersException;
 
 
 /**
@@ -34,7 +35,7 @@ public class DataLoader implements IDirector {
 
   /** the set of fiscal year objects */
   private final List<FiscalYear> years = new ArrayList<FiscalYear>();
-  
+
   /** property file name, file should be in classpath */
   private static final String PROPFILE = "dataloader.properties";
 
@@ -53,6 +54,10 @@ public class DataLoader implements IDirector {
   private static final String NON_ZERO_BALANCE_WARNING =
     "balances are not zero for ";
   private static final String MATCH_WARNING = "balances do not match for ";
+  private static final String INVALID_YEAR_RANGE_ERROR =
+    "Start year greater than end year in parameters";
+  private static final String NULL_YEAR_ERROR =
+    "Null start or end year in parameters";
 
   /**
    * Main entry point for Poesys Data Loader; exits with 0 status code if
@@ -108,6 +113,12 @@ public class DataLoader implements IDirector {
    */
   private void buildFiscalYears(IBuilder builder, IParameters parameters,
                                 IFiscalYearUpdater updater) {
+    // Get the years.
+    Integer start = parameters.getStartYear();
+    Integer end = parameters.getEndYear();
+
+    validateRange(start, end);
+
     for (int year = parameters.getStartYear(); year <= parameters.getEndYear(); year++) {
       // Build the current fiscal year, clearing data from previous year.
       builder.buildFiscalYear(year);
@@ -134,6 +145,25 @@ public class DataLoader implements IDirector {
 
       // Write the statements.
       writeStatements(parameters, fiscalYear);
+    }
+  }
+
+  /**
+   * Validate start and end years as a range of years; both years must be not
+   * null and the start year cannot be greater than the end year.
+   * 
+   * @param start the start year
+   * @param end the end year
+   */
+  public void validateRange(Integer start, Integer end) {
+    // Validate the range.
+    if (start == null || end == null) {
+      throw new InvalidParametersException(NULL_YEAR_ERROR);
+    }
+
+    if (start.compareTo(end) > 0) {
+      throw new InvalidParametersException(INVALID_YEAR_RANGE_ERROR + ": "
+                                           + start + ", " + end);
     }
   }
 

@@ -5,13 +5,18 @@ package com.poesys.accounting.dataloader;
 
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
+import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneEntityOneYearNoDistribution;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidNullStartYear;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidYearRange;
+import com.poesys.db.InvalidParametersException;
 
 
 /**
@@ -29,7 +34,7 @@ public class DataLoaderTest {
    * .
    */
   @Test
-  public void testConstruct() {
+  public void testValidConstruct() {
     // Create the data loader.
     DataLoader loader = new DataLoader();
     // Create the production interface implementations for the loader.
@@ -55,9 +60,9 @@ public class DataLoaderTest {
     // The number of start-end calls depends on the number of fiscal years
     // processed plus one startup call.
     assertTrue("start parameter not retrieved: " + parameters.getStartCalls(),
-               parameters.getStartCalls() == NUMBER_OF_YEARS + 1);
+               parameters.getStartCalls() == NUMBER_OF_YEARS + 2);
     assertTrue("end parameter not retrieved",
-               parameters.getEndCalls() == NUMBER_OF_YEARS + 1);
+               parameters.getEndCalls() == NUMBER_OF_YEARS + 2);
 
     // test has NUMBER_OF_YEARS fiscal years, so each builder method is called
     // NUMBER_OF_YEARS times
@@ -86,5 +91,61 @@ public class DataLoaderTest {
       assertTrue("income statement null for year " + year,
                  incomeStatementDataSet != null);
     }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.DataLoader#construct(com.poesys.accounting.dataloader.properties.IParameters, com.poesys.accounting.dataloader.IBuilder, com.poesys.accounting.dataloader.newaccounting.IStorageManager, com.poesys.accounting.dataloader.newaccounting.IDataAccessService, IFiscalYearUpdater)}
+   * . Tests case where start year is greater than end year in parameters.
+   */
+  @Test
+  public void testInvalidRange() {
+    // Create the data loader.
+    DataLoader loader = new DataLoader();
+    IParameters parameters = new UnitTestParametersInvalidYearRange();
+    UnitTestNoExceptionsBuilder builder = new UnitTestNoExceptionsBuilder();
+    IStorageManager storageManager = parameters.getStorageManager();
+    IDataAccessService dbService = parameters.getDataAccessService();
+    IFiscalYearUpdater updater = parameters.getUpdater();
+
+    // Construct the accounting system.
+    try {
+      loader.construct(parameters, builder, storageManager, dbService, updater);
+      fail("construct() with bad year range did not throw exception");
+    } catch (InvalidParametersException e) {
+      assertTrue("wrong invalid parameters exception for year range error: "
+                     + e.getMessage(),
+                 e.getMessage().contains("Start year greater than end year in parameters"));
+      // success
+    }
+
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.DataLoader#construct(com.poesys.accounting.dataloader.properties.IParameters, com.poesys.accounting.dataloader.IBuilder, com.poesys.accounting.dataloader.newaccounting.IStorageManager, com.poesys.accounting.dataloader.newaccounting.IDataAccessService, IFiscalYearUpdater)}
+   * . Tests case where start year is null.
+   */
+  @Test
+  public void testInvalidNullStartYear() {
+    // Create the data loader.
+    DataLoader loader = new DataLoader();
+    IParameters parameters = new UnitTestParametersInvalidNullStartYear();
+    UnitTestNoExceptionsBuilder builder = new UnitTestNoExceptionsBuilder();
+    IStorageManager storageManager = parameters.getStorageManager();
+    IDataAccessService dbService = parameters.getDataAccessService();
+    IFiscalYearUpdater updater = parameters.getUpdater();
+
+    // Construct the accounting system.
+    try {
+      loader.construct(parameters, builder, storageManager, dbService, updater);
+      fail("construct() with bad year range did not throw exception");
+    } catch (InvalidParametersException e) {
+      assertTrue("wrong invalid parameters exception for null start year: "
+                     + e.getMessage(),
+                 e.getMessage().contains("Null start or end year in parameters"));
+      // success
+    }
+
   }
 }

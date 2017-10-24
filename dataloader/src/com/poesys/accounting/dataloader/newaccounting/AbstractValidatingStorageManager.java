@@ -2,6 +2,7 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -17,14 +18,22 @@ import com.poesys.db.InvalidParametersException;
  */
 public abstract class AbstractValidatingStorageManager implements
     IStorageManager {
+
   /** logger for this class */
   static final Logger logger =
     Logger.getLogger(AbstractValidatingStorageManager.class);
 
+  /** title for income statement */
+  private static final String INCOME_STATEMENT = "Income Statement";
+
+  /** title for balance sheet */
+  private static final String BALANCE_SHEET = "Balance Sheet";
+
   // messages
 
-  /** statements don't balance */
-  static final String BALANCE_ERROR = "Statements don't balance for year ";
+  private static final String BALANCE_ERROR =
+    "Statements don't balance for year ";
+  private static final String NO_YEARS_TO_VALIDATE = "no years to validate";
 
   /**
    * Create a AbstractValidatingStorageManager object.
@@ -36,9 +45,11 @@ public abstract class AbstractValidatingStorageManager implements
   @Override
   public Boolean validate(List<FiscalYear> years) {
     if (years == null || years.size() == 0) {
-      throw new InvalidParametersException("no years to validate");
+      throw new InvalidParametersException(NO_YEARS_TO_VALIDATE);
     }
     Boolean valid = Boolean.TRUE;
+    
+    SimpleDateFormat format = new SimpleDateFormat("MM dd, yyyy");
 
     // Create the balance sheet and income statement for each year, then
     // compare the balances by addition; if the sum is not zero, there's
@@ -48,11 +59,12 @@ public abstract class AbstractValidatingStorageManager implements
     for (FiscalYear year : years) {
       Statement balanceSheet =
         new Statement(year,
-                      "Balance Sheet",
+                      year.getYear() + " " +BALANCE_SHEET,
                       Statement.StatementType.BALANCE_SHEET);
+      String formattedEnd = format.format(year.getEnd());
       Statement incomeStatement =
         new Statement(year,
-                      "Income Statement",
+                      INCOME_STATEMENT + " " + formattedEnd,
                       Statement.StatementType.INCOME_STATEMENT);
       BigDecimal balanceSheetBalance = balanceSheet.getBalance();
       BigDecimal incomeStatementBalance = incomeStatement.getBalance();
