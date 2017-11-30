@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -43,6 +43,8 @@ public class UnitTestParametersNullLastFields extends
   private static final String DELIM = "\t";
 
   private static final Integer REC_YEAR = 2016;
+
+  private static final String SINGLE_ENTITY_NAME = "John Q. Doe";
 
   private static final String CAP_ACCOUNT = "Personal Capital";
   private static final String DIST_ACCOUNT = "Distributions";
@@ -159,7 +161,8 @@ public class UnitTestParametersNullLastFields extends
   @Override
   public Reader getCapitalEntityReader() {
     String input =
-      CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
+      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM
+          + OWNERSHIP.toString();
     return new StringReader(input);
   }
 
@@ -260,7 +263,7 @@ public class UnitTestParametersNullLastFields extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

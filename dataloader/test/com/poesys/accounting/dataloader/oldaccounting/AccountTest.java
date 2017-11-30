@@ -9,7 +9,7 @@ import java.io.StringReader;
 
 import org.junit.Test;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -33,7 +33,7 @@ public class AccountTest {
   private static final String NAME2 = "Accounts Receivable";
   private static final Boolean DEFAULT_DEBIT = Boolean.TRUE;
   private static final String STRING_REP =
-    "Account [year=2017, name=Cash, accountNumber=109.0, defaultDebit=true, getAccountType()=Asset]";
+    "Account [year=2017, name=Cash, accountNumber=109.0, defaultDebit=true, getAccountType()=Assets]";
 
   /**
    * Test constructor and getters (getAccount is separate from this test)
@@ -229,13 +229,12 @@ public class AccountTest {
    */
   @Test
   public void testGetAccountType() {
-    validateAccountType(101F, AccountType.ASSET);
-    validateAccountType(220.1F, AccountType.LIABILITY);
+    validateAccountType(101F, AccountType.ASSETS);
+    validateAccountType(220.1F, AccountType.LIABILITIES);
     validateAccountType(310.2F, AccountType.EQUITY);
     validateAccountType(402F, AccountType.INCOME);
     validateAccountType(599F, AccountType.INCOME);
-    validateAccountType(620F, AccountType.EXPENSE);
-    validateAccountType(620F, AccountType.EXPENSE);
+    validateAccountType(620F, AccountType.EXPENSES);
     validateAccountType(5F, null);
     validateAccountType(900F, null);
   }

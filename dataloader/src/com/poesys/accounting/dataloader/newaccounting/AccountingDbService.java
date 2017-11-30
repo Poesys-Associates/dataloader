@@ -21,14 +21,17 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.poesys.accounting.bs.account.AccountDelegateFactory;
-import com.poesys.accounting.bs.account.AccountGroupDelegate;
+import com.poesys.accounting.bs.account.AccountTypeDelegate;
 import com.poesys.accounting.bs.account.BsAccount;
 import com.poesys.accounting.bs.account.BsAccountGroup;
+import com.poesys.accounting.bs.account.BsAccountType;
 import com.poesys.accounting.bs.account.BsEntity;
 import com.poesys.accounting.bs.account.BsFiscalYear;
 import com.poesys.accounting.bs.account.BsFiscalYearAccount;
+import com.poesys.accounting.bs.account.BsSimpleAccount;
 import com.poesys.accounting.bs.account.EntityDelegate;
 import com.poesys.accounting.bs.account.FiscalYearDelegate;
+import com.poesys.accounting.bs.account.SimpleAccountDelegate;
 import com.poesys.accounting.bs.transaction.BsItem;
 import com.poesys.accounting.bs.transaction.BsReimbursement;
 import com.poesys.accounting.bs.transaction.BsTransaction;
@@ -68,23 +71,33 @@ public class AccountingDbService implements IDataAccessService {
   private final Map<Integer, BsFiscalYear> fiscalYears =
     new HashMap<Integer, BsFiscalYear>();
 
-  /** a map of item objects indexed by item, ar objects only for reimbursments */
+  /** a map of item objects indexed by item, AR objects only for reimbursments */
   private final Map<Item, BsItem> arItems = new HashMap<Item, BsItem>();
+
+  /** a map of account types indexed by type for lookup of database type object */
+  private final Map<AccountType, BsAccountType> types =
+    new HashMap<AccountType, BsAccountType>();
 
   /**
    * Helper class for index to id map
    */
   private class OldId {
+    /** the name of the accounting entity */
+    public String entityName;
+    /** the fiscal year */
     public int year;
+    /** the old-accounting transaction id */
     public BigDecimal id;
 
     /**
-     * Create an OldId indexing object with a fiscal year and transaction id.
+     * Create an OldId indexing object with an entity, a fiscal year, and a
+     * transaction id.
      * 
+     * @param entityName the name of the accounting entity with the ids
      * @param year the fiscal year number
      * @param id the old transaction id number
      */
-    public OldId(int year, BigDecimal id) {
+    public OldId(String entityName, int year, BigDecimal id) {
       this.year = year;
       this.id = id;
     }
@@ -95,13 +108,29 @@ public class AccountingDbService implements IDataAccessService {
     }
   }
 
+  /**
+   * Create an AccountingDbService object.
+   */
+  public AccountingDbService() {
+    AccountTypeDelegate typeDelegate =
+      AccountDelegateFactory.getAccountTypeDelegate();
+    // Build the map of database account types.
+    List<BsAccountType> typeList = typeDelegate.getAllObjects(5);
+    for (BsAccountType type : typeList) {
+      AccountType localType =
+        AccountType.databaseValueOf(type.getAccountType());
+      types.put(localType, type);
+    }
+  }
+
   @Override
   public void storeEntity(String entityName, List<FiscalYear> years) {
     FiscalYearDelegate yearDelegate =
       AccountDelegateFactory.getFiscalYearDelegate();
+    AccountTypeDelegate typeDelegate =
+      AccountDelegateFactory.getAccountTypeDelegate();
     EntityDelegate entityDelegate = AccountDelegateFactory.getEntityDelegate();
-    AccountGroupDelegate accountGroupDelegate =
-      AccountDelegateFactory.getAccountGroupDelegate();
+    SimpleAccountDelegate accountDelegate = AccountDelegateFactory.getSimpleAccountDelegate();
 
     // Intermediate storage and lookup structures
     List<BsFiscalYear> yearList = new ArrayList<BsFiscalYear>();
@@ -122,37 +151,36 @@ public class AccountingDbService implements IDataAccessService {
       yearList.add(fiscalYear);
 
       // Create account groups and accounts.
-      for (Account account : year.getAccounts()) {
+      for (FiscalYearAccount link : year.getAccounts()) {
+        // Extract account
+        Account account = link.getAccount();
         // Extract group and create if needed.
-        BsAccountGroup storedGroup = groups.get(account.getGroup());
+        BsAccountGroup storedGroup = groups.get(link.getGroup());
         if (storedGroup == null) {
+          BsAccountType accountType = types.get(link.getAccountType());
           storedGroup =
-            accountGroupDelegate.createAccountGroup(account.getGroup().getName());
+            typeDelegate.createAccountGroup(accountType,
+                                            accountType.getAccountType(),
+                                            link.getGroup().getName());
           if (storedGroup == null) {
             throw new RuntimeException("Could not create stored group from group in account "
                                        + account);
           } else {
-            groups.put(account.getGroup(), storedGroup);
+            groups.put(account.getGroup(year), storedGroup);
           }
         }
-        // Create account and add to fiscal year.
-        BsAccount storedAccount =
-          entityDelegate.createAccount(entity,
-                                       entity.getEntityName(),
-                                       account.getName(),
-                                       account.getDescription(),
-                                       account.isDebitDefault(),
-                                       account.getAccountType().toString(),
-                                       account.isReceivable(),
-                                       true,
-                                       storedGroup.getGroupName());
+        // Create simple account.
+        BsSimpleAccount simpleAccount = accountDelegate.createSimpleAccount(account.getName(), entityName, account.getDescription(), account.isDebitDefault(), true, account.isReceivable());
+        BsAccount storedAccount = new BsAccount(simpleAccount.toDto());
+        // Create fiscal year account link.
+        BsFiscalYearAccount fiscalYearAccount = entityDelegate.createFiscalYearAccount(storedAccount, storedGroup, fiscalYear, account.getName(), entityName, year.getYear(), accountOrderNumber, groupOrderNumber, accountType, groupName, group)
         try {
-          entity.addAccountsAccount(storedAccount);
-          storedAccount.setGroup(storedGroup);
-          storedAccount.addYearsFiscalYear(fiscalYear);
-          fiscalYear.addAccountsAccount(storedAccount);
+          entity.addAccountsAccount(new BsAccount(simpleAccount.toDto()));
+          simpleAccount.setGroup(storedGroup);
+          simpleAccount.addYearsFiscalYear(fiscalYear);
+          fiscalYear.addAccountsAccount(simpleAccount);
           createFiscalYearAccountLinks(yearDelegate,
-                                       storedAccount,
+                                       simpleAccount,
                                        orderNumber,
                                        fiscalYear);
           // Next year, increment order number
@@ -160,10 +188,10 @@ public class AccountingDbService implements IDataAccessService {
         } catch (SQLException e) {
           throw new DelegateException("SQL exception storing account", e);
         }
-        storedAccount.setGroup(storedGroup);
+        simpleAccount.setGroup(storedGroup);
 
         // Add the account to the map for later lookups.
-        accounts.put(account, storedAccount);
+        accounts.put(account, simpleAccount);
       }
     }
 
@@ -250,10 +278,11 @@ public class AccountingDbService implements IDataAccessService {
                                               "com.poesys.accounting.db.transaction");
         for (OldId id : ids.keySet()) {
           stmt =
-            connection.prepareStatement("INSERT INTO IdMap(year, oldId, newId) VALUES (?, ?, ?)");
-          stmt.setInt(1, id.year);
-          stmt.setBigDecimal(2, id.id);
-          stmt.setBigDecimal(3, ids.get(id));
+            connection.prepareStatement("INSERT INTO IdMap(entityName, year, oldId, newId) VALUES (?, ?, ?, ?)");
+          stmt.setString(1, id.entityName);
+          stmt.setInt(2, id.year);
+          stmt.setBigDecimal(3, id.id);
+          stmt.setBigDecimal(4, ids.get(id));
           stmt.execute();
         }
         connection.commit();
@@ -413,5 +442,11 @@ public class AccountingDbService implements IDataAccessService {
     OldId oldId = new OldId(year, new BigDecimal(transaction.getId()));
     BigDecimal newId = new BigDecimal(transactionObject.getTransactionId());
     ids.put(oldId, newId);
+  }
+
+  @Override
+  public void storeAccountGroups(List<AccountGroup> groups) {
+    // TODO Auto-generated method stub
+
   }
 }

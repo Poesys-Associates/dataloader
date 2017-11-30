@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -84,13 +84,16 @@ public class UnitTestParametersCapitalTwoEntitiesOneYearUnbalanced extends
   private static final Float CREDIT_ACCOUNT = 200.0F;
   private static final String CREDIT_ACCOUNT_NAME = "Credit Card";
 
+  private static final String CAPITAL_ENTITY_1_NAME = "Partner 1";
   private static final String CAP_ACCOUNT_1_NAME = "Personal Capital Partner 1";
   private static final Float CAP_ACCOUNT_1 = 300.0F;
-  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
-  private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_1_NAME =
     "Distributions to Partner 1";
   private static final Float DIST_ACCOUNT_1 = 310.0F;
+
+  private static final String CAPITAL_ENTITY_2_NAME = "Partner 2";
+  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
+  private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_2_NAME =
     "Distributions to Partner 2";
   private static final Float DIST_ACCOUNT_2 = 311.0F;
@@ -232,10 +235,11 @@ public class UnitTestParametersCapitalTwoEntitiesOneYearUnbalanced extends
   // two entities here, partnership
   @Override
   public Reader getCapitalEntityReader() {
+    // @formatter:off
     String input =
-      CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM
-          + OWNERSHIP.toString() + LINE_RET + CAP_ACCOUNT_2_NAME + DELIM
-          + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+      CAPITAL_ENTITY_1_NAME + DELIM + CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM + OWNERSHIP.toString() + LINE_RET + 
+      CAPITAL_ENTITY_2_NAME + DELIM + CAP_ACCOUNT_2_NAME + DELIM + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -383,7 +387,7 @@ public class UnitTestParametersCapitalTwoEntitiesOneYearUnbalanced extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

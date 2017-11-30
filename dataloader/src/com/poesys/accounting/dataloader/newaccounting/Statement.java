@@ -5,8 +5,8 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -76,18 +76,18 @@ public class Statement {
    * Get the rollups. This is a factory method as well as a "getter" that
    * generates the Rollup objects for each account in the FiscalYear and puts it
    * into a map of Rollups indexed by account. There will be one entry in the
-   * map for each account registered in the fiscal year.
+   * map for each account registered in the fiscal year. The map values are
+   * sorted in "natural" order using the Rollup compareTo() method.
    * 
    * @return a Map of Rollup objects indexed by Account
    */
   public Map<Account, Rollup> getRollups() {
-    Map<Account, Rollup> rollups =
-      new HashMap<Account, Rollup>(year.getAccounts().size());
-    for (Account account : year.getAccounts()) {
+    Map<Account, Rollup> rollups = new TreeMap<Account, Rollup>();
+    for (FiscalYearAccount account : year.getAccounts()) {
       // Create a rollup for each account.
-      Rollup rollup = new Rollup(this, account);
+      Rollup rollup = new Rollup(this, account.getAccount());
       // Index the rollup in the map.
-      rollups.put(account, rollup);
+      rollups.put(account.getAccount(), rollup);
     }
     return rollups;
   }
@@ -103,9 +103,9 @@ public class Statement {
       throw new RuntimeException(NULL_PARAMETER_ERROR);
     }
     BigDecimal accountTotal = BigDecimal.ZERO;
-    for (Account account : year.getAccounts()) {
+    for (FiscalYearAccount account : year.getAccounts()) {
       if (account.equals(inputAccount)) {
-        Rollup rollup = new Rollup(this, account);
+        Rollup rollup = new Rollup(this, account.getAccount());
         accountTotal = rollup.getTotal();
         break;
       }
@@ -157,9 +157,9 @@ public class Statement {
       Account account = rollup.getAccount();
       switch (type) {
       case BALANCE_SHEET:
-        switch (account.getAccountType()) {
-        case ASSET:
-        case LIABILITY:
+        switch (account.getAccountType(year)) {
+        case ASSETS:
+        case LIABILITIES:
         case EQUITY:
           BigDecimal total = rollup.getTotal();
           balance = balance.add(total);
@@ -172,9 +172,9 @@ public class Statement {
         }
         break;
       case INCOME_STATEMENT:
-        switch (account.getAccountType()) {
+        switch (account.getAccountType(year)) {
         case INCOME:
-        case EXPENSE:
+        case EXPENSES:
           BigDecimal total = rollup.getTotal();
           balance = balance.add(total);
           logger.debug(name + " account " + account.getName() + ": " + total
@@ -215,9 +215,9 @@ public class Statement {
       Account account = rollup.getAccount();
       switch (type) {
       case BALANCE_SHEET:
-        switch (account.getAccountType()) {
-        case ASSET:
-        case LIABILITY:
+        switch (account.getAccountType(year)) {
+        case ASSETS:
+        case LIABILITIES:
         case EQUITY:
           appendDataLine(builder, line, rollup);
           // Set line delimiter to write after first line.
@@ -229,9 +229,9 @@ public class Statement {
         }
         break;
       case INCOME_STATEMENT:
-        switch (account.getAccountType()) {
+        switch (account.getAccountType(year)) {
         case INCOME:
-        case EXPENSE:
+        case EXPENSES:
           appendDataLine(builder, line, rollup);
           // Set line delimiter to write after first line.
           line = LINE;
@@ -277,9 +277,9 @@ public class Statement {
       if (account.getItems().size() > 0) {
         switch (type) {
         case BALANCE_SHEET:
-          switch (account.getAccountType()) {
-          case ASSET:
-          case LIABILITY:
+          switch (account.getAccountType(year)) {
+          case ASSETS:
+          case LIABILITIES:
           case EQUITY:
             appendDataDetailsLines(builder, line, rollup);
             // Set line delimiter to write after first line.
@@ -291,9 +291,9 @@ public class Statement {
           }
           break;
         case INCOME_STATEMENT:
-          switch (account.getAccountType()) {
+          switch (account.getAccountType(year)) {
           case INCOME:
-          case EXPENSE:
+          case EXPENSES:
             appendDataDetailsLines(builder, line, rollup);
             // Set line delimiter to write after first line.
             line = LINE;

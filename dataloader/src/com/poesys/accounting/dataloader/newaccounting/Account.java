@@ -33,81 +33,17 @@ public class Account {
   /** logger for this class */
   private static final Logger logger = Logger.getLogger(Account.class);
 
-  /**
-   * The kind of account
-   */
-  public enum AccountType {
-    /** money paid by the accounting entity to another entity */
-    EXPENSE("Expense"), /** revenues paid to the accounting entity */
-    INCOME("Income"), /**
-     * a kind of fund invested by the accounting entity n the
-     * business; the different between value of asses and value of liabilities
-     */
-    EQUITY("Equity"), /**
-     * a kind of debt owned by the accounting entity to
-     * another entity
-     */
-    LIABILITY("Liability"), /**
-     * a kind of property with a value owned by the
-     * accounting entity
-     */
-    ASSET("Asset");
-
-    /** the string to store the in the database */
-    private final String databaseRepresentation;
-
-    /**
-     * Create an AccountType object.
-     * 
-     * @param databaseRepresentation the string to store to the database
-     */
-    private AccountType(String databaseRepresentation) {
-      this.databaseRepresentation = databaseRepresentation;
-    }
-
-    @Override
-    public String toString() {
-      return databaseRepresentation;
-    }
-
-    /**
-     * Get the enum value corresponding to a database string value.
-     * 
-     * @param value the database string
-     * @return the enum value
-     */
-    public AccountType databaseValueOf(String value) {
-      switch (value) {
-      case "Expense":
-        return EXPENSE;
-      case "Income":
-        return INCOME;
-      case "Equity":
-        return EQUITY;
-      case "Liability":
-        return LIABILITY;
-      case "Asset":
-        return ASSET;
-      default:
-        throw new RuntimeException("Unknown account type: " + value);
-      }
-    }
-  }
-
   /** the unique name for the account */
   private final String name;
   /** text describing the nature of the account */
   private final String description;
-  /** the kind of account: Asset, Liability, Equity, Income, Expense */
-  private final AccountType accountType;
   /** whether the default for items is a debit or credit */
   private final Boolean debitDefault;
   /** whether the account is a Receivables account */
   private final Boolean receivable;
-  /** the accounting category into which the account fits */
-  private final AccountGroup group;
-  /** a list of fiscal years in which the account is active */
-  private final List<FiscalYear> years = new ArrayList<FiscalYear>();
+  /** an ordered list of fiscal years in which the account is active */
+  private final List<FiscalYearAccount> years =
+    new ArrayList<FiscalYearAccount>();
   /** the set of items against the account */
   private final Set<Item> items = new HashSet<Item>();
 
@@ -117,10 +53,11 @@ public class Account {
   private static final String NULL_PARAMETER_ERROR =
     "Account parameters are required but one is null";
   /** null parameter to addYear() */
-  private static final String NULL_YEAR_ERROR = "fiscal year required but is null";
+  private static final String NULL_YEAR_ERROR =
+    "fiscal year required but is null";
 
   /**
-   * Create a Account object.
+   * Create an Account object.
    * 
    * @param name the unique name for the account
    * @param description text describing the nature of the account
@@ -128,26 +65,22 @@ public class Account {
    *          Expense
    * @param debitDefault whether the default for items is a debit or credit
    * @param receivable whether the account is a Receivables account
-   * @param group the accounting category into which the account fits
    */
   public Account(String name,
                  String description,
                  AccountType accountType,
                  Boolean debitDefault,
-                 Boolean receivable,
-                 AccountGroup group) {
+                 Boolean receivable) {
     if (name == null || description == null || accountType == null
         || debitDefault == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
 
-    this.accountType = accountType;
     this.name = name;
     this.description = description;
     this.debitDefault = debitDefault;
     // Default receivable flag to FALSE
     this.receivable = receivable == null ? Boolean.FALSE : receivable;
-    this.group = group;
   }
 
   // Override hashCode() to specify primary key
@@ -196,11 +129,21 @@ public class Account {
   }
 
   /**
-   * Get the account type.
+   * Get the account type of the account in a specified fiscal year.
    * 
-   * @return Asset, Liability, Equity, Income, or Expense string
+   * @param year the fiscal year
+   * 
+   * @return the account type of the account in the year
    */
-  public AccountType getAccountType() {
+  public AccountType getAccountType(FiscalYear year) {
+    AccountType accountType = null;
+
+    for (FiscalYearAccount link : years) {
+      if (link.getFiscalYear().equals(year)) {
+        accountType = link.getAccountType();
+        break; // found year, done
+      }
+    }
     return accountType;
   }
 
@@ -223,35 +166,44 @@ public class Account {
   }
 
   /**
-   * Get the group.
+   * Add the fiscal year link to the list of links for the account. Ensure that
+   * the list of links is ordered by year, account type, group, and account.
    * 
-   * @return a group
+   * @param year the fiscal year account link to add
    */
-  public AccountGroup getGroup() {
-    return group;
-  }
-
-  /**
-   * Add the fiscal year to the list of years for the account; also add the
-   * account to the list of accounts in the fiscal year.
-   * 
-   * @param year the fiscal year to add
-   */
-  public void addYear(FiscalYear year) {
+  public void addYear(FiscalYearAccount year) {
     if (year == null) {
       throw new InvalidParametersException(NULL_YEAR_ERROR);
     }
     years.add(year);
-    year.addAccount(this);
+    Collections.sort(years);
   }
 
   /**
    * Get the fiscal years in which the account is active.
    * 
-   * @return a years
+   * @return a threadsafe list of fiscal-year-account links
    */
-  public List<FiscalYear> getYears() {
-    return years;
+  public List<FiscalYearAccount> getYears() {
+    return Collections.synchronizedList(years);
+  }
+
+  /**
+   * Get the account group for the account in a specified fiscal year.
+   * 
+   * @param year the fiscal year
+   * @return the account group that contains the account in the fiscal year
+   */
+  public AccountGroup getGroup(FiscalYear year) {
+    AccountGroup group = null;
+
+    for (FiscalYearAccount link : years) {
+      if (link.getFiscalYear().equals(link.getFiscalYear())) {
+        group = link.getGroup();
+        break; // found group, done
+      }
+    }
+    return group;
   }
 
   /**
@@ -276,7 +228,7 @@ public class Account {
   @Override
   public String toString() {
     return "Account [name=" + name + ", description=" + description
-           + ", accountType=" + accountType + ", debitDefault=" + debitDefault
-           + ", receivable=" + receivable + ", group=" + group + "]";
+           + ", debitDefault=" + debitDefault + ", receivable=" + receivable
+           + ", years=" + years + "]";
   }
 }

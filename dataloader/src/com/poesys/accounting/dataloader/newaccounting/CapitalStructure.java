@@ -170,7 +170,8 @@ public class CapitalStructure {
 
     // Add the capital account balances to the distributor.
     for (CapitalEntity entity : entities) {
-      Account account = builder.getAccountByName(entity.getCapitalAccount());
+      Account account =
+        builder.getAccountByName(entity.getCapitalAccount().getName());
       distributor.addBalance(account, balanceSheet.getAccountBalance(account));
     }
 
@@ -182,7 +183,8 @@ public class CapitalStructure {
       transaction =
         new Transaction(id, ADJUST_DESCRIPTION, year.getEnd(), false, false);
       for (CapitalEntity entity : entities) {
-        Account account = builder.getAccountByName(entity.getCapitalAccount());
+        Account account =
+          builder.getAccountByName(entity.getCapitalAccount().getName());
         BigDecimal item = distributor.getItemAmount(account);
         if (!item.equals(BigDecimal.ZERO.setScale(CapitalEntity.SCALE))) {
           boolean debit =
@@ -229,7 +231,7 @@ public class CapitalStructure {
   private List<Account> getCapitalAccounts(IBuilder builder) {
     List<Account> capitalAccounts = new ArrayList<Account>();
     for (CapitalEntity entity : entities) {
-      String accountName = entity.getCapitalAccount();
+      String accountName = entity.getCapitalAccount().getName();
       Account account = builder.getAccountByName(accountName);
       capitalAccounts.add(account);
     }
@@ -372,9 +374,10 @@ public class CapitalStructure {
 
     for (CapitalEntity entity : entities) {
       // Get the accounts for this entity by name.
-      Account capAccount = builder.getAccountByName(entity.getCapitalAccount());
+      Account capAccount =
+        builder.getAccountByName(entity.getCapitalAccount().getName());
       Account distAccount =
-        builder.getAccountByName(entity.getDistributionAccount());
+        builder.getAccountByName(entity.getDistributionAccount().getName());
 
       // Proceed only if there is a distribution account.
       if (distAccount != null) {

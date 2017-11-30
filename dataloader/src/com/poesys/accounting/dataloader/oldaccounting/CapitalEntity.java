@@ -24,7 +24,8 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class CapitalEntity extends AbstractReaderDto {
-
+  /** name of the capital entity */
+  private String name;
   /** name of the capital account for the entity */
   private String capitalAccountName;
   /** name of the optional distribution account for the entity */
@@ -35,6 +36,7 @@ public class CapitalEntity extends AbstractReaderDto {
   /**
    * Create a CapitalEntity object.
    * 
+   * @param name the name of the capital entity
    * @param capitalAccountName the name of the capital account for the entity
    * @param distributionAccountName the name of the distribution account for the
    *          entity
@@ -42,7 +44,8 @@ public class CapitalEntity extends AbstractReaderDto {
    *          (for example, .50 = 50% ownership for an equal partner); default
    *          is 1 (100%)
    */
-  public CapitalEntity(String capitalAccountName,
+  public CapitalEntity(String name,
+                       String capitalAccountName,
                        String distributionAccountName,
                        Double ownership) {
     if (capitalAccountName == null || capitalAccountName.isEmpty()) {
@@ -60,6 +63,24 @@ public class CapitalEntity extends AbstractReaderDto {
    */
   public CapitalEntity(BufferedReader reader) {
     super(reader);
+  }
+
+  /**
+   * Get the name.
+   * 
+   * @return a name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Set the name.
+   * 
+   * @param name a name
+   */
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**
@@ -93,9 +114,7 @@ public class CapitalEntity extends AbstractReaderDto {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-      prime * result
-          + ((capitalAccountName == null) ? 0 : capitalAccountName.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }
 
@@ -108,37 +127,41 @@ public class CapitalEntity extends AbstractReaderDto {
     if (getClass() != obj.getClass())
       return false;
     CapitalEntity other = (CapitalEntity)obj;
-    if (capitalAccountName == null) {
-      if (other.capitalAccountName != null)
+    if (name == null) {
+      if (other.name != null)
         return false;
-    } else if (!capitalAccountName.equals(other.capitalAccountName))
+    } else if (!name.equals(other.name))
       return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return "CapitalEntity [capitalAccountName=" + capitalAccountName
-           + ", distributionAccountName=" + distributionAccountName
-           + ", ownership=" + ownership + "]";
+    return "CapitalEntity [name=" + name + ", capitalAccountName="
+           + capitalAccountName + ", distributionAccountName="
+           + distributionAccountName + ", ownership=" + ownership + "]";
   }
 
   @Override
   protected void init(String[] fields) {
-    capitalAccountName = fields[0].trim();
+    name = fields[0].trim();
+    if (name == null || name.isEmpty()) {
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR);
+    }
+    capitalAccountName = fields[1].trim();
     if (capitalAccountName == null || capitalAccountName.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
-    distributionAccountName = fields[1].trim();
+    distributionAccountName = fields[2].trim();
     if (fields[2].isEmpty()) {
       ownership = 1.0D;
     } else {
-      ownership = new Double(fields[2]);
+      ownership = new Double(fields[3]);
     }
   }
 
   @Override
   protected int numberOfFields() {
-    return 3;
+    return 4;
   }
 }

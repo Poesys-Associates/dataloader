@@ -102,9 +102,11 @@ public interface IBuilder {
   /**
    * Get the set of account groups.
    * 
+   * @param year the fiscal year to get
+   * 
    * @return the set of account groups
    */
-  public Set<AccountGroup> getAccountGroups();
+  Set<AccountGroup> getAccountGroups(FiscalYear year);
 
   /**
    * Get the set of accounts.
@@ -130,4 +132,5 @@ public interface IBuilder {
    * @param strategy the strategy with which to build the DTOs from input data
    */
   void readFile(Reader reader, IBuildStrategy strategy);
+
 }

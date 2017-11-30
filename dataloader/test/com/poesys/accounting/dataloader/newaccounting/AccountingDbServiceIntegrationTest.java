@@ -70,7 +70,7 @@ public class AccountingDbServiceIntegrationTest {
   // tests
   private final Account cashAccount = new Account("Checking",
                                                   "Checking Account",
-                                                  Account.AccountType.ASSET,
+                                                  AccountType.ASSETS,
                                                   true,
                                                   false,
                                                   CASH_GROUP);

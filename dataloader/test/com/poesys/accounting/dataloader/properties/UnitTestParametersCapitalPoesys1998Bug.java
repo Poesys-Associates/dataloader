@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -88,13 +88,16 @@ public class UnitTestParametersCapitalPoesys1998Bug extends
   private static final Float CREDIT_ACCOUNT = 200.0F;
   private static final String CREDIT_ACCOUNT_NAME = "Credit Card";
 
+  private static final String CAPITAL_ENTITY_1_NAME = "Partner 1";
   private static final String CAP_ACCOUNT_1_NAME = "Personal Capital Partner 1";
   private static final Float CAP_ACCOUNT_1 = 300.0F;
-  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
-  private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_1_NAME =
     "Distributions to Partner 1";
   private static final Float DIST_ACCOUNT_1 = 310.0F;
+
+  private static final String CAPITAL_ENTITY_2_NAME = "Partner 2";
+  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
+  private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_2_NAME =
     "Distributions to Partner 2";
   private static final Float DIST_ACCOUNT_2 = 311.0F;
@@ -233,10 +236,11 @@ public class UnitTestParametersCapitalPoesys1998Bug extends
   // two entities here, partnership
   @Override
   public Reader getCapitalEntityReader() {
+    // @formatter:off
     String input =
-      CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM
-          + OWNERSHIP.toString() + LINE_RET + CAP_ACCOUNT_2_NAME + DELIM
-          + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+      CAPITAL_ENTITY_1_NAME + DELIM + CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM + OWNERSHIP.toString() + LINE_RET + 
+      CAPITAL_ENTITY_2_NAME + DELIM + CAP_ACCOUNT_2_NAME + DELIM + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -269,17 +273,17 @@ public class UnitTestParametersCapitalPoesys1998Bug extends
       CHECKING_ACCOUNT_1 + DELIM + CHECKING_ACCOUNT_1_NAME + DELIM + CREDIT
           + LINE_RET + CHECKING_ACCOUNT_2 + DELIM + CHECKING_ACCOUNT_2_NAME
           + DELIM + CREDIT + LINE_RET + RECEIVABLE_ACCOUNT + DELIM
-          + RECEIVABLE_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET
-          + CREDIT_ACCOUNT + DELIM + CREDIT_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + CAP_ACCOUNT_1 + DELIM + CAP_ACCOUNT_1_NAME + DELIM
-          + CREDIT + LINE_RET + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME
-          + DELIM + CREDIT + LINE_RET + DIST_ACCOUNT_1 + DELIM
-          + DIST_ACCOUNT_1_NAME + DELIM + DEBIT + LINE_RET + DIST_ACCOUNT_2
-          + DELIM + DIST_ACCOUNT_2_NAME + DELIM + DEBIT + LINE_RET
-          + REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + INCOME_SUMMARY_ACCOUNT + DELIM
-          + INCOME_SUMMARY_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET
-          + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME + DELIM + DEBIT;
+          + RECEIVABLE_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET + CREDIT_ACCOUNT
+          + DELIM + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET
+          + CAP_ACCOUNT_1 + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT
+          + LINE_RET + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM
+          + CREDIT + LINE_RET + DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME
+          + DELIM + DEBIT + LINE_RET + DIST_ACCOUNT_2 + DELIM
+          + DIST_ACCOUNT_2_NAME + DELIM + DEBIT + LINE_RET + REVENUE_ACCOUNT
+          + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET
+          + INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME
+          + DELIM + DEBIT + LINE_RET + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME
+          + DELIM + DEBIT;
     return new StringReader(input);
   }
 
@@ -380,7 +384,7 @@ public class UnitTestParametersCapitalPoesys1998Bug extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

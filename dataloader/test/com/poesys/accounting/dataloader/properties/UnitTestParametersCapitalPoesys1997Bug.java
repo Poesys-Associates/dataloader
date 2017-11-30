@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -88,13 +88,17 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final Float CREDIT_ACCOUNT = 200.0F;
   private static final String CREDIT_ACCOUNT_NAME = "Credit Card";
 
+  private static final String CAPITAL_ENTITY_1_NAME = "Partner 1";
   private static final String CAP_ACCOUNT_1_NAME = "Personal Capital Partner 1";
   private static final Float CAP_ACCOUNT_1 = 300.0F;
-  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
-  private static final Float CAP_ACCOUNT_2 = 301.0F;
   private static final String DIST_ACCOUNT_1_NAME =
     "Distributions to Partner 1";
   private static final Float DIST_ACCOUNT_1 = 310.0F;
+
+  private static final String CAPITAL_ENTITY_2_NAME = "Partner 2";
+  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
+  private static final Float CAP_ACCOUNT_2 = 301.0F;
+
   private static final String DIST_ACCOUNT_2_NAME =
     "Distributions to Partner 2";
   private static final Float DIST_ACCOUNT_2 = 311.0F;
@@ -219,10 +223,11 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   // two entities here, partnership
   @Override
   public Reader getCapitalEntityReader() {
+    // @formatter:off
     String input =
-      CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM
-          + OWNERSHIP.toString() + LINE_RET + CAP_ACCOUNT_2_NAME + DELIM
-          + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+      CAPITAL_ENTITY_1_NAME + DELIM + CAP_ACCOUNT_1_NAME + DELIM + DIST_ACCOUNT_1_NAME + DELIM + OWNERSHIP.toString() + LINE_RET + 
+      CAPITAL_ENTITY_2_NAME + DELIM + CAP_ACCOUNT_2_NAME + DELIM + DIST_ACCOUNT_2_NAME + DELIM + OWNERSHIP.toString();
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -230,13 +235,13 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   public Reader getAccountGroupReader(Integer year) {
     // @formatter:off
     String input =
-      CASH_START.toString() + DELIM + CASH_END.toString() + DELIM + CASH_GROUP + LINE_RET 
-          + AR_START.toString() + DELIM + AR_END.toString() + DELIM + AR_GROUP + LINE_RET 
-          + INCOME_START.toString() + DELIM + INCOME_END.toString() + DELIM + INCOME_GROUP + LINE_RET
-          + CREDIT_START.toString() + DELIM + CREDIT_END.toString() + DELIM + CREDIT_GROUP + LINE_RET 
-          + CAPITAL_START.toString() + DELIM + CAPITAL_END.toString() + DELIM + CAPITAL_GROUP + LINE_RET
-          + CAPITAL_CONTRA_START.toString() + DELIM + CAPITAL_CONTRA_END.toString() + DELIM + CAPITAL_CONTRA_GROUP + LINE_RET
-          + TAXES_START.toString() + DELIM + TAXES_END.toString() + DELIM + TAXES_GROUP;
+      CASH_START.toString() + DELIM + CASH_END.toString() + DELIM + CASH_GROUP + LINE_RET + 
+      AR_START.toString() + DELIM + AR_END.toString() + DELIM + AR_GROUP + LINE_RET + 
+      INCOME_START.toString() + DELIM + INCOME_END.toString() + DELIM + INCOME_GROUP + LINE_RET + 
+      CREDIT_START.toString() + DELIM + CREDIT_END.toString() + DELIM + CREDIT_GROUP + LINE_RET + 
+      CAPITAL_START.toString() + DELIM + CAPITAL_END.toString() + DELIM + CAPITAL_GROUP + LINE_RET + 
+      CAPITAL_CONTRA_START.toString() + DELIM + CAPITAL_CONTRA_END.toString() + DELIM + CAPITAL_CONTRA_GROUP + LINE_RET + 
+      TAXES_START.toString() + DELIM + TAXES_END.toString() + DELIM + TAXES_GROUP;
     // @formatter:on
     return new StringReader(input);
   }
@@ -361,7 +366,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

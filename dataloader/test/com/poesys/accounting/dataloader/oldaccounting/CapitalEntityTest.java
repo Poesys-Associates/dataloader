@@ -20,6 +20,7 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class CapitalEntityTest {
+  private static final String NAME = "Personal Accounts";
   private static final String CAP_ACCOUNT_1 = "Personal Capital";
   private static final String DIST_ACCOUNT_1 = "Distributions";
   private static final Double OWNERSHIP_1 = 1.0D;
@@ -31,14 +32,16 @@ public class CapitalEntityTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.Double)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.String, java.lang.Double)}
    * . Tests constructor and getters.
    */
   @Test
   public void testCapitalEntityStringStringDouble() {
     CapitalEntity entity =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     assertTrue("no entity created", entity != null);
+    assertTrue("wrong capital entity name: " + entity.getName(),
+               entity.getName().equals(NAME));
     assertTrue("wrong capital account name: " + entity.getCapitalAccountName(),
                entity.getCapitalAccountName().equals(CAP_ACCOUNT_1));
     assertTrue("wrong distribution account name: "
@@ -50,13 +53,13 @@ public class CapitalEntityTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.Double)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.String, java.lang.Double)}
    * . Tests constructor with null capital account name.
    */
   @Test
   public void testCapitalEntityStringStringDoubleNullCap() {
     try {
-      new CapitalEntity(null, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, null, DIST_ACCOUNT_1, OWNERSHIP_1);
       fail("missing capital entity name did not throw exception");
     } catch (InvalidParametersException e) {
       // success
@@ -65,13 +68,13 @@ public class CapitalEntityTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.Double)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.String, java.lang.Double)}
    * . Tests constructor with empty capital account name.
    */
   @Test
   public void testCapitalEntityStringStringDoubleEmptyCap() {
     try {
-      new CapitalEntity("", DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, "", DIST_ACCOUNT_1, OWNERSHIP_1);
       fail("empty capital entity name did not throw exception");
     } catch (InvalidParametersException e) {
       // success
@@ -80,13 +83,13 @@ public class CapitalEntityTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.Double)}
+   * {@link com.poesys.accounting.dataloader.oldaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.lang.String, java.lang.Double)}
    * . Tests constructor with null ownership.
    */
   @Test
   public void testCapitalEntityStringStringDoubleNullOwnership() {
     CapitalEntity entity =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, null);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, null);
     assertTrue("wrong default ownership pctg: " + entity.getOwnership(),
                entity.getOwnership().equals(1.0D));
   }
@@ -151,9 +154,9 @@ public class CapitalEntityTest {
   @Test
   public void testHashCodeEquality() {
     CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     assertTrue("same objects do not have same hash code",
                entity1.hashCode() == entity2.hashCode());
   }
@@ -166,9 +169,9 @@ public class CapitalEntityTest {
   @Test
   public void testHashCodeInequality() {
     CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_2, DIST_ACCOUNT_2, OWNERSHIP_2);
+      new CapitalEntity(NAME, CAP_ACCOUNT_2, DIST_ACCOUNT_2, OWNERSHIP_2);
     assertTrue("different objects have same hash code",
                entity1.hashCode() != entity2.hashCode());
   }
@@ -181,9 +184,9 @@ public class CapitalEntityTest {
   @Test
   public void testEqualsEquality() {
     CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     assertTrue("same objects are not equal", entity1.equals(entity2));
   }
 
@@ -195,9 +198,9 @@ public class CapitalEntityTest {
   @Test
   public void testEqualsInquality() {
     CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_2, DIST_ACCOUNT_2, OWNERSHIP_2);
+      new CapitalEntity(NAME, CAP_ACCOUNT_2, DIST_ACCOUNT_2, OWNERSHIP_2);
     assertTrue("different objects are equal", !entity1.equals(entity2));
   }
 
@@ -209,7 +212,7 @@ public class CapitalEntityTest {
   @Test
   public void testToString() {
     CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
+      new CapitalEntity(NAME, CAP_ACCOUNT_1, DIST_ACCOUNT_1, OWNERSHIP_1);
     assertTrue("string rep not correct: " + entity1.toString(),
                "CapitalEntity [capitalAccountName=Personal Capital, distributionAccountName=Distributions, ownership=1.0]".equals(entity1.toString()));
   }

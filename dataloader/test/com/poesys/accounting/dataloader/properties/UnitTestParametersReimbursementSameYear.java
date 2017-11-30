@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -41,6 +41,8 @@ public class UnitTestParametersReimbursementSameYear extends
   private static final String DELIM = "\t";
 
   private static final Integer YEAR = 2017;
+
+  private static final String SINGLE_ENTITY_NAME = "John Q. Doe";
 
   private static final String CAP_ACCOUNT = "Personal Capital";
   private static final String DIST_ACCOUNT = "Distributions";
@@ -170,7 +172,9 @@ public class UnitTestParametersReimbursementSameYear extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input = CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
+    String input =
+      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM
+          + OWNERSHIP.toString();
     return new StringReader(input);
   }
 
@@ -285,7 +289,7 @@ public class UnitTestParametersReimbursementSameYear extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

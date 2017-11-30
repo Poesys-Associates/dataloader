@@ -12,16 +12,20 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
 import com.poesys.accounting.dataloader.IBuilder;
 import com.poesys.accounting.dataloader.newaccounting.Account;
-import com.poesys.accounting.dataloader.newaccounting.AccountGroup;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.CapitalEntity;
+import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder.IBuildStrategy;
 import com.poesys.accounting.dataloader.properties.IParameters;
+import com.poesys.accounting.dataloader.properties.UnitTestParametersGroupsThreeYears;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidPath;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersInvalidTransaction;
 import com.poesys.accounting.dataloader.properties.UnitTestParametersNoExceptions;
@@ -40,6 +44,8 @@ import com.poesys.db.InvalidParametersException;
 public class OldDataBuilderTest {
 
   private static final Integer YEAR = 2014;
+  private static final String CAP_ACCOUNT = "Personal Capital";
+  private static final String DIST_ACCOUNT = "Distributions";
 
   private static final String INVALID_TRANSACTIONS_ERROR =
     "invalid transactions";
@@ -100,12 +106,6 @@ public class OldDataBuilderTest {
     String path = builder.getPath();
     assertTrue("no path string assigned", path != null);
     assertTrue("wrong path string", builder.getPath().equalsIgnoreCase(path));
-    Set<AccountGroup> createdGroups = builder.getAccountGroups();
-    assertTrue("no groups variable set in constructor", createdGroups != null);
-    assertTrue("invalid groups variable", createdGroups.isEmpty());
-    Set<Account> createdAccounts = builder.getAccounts();
-    assertTrue("no accounts variable set in constructor", createdGroups != null);
-    assertTrue("invalid accounts variable", createdAccounts.isEmpty());
   }
 
   /**
@@ -302,7 +302,8 @@ public class OldDataBuilderTest {
     assertTrue("no builder created", builder != null);
     builder.buildFiscalYear(YEAR);
     builder.buildAccountGroups();
-    Set<AccountGroup> createdGroups = builder.getAccountGroups();
+    Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> createdGroups =
+      builder.getAccountGroups(builder.getFiscalYear());
     assertTrue("no groups variable set in constructor", createdGroups != null);
     assertTrue("invalid groups variable", !createdGroups.isEmpty());
     assertTrue("wrong number of groups created: " + createdGroups.size(),
@@ -316,19 +317,66 @@ public class OldDataBuilderTest {
    */
   @Test
   public void testBuildAccountGroupsMultipleYears() {
-    IParameters parameters = new UnitTestParametersNoExceptions();
+    IParameters parameters = new UnitTestParametersGroupsThreeYears();
     IBuilder builder = new OldDataBuilder(parameters);
     assertTrue("no builder created", builder != null);
 
     for (int i = 0; i < 3; i++) {
       builder.buildFiscalYear(YEAR + i);
       builder.buildAccountGroups();
-      Set<AccountGroup> createdGroups = builder.getAccountGroups();
+      Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> createdGroups =
+        builder.getAccountGroups(builder.getFiscalYear());
       assertTrue("no groups variable set in constructor", createdGroups != null);
       assertTrue("invalid groups variable", !createdGroups.isEmpty());
-      assertTrue("wrong number of groups created: " + createdGroups.size(),
-                 createdGroups.size() == 3);
+      assertTrue("wrong number of groups created for year " + i + " ("
+                     + builder.getFiscalYear().getYear() + "): "
+                     + createdGroups.size(),
+                 i == 2 ? createdGroups.size() == 5 : createdGroups.size() == 6);
     }
+
+    // Test the type/account/group lookup capability across years.
+    Map<AccountType, List<AccountGroup>> map =
+      ((OldDataBuilder)builder).getTypeMap();
+    List<AccountGroup> assetsGroupList = map.get(AccountType.ASSETS);
+    assertTrue("no asset type group list", assetsGroupList != null);
+    assertTrue("asset group list has wrong number of groups, should be 6: "
+               + assetsGroupList.size(), assetsGroupList.size() == 6);
+    AccountGroup cashGroup1 = assetsGroupList.get(0);
+    AccountGroup arGroup1 = assetsGroupList.get(1);
+    assertTrue("cash group 1 does not contain 101",
+               cashGroup1.contains(YEAR, 101.00F));
+    assertTrue("cash group order number for year 1 is not 1: "
+                   + cashGroup1.getOrderNumber(),
+               cashGroup1.getOrderNumber() == 1);
+    assertTrue("ar group 1 does not contain 110",
+               arGroup1.contains(YEAR, 110.00F));
+    assertTrue("ar group order number for year 1 is not 2: "
+                   + arGroup1.getOrderNumber(),
+               arGroup1.getOrderNumber() == 2);
+    AccountGroup cashGroup2 = assetsGroupList.get(2);
+    AccountGroup arGroup2 = assetsGroupList.get(3);
+    assertTrue("cash group 2 does not contain 101",
+               cashGroup2.contains(YEAR + 1, 101.00F));
+    assertTrue("cash group order number for year 2 is not 1: "
+                   + cashGroup2.getOrderNumber(),
+               cashGroup2.getOrderNumber() == 1);
+    assertTrue("ar group 2 does not contain 110",
+               arGroup2.contains(YEAR + 1, 110.00F));
+    assertTrue("ar group order number for year 2 is not 2: "
+                   + arGroup2.getOrderNumber(),
+               arGroup2.getOrderNumber() == 2);
+    AccountGroup cashGroup3 = assetsGroupList.get(4);
+    AccountGroup arGroup3 = assetsGroupList.get(5);
+    assertTrue("cash group 3 does not contain 101",
+               cashGroup3.contains(YEAR + 2, 101.00F));
+    assertTrue("cash group order number for year 3 is not 1: "
+                   + cashGroup3.getOrderNumber(),
+               cashGroup3.getOrderNumber() == 1);
+    assertTrue("ar group 3 does not contain 110",
+               arGroup3.contains(YEAR + 2, 110.00F));
+    assertTrue("ar group order number for year 3 is not 2: "
+                   + arGroup3.getOrderNumber(),
+               arGroup3.getOrderNumber() == 2);
   }
 
   /**
@@ -351,7 +399,24 @@ public class OldDataBuilderTest {
                createdAccounts != null);
     assertTrue("invalid accounts variable", !createdAccounts.isEmpty());
     assertTrue("wrong number of accounts created: " + createdAccounts.size(),
-               createdAccounts.size() == 4);
+               createdAccounts.size() == 6);
+
+    // Test capital entity account
+    CapitalStructure structure = builder.getCapitalStructure();
+    List<CapitalEntity> entities = structure.getEntities();
+    for (CapitalEntity entity : entities) {
+      Account capitalAccount = entity.getCapitalAccount();
+      assertTrue("no capital account in capital entity", capitalAccount != null);
+      assertTrue("wrong name for capital account in capital entity: "
+                     + capitalAccount.getName(),
+                 capitalAccount.getName().equals(CAP_ACCOUNT));
+      Account distAccount = entity.getDistributionAccount();
+      assertTrue("no distribution account in capital entity",
+                 distAccount != null);
+      assertTrue("wrong name for distribution account in capital entity: "
+                     + distAccount.getName(),
+                 distAccount.getName().equals(DIST_ACCOUNT));
+    }
   }
 
   /**

@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -44,6 +44,8 @@ public class UnitTestParametersNoExceptions extends
 
   private static final Integer REC_YEAR = 2016;
 
+  private static final String SINGLE_ENTITY_NAME = "John Q. Doe";
+
   private static final String CAP_ACCOUNT = "Personal Capital";
   private static final String DIST_ACCOUNT = "Distributions";
   private static final Double OWNERSHIP = 1.0D;
@@ -51,6 +53,8 @@ public class UnitTestParametersNoExceptions extends
   private static final String GROUP_NAME_1 = "Cash";
   private static final String GROUP_NAME_2 = "Accounts Receivable";
   private static final String GROUP_NAME_3 = "Income";
+  private static final String GROUP_NAME_4 = "Capital";
+  private static final String GROUP_NAME_5 = "Capital Contra";
 
   private static final Float START_1 = 100.00F;
   private static final Float END_1 = 109.99F;
@@ -58,6 +62,10 @@ public class UnitTestParametersNoExceptions extends
   private static final Float END_2 = 119.99F;
   private static final Float START_3 = 400.00F;
   private static final Float END_3 = 409.99F;
+  private static final Float START_4 = 300.00F;
+  private static final Float END_4 = 309.99F;
+  private static final Float START_5 = 310.00F;
+  private static final Float END_5 = 319.99F;
 
   private static final Float ACCOUNT_NUMBER_1 = 100.0F;
   private static final String ACCOUNT_NAME_1 =
@@ -69,6 +77,10 @@ public class UnitTestParametersNoExceptions extends
   private static final String ACCOUNT_NAME_3 = "Other Cash";
   private static final Float ACCOUNT_NUMBER_4 = 400.0F;
   private static final String ACCOUNT_NAME_4 = "Revenue";
+  private static final Float ACCOUNT_NUMBER_5 = 300.0F;
+  private static final String ACCOUNT_NAME_5 = CAP_ACCOUNT;
+  private static final Float ACCOUNT_NUMBER_6 = 310.0F;
+  private static final String ACCOUNT_NAME_6 = DIST_ACCOUNT;
   private static final Double AMOUNT = 100.00D;
 
   private static final Integer TRANS_ID_1 = 200;
@@ -164,17 +176,20 @@ public class UnitTestParametersNoExceptions extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input = CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
+    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
     return new StringReader(input);
   }
 
   @Override
   public Reader getAccountGroupReader(Integer year) {
+    // @formatter:off
     String input =
-      START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1
-          + LINE_RET + START_2.toString() + DELIM + END_2.toString() + DELIM
-          + GROUP_NAME_2 + LINE_RET + START_3.toString() + DELIM
-          + END_3.toString() + DELIM + GROUP_NAME_3;
+      START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1 + LINE_RET + 
+      START_2.toString() + DELIM + END_2.toString() + DELIM + GROUP_NAME_2 + LINE_RET + 
+      START_3.toString() + DELIM + END_3.toString() + DELIM + GROUP_NAME_3 + LINE_RET + 
+      START_4.toString() + DELIM + END_4.toString() + DELIM + GROUP_NAME_4 + LINE_RET + 
+      START_5.toString() + DELIM + END_5.toString() + DELIM + GROUP_NAME_5;
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -186,12 +201,15 @@ public class UnitTestParametersNoExceptions extends
 
   @Override
   public Reader getAccountReader(Integer year) {
+    // @formatter:off
     String input =
-      ACCOUNT_NUMBER_1 + DELIM + ACCOUNT_NAME_1 + DELIM + CREDIT + LINE_RET
-          + ACCOUNT_NUMBER_2 + DELIM + ACCOUNT_NAME_2 + DELIM + CREDIT
-          + LINE_RET + ACCOUNT_NUMBER_3 + DELIM + ACCOUNT_NAME_3 + DELIM
-          + CREDIT + LINE_RET + ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4
-          + DELIM + CREDIT;
+      ACCOUNT_NUMBER_1 + DELIM + ACCOUNT_NAME_1 + DELIM + CREDIT + LINE_RET + 
+      ACCOUNT_NUMBER_2 + DELIM + ACCOUNT_NAME_2 + DELIM + CREDIT + LINE_RET + 
+      ACCOUNT_NUMBER_3 + DELIM + ACCOUNT_NAME_3 + DELIM + CREDIT + LINE_RET + 
+      ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4 + DELIM + CREDIT + LINE_RET +
+      ACCOUNT_NUMBER_5 + DELIM + ACCOUNT_NAME_5 + DELIM + CREDIT + LINE_RET + 
+      ACCOUNT_NUMBER_6 + DELIM + ACCOUNT_NAME_6 + DELIM + CREDIT;
+    // @formatter:on
     return new StringReader(input);
   }
 
@@ -263,7 +281,7 @@ public class UnitTestParametersNoExceptions extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

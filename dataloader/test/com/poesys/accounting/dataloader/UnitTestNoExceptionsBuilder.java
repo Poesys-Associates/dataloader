@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.poesys.accounting.dataloader.newaccounting.Account;
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.accounting.dataloader.newaccounting.AccountGroup;
 import com.poesys.accounting.dataloader.newaccounting.CapitalEntity;
 import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
@@ -38,6 +38,8 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   private int balanceCalls = 0;
   private int transactionCalls = 0;
 
+  /** name of the capital entity */
+  private static final String CAP_ENTITY_NAME = "Capital Entity";
   /** name of the income-summary account */
   private static final String INCOME_SUMMARY_ACCOUNT = "Income Summary";
 
@@ -95,9 +97,7 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   @Override
   public CapitalStructure getCapitalStructure() {
     CapitalStructure structure = new CapitalStructure(INCOME_SUMMARY_ACCOUNT);
-    String capitalAccount = "Personal Capital";
-    String distributionAccount = null;
-    CapitalEntity entity = new CapitalEntity(capitalAccount, distributionAccount, BigDecimal.ONE);
+    CapitalEntity entity = new CapitalEntity(CAP_ENTITY_NAME, BigDecimal.ONE);
     List<CapitalEntity> entities = new ArrayList<CapitalEntity>();
     entities.add(entity);
     structure.addEntities(entities);
@@ -105,14 +105,14 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   }
 
   @Override
-  public Set<AccountGroup> getAccountGroups() {
-    // Just return an empty set.
-    return new HashSet<AccountGroup>();
+  public Set<Account> getAccounts() {
+    return new HashSet<Account>();
   }
 
   @Override
-  public Set<Account> getAccounts() {
-    return new HashSet<Account>();
+  public Set<AccountGroup> getAccountGroups(FiscalYear year) {
+    // Just return an empty set for this test class.
+    return new HashSet<AccountGroup>();
   }
 
   /**
@@ -187,14 +187,10 @@ public class UnitTestNoExceptionsBuilder implements IBuilder {
   public Account getAccountByName(String name) {
     Account account = null;
     if (name != null) {
-    // Return an arbitrary, valid account with the specified name.
-    AccountType accountType = AccountType.INCOME;
-    account = new Account(name,
-                       "The " + name + " account",
-                       accountType,
-                       false,
-                       false,
-                       new AccountGroup("Test"));
+      // Return an arbitrary, valid account with the specified name.
+      AccountType accountType = AccountType.INCOME;
+      account =
+        new Account(name, "The " + name + " account", accountType, false, false);
     }
     return account;
   }

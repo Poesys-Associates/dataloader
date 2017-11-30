@@ -23,4 +23,9 @@ public class RuntimeExceptionDataAccessService implements IDataAccessService {
   public void storeTransactions(Set<Transaction> transactions) {
     throw new RuntimeException("storeTransactions() runtime exception");
   }
+
+  @Override
+  public void storeAccountGroups(List<AccountGroup> groups) {
+    throw new RuntimeException("storeAccountGroups() runtime exception");
+  }
 }

@@ -25,4 +25,9 @@ public class DoNothingDataAccessService implements IDataAccessService {
   public void storeTransactions(Set<Transaction> transactions) {
     // Does nothing, no exceptions thrown
   }
+
+  @Override
+  public void storeAccountGroups(List<AccountGroup> groups) {
+    // Does nothing, no exceptions thrown
+  }
 }

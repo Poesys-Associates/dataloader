@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,8 +20,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.poesys.accounting.dataloader.IBuilder;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.accounting.dataloader.newaccounting.CapitalStructure;
 import com.poesys.accounting.dataloader.newaccounting.FiscalYear;
+import com.poesys.accounting.dataloader.newaccounting.FiscalYearAccount;
 import com.poesys.accounting.dataloader.properties.IParameters;
 import com.poesys.db.InvalidParametersException;
 
@@ -51,11 +54,14 @@ public class OldDataBuilder implements IBuilder {
   private static final String FIRST_BALANCE_TRANSACTION_ID = "100000";
 
   // Data sets shared across process iterations
-  /** the shared list of capital entities */
+  /** the capital entities for the accounting entity accounts */
   private CapitalStructure capitalStructure;
-  /** the shared set of account groups */
-  private final Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> groups =
-    new HashSet<com.poesys.accounting.dataloader.newaccounting.AccountGroup>();
+  /** map of capital entities indexed by capital/distribution account names */
+  private Map<String, CapitalEntity> capitalEntityMap =
+    new HashMap<String, CapitalEntity>();
+  /** the map of shared sets of account groups indexed by fiscal year */
+  private final Map<FiscalYear, Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup>> groupSetsMap =
+    new HashMap<FiscalYear, Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup>>();
   /** the shared set of accounts */
   private final Set<com.poesys.accounting.dataloader.newaccounting.Account> accounts =
     new HashSet<com.poesys.accounting.dataloader.newaccounting.Account>();
@@ -93,17 +99,25 @@ public class OldDataBuilder implements IBuilder {
     "no receivables item map for fiscal year ";
   private static final String NOT_RECEIVABLE_ACCOUNT_ERROR =
     "indexing receivable item but account is not a receivable account: ";
+  private static final String INVALID_CAPITAL_ACCOUNT =
+    "found account name in map but no such account name in capital structure: ";
+  private static final String NO_NEW_CAPITAL_ENTITY_NAME_ERROR =
+    "no new capital entity name";
+  private static final String NO_CAPITAL_ENTITY_NAME_ERROR =
+    "no capital entity name";
 
-  // lookup maps
+  // lookup maps and index classes
 
   /**
-   * lookup map that translates account numbers to new-accounting account group;
-   * the account numbers are integers, e.g., 100.1 becomes 10010, 109.99 becomes
-   * 10999; this avoids problems with floating point representation and rounding
-   * errors for comparisons.
+   * lookup map that contains new-accounting groups indexed by old-accounting
+   * year and account intervals
    */
-  private final Map<Integer, com.poesys.accounting.dataloader.newaccounting.AccountGroup> groupMap =
-    new HashMap<Integer, com.poesys.accounting.dataloader.newaccounting.AccountGroup>();
+  private final Map<AccountGroup, com.poesys.accounting.dataloader.newaccounting.AccountGroup> groupMap =
+    new HashMap<AccountGroup, com.poesys.accounting.dataloader.newaccounting.AccountGroup>();
+
+  /** map that organizes groups by account type for numbering */
+  private final Map<AccountType, List<AccountGroup>> typeMap =
+    new HashMap<AccountType, List<AccountGroup>>();
 
   /**
    * lookup map that translates account numbers to new-accounting account names;
@@ -244,9 +258,9 @@ public class OldDataBuilder implements IBuilder {
   }
 
   /**
-   * A capital entity is an entity that owns some part of the capital of the
-   * accounting system. Each system has one or more entities with accompanying
-   * capital and distribution accounts.
+   * A capital entity is a named entity that owns some part of the capital of
+   * the accounting system. Each system has one or more entities with
+   * accompanying capital and distribution accounts.
    */
   private class CapitalEntityStrategy implements IBuildStrategy {
     @Override
@@ -257,24 +271,53 @@ public class OldDataBuilder implements IBuilder {
   }
 
   /**
-   * The system groups accounts into categories (Cash, Credit Cards, and so on).
+   * The system groups accounts into categories (Cash, Credit Cards, and so on)
+   * that grouped accounts by number; each group had a range of accounts, always
+   * from nn0.00 to nn9.99, so groups had "ten" accounts (plus some number of
+   * subaccounts). The old accounting system had a set of account groups for
+   * each year that included all the accounts in the year. The groups could be
+   * rearranged from year to year (a group added, a group removed, or a group
+   * changed (that is, the account number range would be associated with a
+   * different group name. The new system identifies groups within account types
+   * ("Assets", "Liabilities" and so on) by name, so names are unique within
+   * account type across all years. The Old Data Builder must therefore map
+   * groups into new-accounting groups when creating fiscal-year-account links
+   * between accounts and fiscal years, which is where groups associate with
+   * accounts and years. Also, to get the order number of the group within the
+   * account type, the builder builds a data structure containing ordered lists
+   * of groups indexed by account type. This operation builds the lists but
+   * leaves the ordering and numbering to the client.
    */
   private class AccountGroupStrategy implements IBuildStrategy {
     @Override
     public void build(BufferedReader r) {
       AccountGroup group = new AccountGroup(fiscalYear.getYear(), r);
-      // Create new group, add to set
+      // Create new group, add to set for fiscal year
       com.poesys.accounting.dataloader.newaccounting.AccountGroup newGroup =
         new com.poesys.accounting.dataloader.newaccounting.AccountGroup(group.getName());
-      if (groups.add(newGroup)) {
-        // Added group, so map new group range of accounts to group; use integer
-        // values to avoid numerical representation problems
-        Integer start = new Float(group.getStart() * 100F).intValue();
-        Integer end = new Float(group.getEnd() * 100F).intValue();
-        for (Integer accountNumber = start; accountNumber <= end; accountNumber++) {
-          groupMap.put(accountNumber, newGroup);
-        }
+      Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> groupSet =
+        groupSetsMap.get(fiscalYear);
+      if (groupSet == null) {
+        // No set yet, create it.
+        groupSet =
+          new HashSet<com.poesys.accounting.dataloader.newaccounting.AccountGroup>();
+        groupSetsMap.put(fiscalYear, groupSet);
       }
+      // Add the group to the set.
+      groupSet.add(newGroup);
+      // Add new group to map indexed by old group
+      groupMap.put(group, newGroup);
+      // Add the group to the account type.
+      AccountType type = group.getAccountType();
+      List<AccountGroup> groupList = typeMap.get(type);
+      if (groupList == null) {
+        // no list yet for this type, create one
+        groupList = new ArrayList<AccountGroup>();
+        typeMap.put(type, groupList);
+      }
+      // Add the group to the list. Note the list is not sorted at this point.
+      groupList.add(group);
+
     }
   }
 
@@ -322,6 +365,10 @@ public class OldDataBuilder implements IBuilder {
    * link between the account and the FiscalYear in the database.
    */
   private class AccountStrategy implements IBuildStrategy {
+    /** Tracks account order number within groups */
+    Map<com.poesys.accounting.dataloader.newaccounting.AccountGroup, Integer> groupAccountOrderNumbers =
+      new HashMap<com.poesys.accounting.dataloader.newaccounting.AccountGroup, Integer>();
+
     @Override
     public void build(BufferedReader r) {
       Account account = new Account(fiscalYear.getYear(), r);
@@ -331,9 +378,15 @@ public class OldDataBuilder implements IBuilder {
       // Determine whether the account is a receivable account.
       Boolean receivable = accountNumber >= 11000 && accountNumber < 12000;
       // Get the account group for the account.
-      com.poesys.accounting.dataloader.newaccounting.AccountGroup group =
-        groupMap.get(accountNumber);
-      if (group == null) {
+      com.poesys.accounting.dataloader.newaccounting.AccountGroup group = null;
+      Integer groupOrderNumber = null;
+      for (AccountGroup key : groupMap.keySet()) {
+        if (key.contains(fiscalYear.getYear(), account.getAccountNumber())) {
+          group = groupMap.get(key);
+          groupOrderNumber = key.getOrderNumber();
+        }
+      }
+      if (group == null || groupOrderNumber == null) {
         throw new RuntimeException(GROUP_LOOKUP_ERROR + account);
       }
       // Get the account name using the account map. This mapping links the
@@ -349,8 +402,7 @@ public class OldDataBuilder implements IBuilder {
                                                                    name,
                                                                    account.getAccountType(),
                                                                    account.getDefaultDebit(),
-                                                                   receivable,
-                                                                   group);
+                                                                   receivable);
       if (!accounts.add(newAccount)) {
         // The account is already in the accounts set, so get that account.
         newAccount = accountNameMap.get(name);
@@ -361,6 +413,12 @@ public class OldDataBuilder implements IBuilder {
         accountNameMap.put(name, newAccount);
       }
 
+      // Set the capital account; this conditionally sets the capital account if
+      // this account is the capital account.
+      setCapitalAccount(newAccount);
+
+      Integer accountOrderNumber = incrementAccountOrderNumber(group);
+
       // Index the account in the fiscal year account-number lookup map. The
       // getFiscalYear() method clears this map for each fiscal year, so this
       // method needs to add the account with the account number for this year
@@ -369,9 +427,81 @@ public class OldDataBuilder implements IBuilder {
       accountNumberMap.put(accountNumber, newAccount);
       logger.debug("Indexed account " + account.getAccountNumber());
 
-      // Add the account to the fiscal year. This links the account to the
+      // Add the account to the fiscal year by creating a FiscalYearAccount link
+      // with the associated group
+      // and adding it to the year. This operation links the account to the
       // fiscal year by creating a linking object in the database on store().
-      fiscalYear.addAccount(newAccount);
+      FiscalYearAccount fsYAccount =
+        new FiscalYearAccount(fiscalYear,
+                              account.getAccountType(),
+                              group,
+                              groupOrderNumber,
+                              newAccount,
+                              accountOrderNumber);
+      fiscalYear.addAccount(fsYAccount);
+    }
+
+    /**
+     * If this account is one of the capital structure accounts, associate the
+     * generated capital entity with the account.
+     * 
+     * @param newAccount the account object
+     */
+    private void setCapitalAccount(com.poesys.accounting.dataloader.newaccounting.Account newAccount) {
+      String name = newAccount.getName();
+      CapitalEntity capEntity = capitalEntityMap.get(name);
+
+      if (capEntity != null) {
+        // The account name is in the capital entity map, so this is a capital
+        // or distribution account; set the account in the entity in the proper
+        // place.
+
+        // Check for the capital entity name, required to get new entity object.
+        if (capEntity.getName() == null) {
+          throw new RuntimeException(NO_CAPITAL_ENTITY_NAME_ERROR);
+        }
+
+        for (com.poesys.accounting.dataloader.newaccounting.CapitalEntity newCapEntity : capitalStructure.getEntities()) {
+          if (newCapEntity.getName() == null) {
+            throw new RuntimeException(NO_NEW_CAPITAL_ENTITY_NAME_ERROR);
+          }
+          if (newCapEntity.getName().equals(capEntity.getName())) {
+            // Found the entity to set with the account.
+            if (capEntity.getCapitalAccountName().equals(name)) {
+              // This is the capital account for the entity.
+              newCapEntity.setCapitalAccount(newAccount);
+            } else if (capEntity.getDistributionAccountName() != null
+                       && capEntity.getDistributionAccountName().equals(name)) {
+              newCapEntity.setDistributionAccount(newAccount);
+            } else if (capEntity.getDistributionAccountName() != null) {
+              // error, neither capital nor distribution account matches
+              throw new RuntimeException(INVALID_CAPITAL_ACCOUNT + name);
+            } // else do nothing
+          }
+        }
+      }
+    }
+
+    /**
+     * Increment the account order number within the group.
+     * 
+     * @param group the group containing the account
+     * @return the next order number in the group
+     */
+    private Integer incrementAccountOrderNumber(com.poesys.accounting.dataloader.newaccounting.AccountGroup group) {
+      Integer accountOrderNumber;
+      // Increment the counter for ordering the accounts within the group.
+      accountOrderNumber = groupAccountOrderNumbers.get(group);
+      if (accountOrderNumber == null) {
+        // No count for this group yet, create it as 1.
+        accountOrderNumber = 1;
+      } else {
+        // Order number is there, so increment it.
+        accountOrderNumber++;
+      }
+      // Save the current order number.
+      groupAccountOrderNumbers.put(group, accountOrderNumber);
+      return accountOrderNumber;
     }
   }
 
@@ -464,13 +594,17 @@ public class OldDataBuilder implements IBuilder {
     capitalStructure = new CapitalStructure(incomeSummary);
     IBuildStrategy strategy = new CapitalEntityStrategy();
     readFile(parameters.getCapitalEntityReader(), strategy);
-    // Build a list of new-accounting capital entities from the old ones.
+    // Build a list of new-accounting capital entities from the old ones and add
+    // the account names to the capital entity map.
     List<com.poesys.accounting.dataloader.newaccounting.CapitalEntity> newEntities =
       new ArrayList<com.poesys.accounting.dataloader.newaccounting.CapitalEntity>();
     for (CapitalEntity entity : entities) {
-      newEntities.add(new com.poesys.accounting.dataloader.newaccounting.CapitalEntity(entity.getCapitalAccountName(),
-                                                                                       entity.getDistributionAccountName(),
+      newEntities.add(new com.poesys.accounting.dataloader.newaccounting.CapitalEntity(entity.getName(),
                                                                                        new BigDecimal(entity.getOwnership())));
+      capitalEntityMap.put(entity.getCapitalAccountName(), entity);
+      if (entity.getDistributionAccountName() != null) {
+        capitalEntityMap.put(entity.getDistributionAccountName(), entity);
+      }
     }
     capitalStructure.addEntities(newEntities);
   }
@@ -554,6 +688,25 @@ public class OldDataBuilder implements IBuilder {
   public void buildAccountGroups() {
     IBuildStrategy strategy = new AccountGroupStrategy();
     readFile(parameters.getAccountGroupReader(fiscalYear.getYear()), strategy);
+    // type map is complete, sort the lists and generate order numbers; the
+    // AccountGroup objects are also in the groupMap, so the order numbers
+    // will be set for the objects in that map as well as the type map.
+    for (List<AccountGroup> list : typeMap.values()) {
+      // sort the list using compareTo
+      Collections.sort((List<AccountGroup>)list);
+      // generate order numbers starting at 1
+      int orderNumber = 1;
+      Integer previousYear = null;
+      for (AccountGroup group : list) {
+        if (previousYear != null && !group.getYear().equals(previousYear)) {
+          // year changed, reset counter to 1
+          orderNumber = 1;
+        }
+        group.setOrderNumber(orderNumber);
+        previousYear = group.getYear();
+        orderNumber++;
+      }
+    }
   }
 
   @Override
@@ -988,8 +1141,17 @@ public class OldDataBuilder implements IBuilder {
   }
 
   @Override
-  public Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> getAccountGroups() {
-    return groups;
+  public Set<com.poesys.accounting.dataloader.newaccounting.AccountGroup> getAccountGroups(FiscalYear year) {
+    return groupSetsMap.get(year);
+  }
+
+  /**
+   * Get the typeMap for unit testing.
+   * 
+   * @return the typeMap
+   */
+  Map<AccountType, List<AccountGroup>> getTypeMap() {
+    return typeMap;
   }
 
   @Override

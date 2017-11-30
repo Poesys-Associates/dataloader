@@ -6,7 +6,7 @@ package com.poesys.accounting.dataloader.oldaccounting;
 
 import java.io.BufferedReader;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -133,15 +133,15 @@ public class Account extends AbstractReaderDto {
   public AccountType getAccountType() {
     AccountType type = null;
     if (accountNumber >= 100 && accountNumber < 200) {
-      type = AccountType.ASSET;
+      type = AccountType.ASSETS;
     } else if (accountNumber >= 200 && accountNumber < 300) {
-      type = AccountType.LIABILITY;
+      type = AccountType.LIABILITIES;
     } else if (accountNumber >= 300 && accountNumber < 400) {
       type = AccountType.EQUITY;
     } else if (accountNumber >= 400 && accountNumber < 600) {
       type = AccountType.INCOME;
     } else if (accountNumber >= 600 && accountNumber < 900) {
-      type = AccountType.EXPENSE;
+      type = AccountType.EXPENSES;
     }
     return type;
   }

@@ -17,11 +17,13 @@ import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
  * @author Robert J. Muller
  */
 public class CapitalEntity {
+  /** the name of the capital entity */
+  private String name;
+  /** the required capital account for the entity */
+  private Account capitalAccount = null;
+  /** the optional distribution account for the entity */
+  private Account distributionAccount = null;
 
-  /** name of the entity's capital account */
-  private final String capitalAccount;
-  /** name of the entity's distribution/drawing account */
-  private final String distributionAccount;
   /**
    * decimal percentage ownership/allocation (0.5, for example); ownership
    * should always be scaled at 3 decimal digits, permitting one digit of
@@ -36,8 +38,6 @@ public class CapitalEntity {
 
   // messages
 
-  private static final String NULL_PARAMETER_ERROR =
-    "Statement parameters are required but one is null";
   private static final String NO_BUILDER_ERROR =
     "no builder supplied for updating";
   private static final String NO_NAME_ERROR = null;
@@ -45,46 +45,71 @@ public class CapitalEntity {
   /**
    * Create a Partner object.
    * 
-   * @param capitalAccount the name of the capital account for the partner;
-   *          required
-   * @param distributionAccount the name of the distributions account for the
-   *          partner; optional because individuals and other non-commercial
-   *          entities do not usually have distribution accounts
+   * @param name the name of the capital entity
    * @param ownership the decimal percentage ownership of the company for the
    *          partner (should sum to 1 across all partners); the number will be
    *          scaled and rounded according to the SCALE and ROUNDING_MODE
    *          constants; optional and defaults to 1 (100%)
    */
-  public CapitalEntity(String capitalAccount,
-                       String distributionAccount,
-                       BigDecimal ownership) {
-    // validate the inputs
-    if (capitalAccount == null || capitalAccount.isEmpty()) {
-      throw new RuntimeException(NULL_PARAMETER_ERROR);
-    }
-    this.capitalAccount = capitalAccount;
-    this.distributionAccount = distributionAccount;
+  public CapitalEntity(String name, BigDecimal ownership) {
+    this.name = name;
     this.ownership =
       ownership != null ? ownership.setScale(SCALE, ROUNDING_MODE)
           : BigDecimal.ONE.setScale(2);
   }
 
   /**
-   * Get the capital account name.
+   * Get the name.
    * 
-   * @return an account name
+   * @return a name
    */
-  public String getCapitalAccount() {
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Set the name.
+   * 
+   * @param name a name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Get the required capital account.
+   * 
+   * @return an account; null means the capital account has not yet been set
+   */
+  public Account getCapitalAccount() {
     return capitalAccount;
   }
 
   /**
-   * Get the distribution account name.
+   * Set the required capital account.
    * 
-   * @return an account name, or null if there is no distribution account
+   * @param capitalAccount the capital account
    */
-  public String getDistributionAccount() {
+  public void setCapitalAccount(Account capitalAccount) {
+    this.capitalAccount = capitalAccount;
+  }
+
+  /**
+   * Get the optional distribution account.
+   * 
+   * @return an account, or null if there is no distribution account
+   */
+  public Account getDistributionAccount() {
     return distributionAccount;
+  }
+
+  /**
+   * Set the optional distribution account.
+   * 
+   * @param distributionAccount the distribution account
+   */
+  public void setDistributionAccount(Account distributionAccount) {
+    this.distributionAccount = distributionAccount;
   }
 
   /**
@@ -145,13 +170,13 @@ public class CapitalEntity {
    * method depends on the builder having built the complete transaction set for
    * the fiscal year.
    * 
-   * @param accountName the name of the account; required
+   * @param account the name of the account; required
    * @param builder the builder, which should have built the fiscal year, the
    *          accounts, and the transactions before this call; required
    * @return the balance in the named account
    */
-  private BigDecimal getAccountBalance(String accountName, IBuilder builder) {
-    if (accountName == null) {
+  private BigDecimal getAccountBalance(Account account, IBuilder builder) {
+    if (account == null) {
       throw new RuntimeException(NO_NAME_ERROR);
     }
     if (builder == null) {
@@ -162,14 +187,13 @@ public class CapitalEntity {
       new Statement(builder.getFiscalYear(),
                     "Balance Sheet",
                     StatementType.BALANCE_SHEET);
-    Account account = builder.getAccountByName(accountName);
     return stmt.getAccountBalance(account);
   }
 
   @Override
   public String toString() {
-    return "CapitalEntity [capitalAccount=" + capitalAccount
-           + ", distributionAccount=" + distributionAccount + ", ownership="
-           + ownership + "]";
+    return "CapitalEntity [name=" + name + ", ownership=" + ownership
+           + ", capitalAccount=" + capitalAccount + ", distributionAccount="
+           + distributionAccount + "]";
   }
 }

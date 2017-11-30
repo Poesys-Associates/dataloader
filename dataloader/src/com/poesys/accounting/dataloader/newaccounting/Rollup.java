@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.db.InvalidParametersException;
 
@@ -22,7 +21,7 @@ import com.poesys.db.InvalidParametersException;
  * 
  * @author Robert J. Muller
  */
-public class Rollup {
+public class Rollup implements Comparable<Rollup> {
   /** logger for this class */
   private static final Logger logger = Logger.getLogger(Rollup.class);
 
@@ -132,6 +131,59 @@ public class Rollup {
   }
 
   @Override
+  public int compareTo(Rollup obj) {
+    int returnValue = 0;
+    
+    // Check inputs valid
+    if (obj == null) {
+      throw new RuntimeException("null rollup in compareTo()");
+    }
+    
+    // First compare for equality.
+    if (!this.equals(obj)) {
+      // not equal, compare account type
+      // Get the fiscal-year-account links for the two objects.
+      FiscalYearAccount thisLink = getFiscalYearAccount(statement.getYear(), account);
+      FiscalYearAccount thatLink = getFiscalYearAccount(statement.getYear(), obj.account);
+      AccountType thisType = account.getAccountType(statement.getYear());
+      AccountType thatType = obj.account.getAccountType(statement.getYear());
+      returnValue = thisType.compareTo(thatType);
+      if (returnValue == 0) {
+        // same type, compare account group order
+        Integer thisGroupOrder = thisLink.getGroupOrderNumber();
+        Integer thatGroupOrder = thatLink.getGroupOrderNumber();
+        returnValue = thisGroupOrder.compareTo(thatGroupOrder);
+        if (returnValue == 0) {
+          // same group order, compare account order
+          Integer thisAccountOrder = thisLink.getAccountOrderNumber();
+          Integer thatAccountOrder = thatLink.getAccountOrderNumber();
+          returnValue = thisAccountOrder.compareTo(thatAccountOrder);
+        }
+      }
+    }
+    
+    return returnValue;
+  }
+
+  /**
+   * @param year
+   * @param account
+   * @return
+   */
+  private FiscalYearAccount getFiscalYearAccount(FiscalYear year,
+                                                 Account account) {
+    FiscalYearAccount returnLink = null;
+
+    for (FiscalYearAccount link : account.getYears()) {
+      if (link.getFiscalYear().equals(year)) {
+        returnLink = link;
+        break;
+      }
+    }
+    return returnLink;
+  }
+
+  @Override
   public String toString() {
     return "Rollup [statement=" + statement + ", account=" + account
            + ", total=" + format.format(getTotal()) + "]";
@@ -146,9 +198,9 @@ public class Rollup {
    */
   public String toData() {
     StringBuilder builder =
-      new StringBuilder(account.getAccountType().toString());
+      new StringBuilder(account.getAccountType(statement.getYear()).toString());
     builder.append(DELIMITER);
-    builder.append(account.getGroup().getName());
+    builder.append(account.getGroup(statement.getYear()).getName());
     builder.append(DELIMITER);
     builder.append(account.getName());
     builder.append(DELIMITER);
@@ -172,9 +224,9 @@ public class Rollup {
       Transaction transaction = item.getTransaction();
 
       boolean balanceSheetAccount =
-        account.getAccountType().equals(AccountType.ASSET)
-            || account.getAccountType().equals(AccountType.LIABILITY)
-            || account.getAccountType().equals(AccountType.EQUITY);
+        account.getAccountType(statement.getYear()).equals(AccountType.ASSETS)
+            || account.getAccountType(statement.getYear()).equals(AccountType.LIABILITIES)
+            || account.getAccountType(statement.getYear()).equals(AccountType.EQUITY);
 
       // Process all transactions for balance sheet accounts, only those for the
       // current year for income statement accounts.
@@ -194,9 +246,9 @@ public class Rollup {
 
         // Build the data line.
         data.append(line);
-        data.append(account.getAccountType().toString());
+        data.append(account.getAccountType(statement.getYear()).toString());
         data.append(DELIMITER);
-        data.append(account.getGroup().getName());
+        data.append(account.getGroup(statement.getYear()).getName());
         data.append(DELIMITER);
         data.append(item.getAccount().getName());
         data.append(DELIMITER);

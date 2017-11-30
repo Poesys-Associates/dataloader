@@ -6,9 +6,11 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +33,8 @@ public class FiscalYear {
   private final Timestamp end;
 
   /** the set of accounts in the fiscal year */
-  private final Set<Account> accounts = new HashSet<Account>();
+  private final List<FiscalYearAccount> accounts =
+    new ArrayList<FiscalYearAccount>();
 
   /**
    * the set of transactions in the fiscal year; each acocunt must exist in the
@@ -188,26 +191,24 @@ public class FiscalYear {
   /**
    * Get a threadsafe version of the set of accounts.
    * 
-   * @return a threadsafe set of the accounts in the fiscal year
+   * @return a threadsafe list of fiscal-year-account links
    */
-  public Set<Account> getAccounts() {
-    return Collections.synchronizedSet(accounts);
+  public List<FiscalYearAccount> getAccounts() {
+    return Collections.synchronizedList(accounts);
   }
 
   /**
-   * Add an account to the fiscal year. Also add the fiscal year to the account
-   * if it's not already there.
+   * Link an account to the fiscal year. Ensure that the links are ordered by
+   * account type, group, and account within the year.
    * 
    * @param account the account to add
    */
-  public void addAccount(Account account) {
+  public void addAccount(FiscalYearAccount account) {
     if (account == null) {
       throw new InvalidParametersException(NULL_ACCOUNT_ERROR);
     }
     accounts.add(account);
-    if (!account.getYears().contains(this)) {
-      account.addYear(this);
-    }
+    Collections.sort(accounts);
   }
 
   @Override
