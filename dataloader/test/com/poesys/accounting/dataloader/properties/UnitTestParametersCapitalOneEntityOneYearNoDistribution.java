@@ -13,7 +13,7 @@ import java.io.Writer;
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
@@ -219,7 +219,9 @@ public class UnitTestParametersCapitalOneEntityOneYearNoDistribution extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input = CAP_ACCOUNT_NAME + DELIM + DELIM + OWNERSHIP.toString();
+    String input =
+      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT_NAME + DELIM + DELIM
+          + OWNERSHIP.toString();
     return new StringReader(input);
   }
 
@@ -370,7 +372,7 @@ public class UnitTestParametersCapitalOneEntityOneYearNoDistribution extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    return new RjmMlsFiscalYearUpdater();
+    return new UnitTestFiscalYearUpdater();
   }
 
   @Override

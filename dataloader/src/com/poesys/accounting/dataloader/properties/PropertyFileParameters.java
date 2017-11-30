@@ -24,6 +24,7 @@ import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.db.InvalidParametersException;
 
@@ -310,9 +311,12 @@ public class PropertyFileParameters extends
     case "PoesysFiscalYearUpdater":
       updater = new PoesysFiscalYearUpdater();
       break;
+    case "UnitTestFiscalYearUpdater":
+      updater = new UnitTestFiscalYearUpdater();
+      break;
     default:
       logger.warn("updater parameter value not supported: " + plugin);
-      updater = new RjmMlsFiscalYearUpdater();
+      updater = new UnitTestFiscalYearUpdater();
     }
     return updater;
   }
