@@ -105,6 +105,8 @@ public class OldDataBuilder implements IBuilder {
     "no new capital entity name";
   private static final String NO_CAPITAL_ENTITY_NAME_ERROR =
     "no capital entity name";
+  private static final String NO_ACCOUNT_NAME_ERROR =
+    "no name for lookup of account";
 
   // lookup maps and index classes
 
@@ -317,7 +319,6 @@ public class OldDataBuilder implements IBuilder {
       }
       // Add the group to the list. Note the list is not sorted at this point.
       groupList.add(group);
-
     }
   }
 
@@ -371,37 +372,40 @@ public class OldDataBuilder implements IBuilder {
 
     @Override
     public void build(BufferedReader r) {
-      Account account = new Account(fiscalYear.getYear(), r);
+      Integer year = fiscalYear.getYear();
+      Account oldAccount = new Account(fiscalYear.getYear(), r);
       // Convert account number to 5-digit integer for comparisons
-      Integer accountNumber =
-        new Float(account.getAccountNumber() * 100F).intValue();
+      Float accountNumber = oldAccount.getAccountNumber();
+      Integer intAccountNumber = new Float(accountNumber * 100F).intValue();
       // Determine whether the account is a receivable account.
-      Boolean receivable = accountNumber >= 11000 && accountNumber < 12000;
+      Boolean receivable =
+        intAccountNumber >= 11000 && intAccountNumber < 12000;
       // Get the account group for the account.
       com.poesys.accounting.dataloader.newaccounting.AccountGroup group = null;
       Integer groupOrderNumber = null;
       for (AccountGroup key : groupMap.keySet()) {
-        if (key.contains(fiscalYear.getYear(), account.getAccountNumber())) {
+        if (key.contains(year, accountNumber)) {
           group = groupMap.get(key);
           groupOrderNumber = key.getOrderNumber();
+          break;
         }
       }
       if (group == null || groupOrderNumber == null) {
-        throw new RuntimeException(GROUP_LOOKUP_ERROR + account);
+        throw new RuntimeException(GROUP_LOOKUP_ERROR + oldAccount);
       }
       // Get the account name using the account map. This mapping links the
       // account to an account created in an earlier fiscal year or sets the
       // name to a "standardized" name rather than to the old name.
-      String name = accountMap.get(accountNumber);
+      String name = accountMap.get(intAccountNumber);
       // If not mapped, use the input name.
-      name = (name == null ? account.getName() : name);
+      name = (name == null ? oldAccount.getName() : name);
 
       // Create new account, add to set
       com.poesys.accounting.dataloader.newaccounting.Account newAccount =
         new com.poesys.accounting.dataloader.newaccounting.Account(name,
                                                                    name,
-                                                                   account.getAccountType(),
-                                                                   account.getDefaultDebit(),
+                                                                   oldAccount.getAccountType(),
+                                                                   oldAccount.getDefaultDebit(),
                                                                    receivable);
       if (!accounts.add(newAccount)) {
         // The account is already in the accounts set, so get that account.
@@ -424,26 +428,29 @@ public class OldDataBuilder implements IBuilder {
       // method needs to add the account with the account number for this year
       // regardless of whether a previous year created the shared new-accounting
       // account.
-      accountNumberMap.put(accountNumber, newAccount);
-      logger.debug("Indexed account " + account.getAccountNumber());
+      accountNumberMap.put(intAccountNumber, newAccount);
+      logger.debug("Indexed account " + oldAccount.getAccountNumber());
 
       // Add the account to the fiscal year by creating a FiscalYearAccount link
-      // with the associated group
-      // and adding it to the year. This operation links the account to the
+      // with the associated group. This operation links the account to the
       // fiscal year by creating a linking object in the database on store().
+      // The link is put into the three linked objects as well.
       FiscalYearAccount fsYAccount =
         new FiscalYearAccount(fiscalYear,
-                              account.getAccountType(),
+                              oldAccount.getAccountType(),
                               group,
                               groupOrderNumber,
                               newAccount,
                               accountOrderNumber);
       fiscalYear.addAccount(fsYAccount);
+      newAccount.addYear(fsYAccount);
+      group.addLink(fsYAccount);
     }
 
     /**
      * If this account is one of the capital structure accounts, associate the
-     * generated capital entity with the account.
+     * generated capital entity with the account. This links the account to the
+     * capital entity and vice versa.
      * 
      * @param newAccount the account object
      */
@@ -470,9 +477,11 @@ public class OldDataBuilder implements IBuilder {
             if (capEntity.getCapitalAccountName().equals(name)) {
               // This is the capital account for the entity.
               newCapEntity.setCapitalAccount(newAccount);
+              newAccount.setCapitalEntity(newCapEntity);
             } else if (capEntity.getDistributionAccountName() != null
                        && capEntity.getDistributionAccountName().equals(name)) {
               newCapEntity.setDistributionAccount(newAccount);
+              newAccount.setCapitalEntity(newCapEntity);
             } else if (capEntity.getDistributionAccountName() != null) {
               // error, neither capital nor distribution account matches
               throw new RuntimeException(INVALID_CAPITAL_ACCOUNT + name);
@@ -1171,6 +1180,11 @@ public class OldDataBuilder implements IBuilder {
 
   @Override
   public com.poesys.accounting.dataloader.newaccounting.Account getAccountByName(String name) {
-    return accountNameMap.get(name);
+    if (name == null) {
+      throw new RuntimeException(NO_ACCOUNT_NAME_ERROR);
+    }
+    com.poesys.accounting.dataloader.newaccounting.Account account =
+      accountNameMap.get(name);
+    return account;
   }
 }

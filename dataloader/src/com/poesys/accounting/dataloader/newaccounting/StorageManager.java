@@ -28,6 +28,7 @@ public class StorageManager extends AbstractValidatingStorageManager {
   public void store(String entityName, List<FiscalYear> years,
                     IDataAccessService storageService) {
     Set<Transaction> transactions = new HashSet<Transaction>();
+    Set<AccountGroup> groups = new HashSet<AccountGroup>();
 
     try {
       // Store the entity, fiscal years, account groups, and accounts.
@@ -35,6 +36,10 @@ public class StorageManager extends AbstractValidatingStorageManager {
       // Build a complete set of transactions for all the years.
       for (FiscalYear year : years) {
         transactions.addAll(year.getTransactions());
+        for (FiscalYearAccount fya : year.getAccounts()) {
+          // Extract the groups and add to the set.
+          groups.add(fya.getGroup());
+        }
       }
       // Store all the transactions in one committed transaction.
       storageService.storeTransactions(transactions);

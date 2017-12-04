@@ -89,14 +89,14 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final String CREDIT_ACCOUNT_NAME = "Credit Card";
 
   private static final String CAPITAL_ENTITY_1_NAME = "Partner 1";
-  private static final String CAP_ACCOUNT_1_NAME = "Personal Capital Partner 1";
+  private static final String CAP_ACCOUNT_1_NAME = "Partner 1 Capital";
   private static final Float CAP_ACCOUNT_1 = 300.0F;
   private static final String DIST_ACCOUNT_1_NAME =
     "Distributions to Partner 1";
   private static final Float DIST_ACCOUNT_1 = 310.0F;
 
   private static final String CAPITAL_ENTITY_2_NAME = "Partner 2";
-  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
+  private static final String CAP_ACCOUNT_2_NAME = "Partner 2 Capital";
   private static final Float CAP_ACCOUNT_2 = 301.0F;
 
   private static final String DIST_ACCOUNT_2_NAME =

@@ -3,8 +3,10 @@
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
+
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * Unit test implementation of the IDataAccessService interface that throws
@@ -22,10 +24,5 @@ public class RuntimeExceptionDataAccessService implements IDataAccessService {
   @Override
   public void storeTransactions(Set<Transaction> transactions) {
     throw new RuntimeException("storeTransactions() runtime exception");
-  }
-
-  @Override
-  public void storeAccountGroups(List<AccountGroup> groups) {
-    throw new RuntimeException("storeAccountGroups() runtime exception");
   }
 }

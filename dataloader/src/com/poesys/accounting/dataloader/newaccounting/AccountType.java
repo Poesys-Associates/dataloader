@@ -3,6 +3,10 @@
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
+
+import org.apache.log4j.Logger;
+
+
 /**
  * A set of enumerated values that represent classes of accounts in an
  * accounting system; note that the comparison ordering is specified by the
@@ -28,6 +32,13 @@ public enum AccountType {
   /** money paid by the accounting entity to another entity */
   EXPENSES("Expenses");
 
+  // messages
+  private static final String UNKNOWN_TYPE_WARNING =
+    "Unknown account type from database value: ";
+
+  /** logger for the enum type */
+  private static final Logger logger = Logger.getLogger(AccountType.class);
+
   /** the string to store the in the database */
   private final String databaseRepresentation;
 
@@ -49,7 +60,7 @@ public enum AccountType {
    * Get the enum value corresponding to a database string value.
    * 
    * @param value the database string
-   * @return the enum value
+   * @return the enum value or null if there is no such value
    */
   public static AccountType databaseValueOf(String value) {
     switch (value) {
@@ -64,7 +75,8 @@ public enum AccountType {
     case "Assets":
       return ASSETS;
     default:
-      throw new RuntimeException("Unknown account type: " + value);
+      logger.warn(UNKNOWN_TYPE_WARNING + value);
+      return null;
     }
   }
 }

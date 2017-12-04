@@ -307,7 +307,7 @@ public class OldDataBuilderTest {
     assertTrue("no groups variable set in constructor", createdGroups != null);
     assertTrue("invalid groups variable", !createdGroups.isEmpty());
     assertTrue("wrong number of groups created: " + createdGroups.size(),
-               createdGroups.size() == 3);
+               createdGroups.size() == 5);
   }
 
   /**
@@ -445,7 +445,7 @@ public class OldDataBuilderTest {
                  createdAccounts != null);
       assertTrue("invalid accounts variable", !createdAccounts.isEmpty());
       assertTrue("wrong number of accounts created: " + createdAccounts.size(),
-                 createdAccounts.size() == 4);
+                 createdAccounts.size() == 6);
     }
   }
 

@@ -41,9 +41,13 @@ public class Rollup implements Comparable<Rollup> {
 
   // Messages
 
-  /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "Rollup parameters are required but one is null";
+  private static final String NO_ACCOUNT_ERROR = "no account for rollup";
+  private static final String NO_STATEMENT_ERROR = "no statement for rollup";
+  private static final String NO_STATEMENT_YEAR_ERROR = "no year for statement";
+  private static final String NO_ACCOUNT_TYPE_ERROR =
+    "no account type for rollup account";
 
   /**
    * Create a Rollup object.
@@ -133,18 +137,20 @@ public class Rollup implements Comparable<Rollup> {
   @Override
   public int compareTo(Rollup obj) {
     int returnValue = 0;
-    
+
     // Check inputs valid
     if (obj == null) {
       throw new RuntimeException("null rollup in compareTo()");
     }
-    
+
     // First compare for equality.
     if (!this.equals(obj)) {
       // not equal, compare account type
       // Get the fiscal-year-account links for the two objects.
-      FiscalYearAccount thisLink = getFiscalYearAccount(statement.getYear(), account);
-      FiscalYearAccount thatLink = getFiscalYearAccount(statement.getYear(), obj.account);
+      FiscalYearAccount thisLink =
+        getFiscalYearAccount(statement.getYear(), account);
+      FiscalYearAccount thatLink =
+        getFiscalYearAccount(statement.getYear(), obj.account);
       AccountType thisType = account.getAccountType(statement.getYear());
       AccountType thatType = obj.account.getAccountType(statement.getYear());
       returnValue = thisType.compareTo(thatType);
@@ -161,14 +167,16 @@ public class Rollup implements Comparable<Rollup> {
         }
       }
     }
-    
+
     return returnValue;
   }
 
   /**
-   * @param year
-   * @param account
-   * @return
+   * Build a fiscal-year-account link given a year and account.
+   * 
+   * @param year the fiscal year to link
+   * @param account the account to link
+   * @return a fiscal-year-account link
    */
   private FiscalYearAccount getFiscalYearAccount(FiscalYear year,
                                                  Account account) {
@@ -197,6 +205,19 @@ public class Rollup implements Comparable<Rollup> {
    * @return the tab-delimited data string
    */
   public String toData() {
+    if (account == null) {
+      throw new RuntimeException(NO_ACCOUNT_ERROR);
+    }
+    if (statement == null) {
+      throw new RuntimeException(NO_STATEMENT_ERROR);
+    }
+    if (statement.getYear() == null) {
+      throw new RuntimeException(NO_STATEMENT_YEAR_ERROR);
+    }
+    AccountType type = account.getAccountType(statement.getYear());
+    if (type == null) {
+      throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR);
+    }
     StringBuilder builder =
       new StringBuilder(account.getAccountType(statement.getYear()).toString());
     builder.append(DELIMITER);

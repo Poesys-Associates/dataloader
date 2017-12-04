@@ -14,7 +14,6 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -41,29 +40,14 @@ public class TransactionTest {
   private static final Boolean CREDIT = Boolean.FALSE;
 
   private static final AccountType INCOME_TYPE = AccountType.INCOME;
-  private static final AccountType ASSET_TYPE = AccountType.ASSET;
+  private static final AccountType ASSET_TYPE = AccountType.ASSETS;
   private static final AccountType EQUITY_TYPE = AccountType.EQUITY;
-  private static final AccountType EXPENSE_TYPE = AccountType.EXPENSE;
+  private static final AccountType EXPENSE_TYPE = AccountType.EXPENSES;
 
   private static final Boolean DEBIT_DEFAULT = Boolean.TRUE;
   private static final Boolean CREDIT_DEFAULT = Boolean.FALSE;
   private static final Boolean NOT_RECEIVABLE = Boolean.FALSE;
   private static final Boolean RECEIVABLE = Boolean.TRUE;
-
-  // account groups for testing
-
-  private static final String CASH_GROUP_NAME = "Cash";
-  private static final AccountGroup CASH_GROUP =
-    new AccountGroup(CASH_GROUP_NAME);
-  private static final String INCOME_GROUP_NAME = "Income";
-  private static final AccountGroup INCOME_GROUP =
-    new AccountGroup(INCOME_GROUP_NAME);
-  private static final String CAPITAL_GROUP_NAME = "Personal Capital";
-  private static final AccountGroup CAPITAL_GROUP =
-    new AccountGroup(CAPITAL_GROUP_NAME);
-  private static final String UTILITIES_GROUP_NAME = "Utilities";
-  private static final AccountGroup UTILITIES_GROUP =
-    new AccountGroup(UTILITIES_GROUP_NAME);
 
   // accounts for testing
 
@@ -73,47 +57,41 @@ public class TransactionTest {
                 DESCRIPTION,
                 INCOME_TYPE,
                 CREDIT_DEFAULT,
-                NOT_RECEIVABLE,
-                INCOME_GROUP);
+                NOT_RECEIVABLE);
   private static final String CHECKING_ACCOUNT_NAME = "Citibank Checking";
   private static final Account CHECKING_ACCOUNT =
     new Account(CHECKING_ACCOUNT_NAME,
                 DESCRIPTION,
                 ASSET_TYPE,
                 DEBIT_DEFAULT,
-                NOT_RECEIVABLE,
-                CASH_GROUP);
+                NOT_RECEIVABLE);
   private static final String AR_ACCOUNT_NAME = "Accounts Receivable";
   private static final Account AR_ACCOUNT = new Account(AR_ACCOUNT_NAME,
                                                         DESCRIPTION,
                                                         ASSET_TYPE,
                                                         DEBIT_DEFAULT,
-                                                        RECEIVABLE,
-                                                        CASH_GROUP);
+                                                        RECEIVABLE);
   private static final String CAPITAL_ACCOUNT_NAME_1 = "Partner 1 Basis";
   private static final Account CAPITAL_ACCOUNT_1 =
     new Account(CAPITAL_ACCOUNT_NAME_1,
                 DESCRIPTION,
                 EQUITY_TYPE,
                 CREDIT_DEFAULT,
-                NOT_RECEIVABLE,
-                CAPITAL_GROUP);
+                NOT_RECEIVABLE);
   private static final String CAPITAL_ACCOUNT_NAME_2 = "Partner 2 Basis";
   private static final Account CAPITAL_ACCOUNT_2 =
     new Account(CAPITAL_ACCOUNT_NAME_2,
                 DESCRIPTION,
                 EQUITY_TYPE,
                 CREDIT_DEFAULT,
-                NOT_RECEIVABLE,
-                CAPITAL_GROUP);
+                NOT_RECEIVABLE);
   private static final String INTERNET_ACCOUNT_NAME = "Internet Service";
   private static final Account INTERNET_ACCOUNT =
     new Account(INTERNET_ACCOUNT_NAME,
                 DESCRIPTION,
                 EXPENSE_TYPE,
                 DEBIT_DEFAULT,
-                NOT_RECEIVABLE,
-                UTILITIES_GROUP);
+                NOT_RECEIVABLE);
 
   /**
    * Test method for
@@ -884,7 +862,7 @@ public class TransactionTest {
       receivableTransaction.addItem(AMOUNT, AR_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("receivable item constructor failed", receivable != null);
     assertTrue("toString failed: " + receivableTransaction,
-               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, accountType=Asset, debitDefault=true, receivable=true, group=AccountGroup [name=Cash]], debit=true, checked=false], Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]]]"));
+               receivableTransaction.toString().equals("Transaction [id=1234, description=description, date=2017-05-01 00:00:00.0, checked=false, balance=false, items=[Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Accounts Receivable, description=description, debitDefault=true, receivable=true, years=[]], debit=true, checked=false], Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, debitDefault=false, receivable=false, years=[]], debit=false, checked=false]]]"));
   }
 
   /**
@@ -984,6 +962,6 @@ public class TransactionTest {
     }
     assertTrue("Income item not found", incomeItem != null);
     assertTrue("item string incorrect: " + incomeItem,
-               incomeItem.toString().equals("Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, accountType=Income, debitDefault=false, receivable=false, group=AccountGroup [name=Income]], debit=false, checked=false]"));
+               incomeItem.toString().equals("Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account [name=Revenue, description=description, debitDefault=false, receivable=false, years=[]], debit=false, checked=false]"));
   }
 }

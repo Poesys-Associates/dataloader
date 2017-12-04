@@ -4,6 +4,9 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.poesys.db.InvalidParametersException;
 
 
@@ -17,6 +20,9 @@ import com.poesys.db.InvalidParametersException;
 public class AccountGroup {
   /** the group name */
   private final String name;
+  /** links between accounts and fiscal years that associate with this group */
+  private final List<FiscalYearAccount> fiscalYearAccounts =
+    new ArrayList<FiscalYearAccount>();
 
   // Messages
 
@@ -68,6 +74,25 @@ public class AccountGroup {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Get the fiscalYearAccounts.
+   * 
+   * @return a fiscalYearAccounts
+   */
+  public List<FiscalYearAccount> getFiscalYearAccounts() {
+    return fiscalYearAccounts;
+  }
+
+  /**
+   * Add a fiscal year account object that associates this group to an
+   * account-fiscal-year link.
+   * 
+   * @param fiscalYearAccount the link to associate to this group
+   */
+  public void addLink(FiscalYearAccount fiscalYearAccount) {
+    fiscalYearAccounts.add(fiscalYearAccount);
   }
 
   @Override

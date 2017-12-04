@@ -9,11 +9,12 @@ import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
+import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -141,7 +142,8 @@ public class FiscalYearTest {
   public void testIsInYearOrPriorYearSameYear() {
     FiscalYear year = new FiscalYear(YEAR);
     Timestamp date = Timestamp.valueOf(YEAR + "-05-01 00:00:00");
-    assertTrue("date in year but isInYearOrPriorYear is false", year.isInYearOrPriorYear(date));
+    assertTrue("date in year but isInYearOrPriorYear is false",
+               year.isInYearOrPriorYear(date));
   }
 
   /**
@@ -153,7 +155,8 @@ public class FiscalYearTest {
   public void testIsInYearOrPriorYearPriorYear() {
     FiscalYear year = new FiscalYear(YEAR);
     Timestamp date = Timestamp.valueOf(PRIOR_YEAR + "-05-01 00:00:00");
-    assertTrue("date in prior year but isInYearOrPriorYear is false", year.isInYearOrPriorYear(date));
+    assertTrue("date in prior year but isInYearOrPriorYear is false",
+               year.isInYearOrPriorYear(date));
   }
 
   /**
@@ -165,7 +168,8 @@ public class FiscalYearTest {
   public void testIsInYearOrPriorYearLaterYear() {
     FiscalYear year = new FiscalYear(YEAR);
     Timestamp date = Timestamp.valueOf(LATER_YEAR + "-05-01 00:00:00");
-    assertTrue("date in later year but isInYearOrPriorYear is true", !year.isInYearOrPriorYear(date));
+    assertTrue("date in later year but isInYearOrPriorYear is true",
+               !year.isInYearOrPriorYear(date));
   }
 
   /**
@@ -182,7 +186,7 @@ public class FiscalYearTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#addAccount(com.poesys.accounting.dataloader.newaccounting.Account)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#addAccount(com.poesys.accounting.dataloader.newaccounting.FiscalYearAccount)}
    * . Tests addAccount() and getAccount().
    */
   @Test
@@ -191,13 +195,16 @@ public class FiscalYearTest {
     assertTrue("no transactions set", year.getTransactions() != null);
     AccountGroup group = new AccountGroup("Income");
     Account account =
-      new Account("Income", "Income", AccountType.INCOME, true, false, group);
-    year.addAccount(account);
-    Set<Account> set = year.getAccounts();
-    assertTrue("no set of accounts", set != null);
+      new Account("Income", "Income", AccountType.INCOME, true, false);
+    FiscalYearAccount fya =
+      new FiscalYearAccount(year, AccountType.INCOME, group, 1, account, 1);
+    account.addYear(fya);
+    year.addAccount(fya);
+    List<FiscalYearAccount> list = year.getAccounts();
+    assertTrue("no set of accounts", list != null);
     boolean found = false;
-    for (Account acct : set) {
-      if (acct.equals(account)) {
+    for (FiscalYearAccount acct : list) {
+      if (acct.equals(fya)) {
         found = true;
       }
     }
@@ -205,8 +212,8 @@ public class FiscalYearTest {
 
     // Verify that account has fiscal year in list of fiscal years.
     found = false;
-    for (FiscalYear accountYear : account.getYears()) {
-      if (year.equals(accountYear)) {
+    for (FiscalYearAccount accountYear : account.getYears()) {
+      if (year.equals(accountYear.getFiscalYear())) {
         found = true;
         break;
       }
@@ -216,7 +223,7 @@ public class FiscalYearTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#addAccount(com.poesys.accounting.dataloader.newaccounting.Account)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#addAccount(com.poesys.accounting.dataloader.newaccounting.FiscalYearAccount)}
    * . Tests addAccount() with null account parameter.
    */
   @Test
@@ -229,34 +236,5 @@ public class FiscalYearTest {
     } catch (InvalidParametersException e) {
       // success
     }
- }
-
-  /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#addAccount(com.poesys.accounting.dataloader.newaccounting.Account)}
-   * . Tests addAccount() when account is already in account year list.
-   */
-  @Test
-  public void testAddAccountAlreadyInList() {
-    FiscalYear year = new FiscalYear(YEAR);
-    assertTrue("no transactions set", year.getTransactions() != null);
-    AccountGroup group = new AccountGroup("Income");
-    Account account =
-      new Account("Income", "Income", AccountType.INCOME, true, false, group);
-    year.addAccount(account);
-
-    // now add the account again and check year list to make sure there's only
-    // one instance of the account in the list.
-    year.addAccount(account);
-    int found = 0;
-    for (FiscalYear accountYear : account.getYears()) {
-      if (year.equals(accountYear)) {
-        found++;
-      }
-    }
-    assertTrue("fiscal year count not correct for " + year + ": " + found,
-               found == 1);
-
   }
-
 }

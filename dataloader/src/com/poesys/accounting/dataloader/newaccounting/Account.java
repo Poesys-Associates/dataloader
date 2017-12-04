@@ -46,6 +46,7 @@ public class Account {
     new ArrayList<FiscalYearAccount>();
   /** the set of items against the account */
   private final Set<Item> items = new HashSet<Item>();
+  private CapitalEntity capitalEntity = null;
 
   // Messages
 
@@ -223,6 +224,24 @@ public class Account {
   public void addItem(Item item) {
     logger.debug("Adding item to " + name + " item list: " + item);
     items.add(item);
+  }
+
+  /**
+   * Get the capital entity or null if there is none.
+   * 
+   * @return a capital entity or null
+   */
+  public CapitalEntity getCapitalEntity() {
+    return capitalEntity;
+  }
+
+  /**
+   * Set the capital entity.
+   * 
+   * @param capitalEntity a capital entity
+   */
+  public void setCapitalEntity(CapitalEntity capitalEntity) {
+    this.capitalEntity = capitalEntity;
   }
 
   @Override

@@ -5,8 +5,8 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +22,8 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class Statement {
+
+  /** logger for this class */
   private static final Logger logger = Logger.getLogger(Statement.class);
 
   /** line delimiter string for data sets */
@@ -51,9 +53,11 @@ public class Statement {
 
   // Messages
 
-  /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "Statement parameters are required but one is null";
+  private static final String NO_ACCOUNT_ERROR = "no account for rollup";
+  private static final String NO_ACCOUNT_TYPE_ERROR =
+    "no account type for account in fiscal year";
 
   /**
    * Create a Statement object.
@@ -82,7 +86,7 @@ public class Statement {
    * @return a Map of Rollup objects indexed by Account
    */
   public Map<Account, Rollup> getRollups() {
-    Map<Account, Rollup> rollups = new TreeMap<Account, Rollup>();
+    Map<Account, Rollup> rollups = new HashMap<Account, Rollup>();
     for (FiscalYearAccount account : year.getAccounts()) {
       // Create a rollup for each account.
       Rollup rollup = new Rollup(this, account.getAccount());
@@ -100,12 +104,12 @@ public class Statement {
    */
   public BigDecimal getAccountBalance(Account inputAccount) {
     if (inputAccount == null) {
-      throw new RuntimeException(NULL_PARAMETER_ERROR);
+      throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     BigDecimal accountTotal = BigDecimal.ZERO;
-    for (FiscalYearAccount account : year.getAccounts()) {
-      if (account.equals(inputAccount)) {
-        Rollup rollup = new Rollup(this, account.getAccount());
+    for (FiscalYearAccount link : year.getAccounts()) {
+      if (link.getAccount().equals(inputAccount)) {
+        Rollup rollup = new Rollup(this, link.getAccount());
         accountTotal = rollup.getTotal();
         break;
       }
@@ -209,13 +213,20 @@ public class Statement {
    */
   public String toData() {
     StringBuilder builder = new StringBuilder();
-    // Initialize line delimeter to empty so as not to write delimiter first.
+    // Initialize line delimiter to empty so as not to write delimiter first.
     String line = "";
     for (Rollup rollup : getRollups().values()) {
       Account account = rollup.getAccount();
+      if (account == null) {
+        throw new RuntimeException(NO_ACCOUNT_ERROR);
+      }
+      AccountType accountType = account.getAccountType(year);
+      if (accountType == null) {
+        throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR);
+      }
       switch (type) {
       case BALANCE_SHEET:
-        switch (account.getAccountType(year)) {
+        switch (accountType) {
         case ASSETS:
         case LIABILITIES:
         case EQUITY:
@@ -229,7 +240,7 @@ public class Statement {
         }
         break;
       case INCOME_STATEMENT:
-        switch (account.getAccountType(year)) {
+        switch (accountType) {
         case INCOME:
         case EXPENSES:
           appendDataLine(builder, line, rollup);

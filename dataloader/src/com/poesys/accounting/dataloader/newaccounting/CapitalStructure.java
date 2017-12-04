@@ -80,6 +80,7 @@ public class CapitalStructure {
     "invalid income summary transaction ";
   private static final String NO_ENTITIES_ERROR =
     "no entities in capital structure";
+  private static final String INVALID_PARAMETER_ERROR = "Invalid parameter: ";
 
   /**
    * Get the entities. This returns a synchronized list. If you iterate through
@@ -366,6 +367,10 @@ public class CapitalStructure {
    */
   public List<Transaction> getDistributionTransactions(FiscalYear year,
                                                        IBuilder builder) {
+    if (year == null || builder == null) {
+      throw new InvalidParametersException(INVALID_PARAMETER_ERROR);
+    }
+
     List<Transaction> transactions =
       new ArrayList<Transaction>(entities.size());
 
@@ -373,11 +378,9 @@ public class CapitalStructure {
       new Statement(year, BALANCE_SHEET, StatementType.BALANCE_SHEET);
 
     for (CapitalEntity entity : entities) {
-      // Get the accounts for this entity by name.
-      Account capAccount =
-        builder.getAccountByName(entity.getCapitalAccount().getName());
-      Account distAccount =
-        builder.getAccountByName(entity.getDistributionAccount().getName());
+      // Get the accounts for this entity.
+      Account capAccount = entity.getCapitalAccount();
+      Account distAccount = entity.getDistributionAccount();
 
       // Proceed only if there is a distribution account.
       if (distAccount != null) {

@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import com.poesys.db.connection.IConnectionFactory.DBMS;
 import com.poesys.db.connection.JdbcConnectionManager;
+import com.poesys.db.dao.DaoManagerFactory;
+import com.poesys.db.dao.IDaoManager;
 
 
 /**
@@ -72,40 +74,33 @@ public class AccountingDbServiceIntegrationTest {
                                                   "Checking Account",
                                                   AccountType.ASSETS,
                                                   true,
-                                                  false,
-                                                  CASH_GROUP);
+                                                  false);
   private final Account arAccount = new Account("Receivables",
                                                 "Accounts Receivable",
-                                                Account.AccountType.ASSET,
+                                                AccountType.ASSETS,
                                                 true,
-                                                true,
-                                                AR_GROUP);
+                                                true);
   private final Account liabilityAcccount =
     new Account("Credit Card",
                 "Credit Card",
-                Account.AccountType.LIABILITY,
+                AccountType.LIABILITIES,
                 false,
-                false,
-                LIABILITY_GROUP);
+                false);
   private final Account equityAccount = new Account("Personal Capital",
                                                     "Personal Capital",
-                                                    Account.AccountType.EQUITY,
+                                                    AccountType.EQUITY,
                                                     false,
-                                                    false,
-                                                    EQUITY_GROUP);
+                                                    false);
   private final Account incomeAccount = new Account("Salary",
                                                     "Salary",
-                                                    Account.AccountType.INCOME,
+                                                    AccountType.INCOME,
                                                     false,
-                                                    false,
-                                                    INCOME_GROUP);
-  private final Account expenseAccount =
-    new Account("Household",
-                "Household Expenses",
-                Account.AccountType.EXPENSE,
-                true,
-                false,
-                EXPENSE_GROUP);
+                                                    false);
+  private final Account expenseAccount = new Account("Household",
+                                                     "Household Expenses",
+                                                     AccountType.EXPENSES,
+                                                     true,
+                                                     false);
 
   /**
    * Test method for
@@ -124,12 +119,14 @@ public class AccountingDbServiceIntegrationTest {
     years.add(year3);
 
     try {
+      clearDatabase();
+      logger.info("Storing account subsystem: entity and dependents");
       IDataAccessService service = new AccountingDbService();
       service.storeEntity(ENTITY_NAME, years);
       assertTrue("account subsystem not stored correctly",
                  validateAccountSubsystem(ENTITY_NAME, years));
     } catch (java.lang.AssertionError e) {
-      // passthrough to JUnit
+      // pass through to JUnit
       throw e;
     } catch (Throwable e) {
       logger.error("Exception storing entity", e);
@@ -194,7 +191,8 @@ public class AccountingDbServiceIntegrationTest {
           // Query the account with account name and entity name
           stmt =
             connection.prepareStatement("SELECT 1 FROM Account where accountName = ?");
-          for (Account account : year.getAccounts()) {
+          for (FiscalYearAccount fya : year.getAccounts()) {
+            Account account = fya.getAccount();
             stmt.setString(1, account.getName());
             rs = stmt.executeQuery();
             assertTrue("no account " + account, rs.next());
@@ -204,7 +202,7 @@ public class AccountingDbServiceIntegrationTest {
         }
       }
 
-      // Set the status to true to complete valiation.
+      // Set the status to true to complete validation.
       status = true;
     } catch (SQLException | IOException e) {
       logger.error("SQL exception or IO error validating accounts", e);
@@ -270,6 +268,7 @@ public class AccountingDbServiceIntegrationTest {
 
     try {
       clearDatabase();
+      logger.info("Storing transaction subsystem: entity, transactions");
       IDataAccessService service = new AccountingDbService();
       service.storeEntity(ENTITY_NAME, years);
       // Build a complete set of transactions for all the years.
@@ -281,7 +280,7 @@ public class AccountingDbServiceIntegrationTest {
       assertTrue("transaction subsystem not stored correctly",
                  validateTransactionSubsystem(years));
     } catch (java.lang.AssertionError e) {
-      // passthrough to JUnit
+      // pass through to JUnit
       throw e;
     } catch (Throwable e) {
       logger.error("exception storing entity and transactions", e);
@@ -402,12 +401,27 @@ public class AccountingDbServiceIntegrationTest {
   }
 
   /**
+   * Helper method to clear caches for any objects used in the test
+   * 
+   * @param subsystem the subsystem to clear
+   */
+  private void clearSubsystemCaches(String subsystem) {
+    IDaoManager manager = DaoManagerFactory.getManager(subsystem);
+    if (manager != null) {
+      manager.clearAllCaches();
+    }
+  }
+
+  /**
    * Remove any data currently in the database and set sequences to 1.
    */
   private void clearDatabase() {
     // Clear subsystems in dependency order: transaction then account
     clearTransactionSubsystem();
+    // Clear Java caches for subsystem to refresh on the next test
+    clearSubsystemCaches("com.poesys.accounting.db.transaction");
     clearAccountSubsystem();
+    clearSubsystemCaches("com.poesys.accounting.db.account");
   }
 
   /**
@@ -429,6 +443,8 @@ public class AccountingDbServiceIntegrationTest {
       stmt.execute("DELETE FROM FiscalYear");
       stmt.execute("DELETE FROM AccountGroup");
       connection.commit();
+
+      // Clear Poesys/DB caches
     } catch (SQLException | IOException e) {
       logger.error("exception clearing database", e);
       if (connection != null) {
@@ -459,7 +475,8 @@ public class AccountingDbServiceIntegrationTest {
   /**
    * Clear the tables in the Transaction subsystem (Transaction). Call this
    * before calling clearAccountSubsystem(). Also deletes Item, IdMap, and
-   * Reimbursement tables through cascaded deletes.
+   * Reimbursement tables through cascaded deletes. Also updates the transaction
+   * sequence to start at 1 again.
    */
   private void clearTransactionSubsystem() {
     Connection connection = null;
@@ -469,7 +486,9 @@ public class AccountingDbServiceIntegrationTest {
       connection =
         JdbcConnectionManager.getConnection(DBMS.MYSQL, TRANSACTION_SUBSYSTEM);
       stmt = connection.createStatement();
+      stmt.execute("DELETE FROM IdMap");
       stmt.execute("DELETE FROM Transaction");
+      stmt.execute("UPDATE Sequence SET sequence = 1 WHERE name = 'transactionId'");
       connection.commit();
     } catch (SQLException | IOException e) {
       logger.error("exception clearing database", e);
@@ -510,15 +529,66 @@ public class AccountingDbServiceIntegrationTest {
     assertTrue("could not create fiscal year " + year, fiscalYear != null);
     assertTrue("wrong year created: " + fiscalYear.getYear(),
                fiscalYear.getYear() == year);
-    // Add the accounts to the fiscal year.
-    fiscalYear.addAccount(cashAccount);
-    fiscalYear.addAccount(arAccount);
-    fiscalYear.addAccount(liabilityAcccount);
-    fiscalYear.addAccount(equityAccount);
-    fiscalYear.addAccount(incomeAccount);
-    fiscalYear.addAccount(expenseAccount);
+    // Link the accounts to the fiscal year.
+    linkAccountToYear(fiscalYear,
+                      AccountType.ASSETS,
+                      CASH_GROUP,
+                      cashAccount,
+                      1,
+                      1);
+    linkAccountToYear(fiscalYear, AccountType.ASSETS, AR_GROUP, arAccount, 2, 1);
+    linkAccountToYear(fiscalYear,
+                      AccountType.LIABILITIES,
+                      LIABILITY_GROUP,
+                      liabilityAcccount,
+                      1,
+                      1);
+    linkAccountToYear(fiscalYear,
+                      AccountType.EQUITY,
+                      EQUITY_GROUP,
+                      equityAccount,
+                      1,
+                      1);
+    linkAccountToYear(fiscalYear,
+                      AccountType.INCOME,
+                      INCOME_GROUP,
+                      incomeAccount,
+                      1,
+                      1);
+    linkAccountToYear(fiscalYear,
+                      AccountType.EXPENSES,
+                      EXPENSE_GROUP,
+                      expenseAccount,
+                      1,
+                      1);
 
     return fiscalYear;
+  }
+
+  /**
+   * Link the account to a fiscal year, associating both with a group.
+   * 
+   * @param fiscalYear the fiscal year to link
+   * @param type the type of the account (ASSETS, LIABILITIES, and so on)
+   * @param group the account group to associate with the link
+   * @param account the account to link
+   * @param groupOrderNumber the order of the group in the type
+   * @param accountOrderNumber the order of the account in the group
+   */
+  private void linkAccountToYear(FiscalYear fiscalYear, AccountType type,
+                                 AccountGroup group, Account account,
+                                 Integer groupOrderNumber,
+                                 Integer accountOrderNumber) {
+    FiscalYearAccount fya =
+      new FiscalYearAccount(fiscalYear,
+                            type,
+                            group,
+                            groupOrderNumber,
+                            account,
+                            accountOrderNumber);
+    fiscalYear.addAccount(fya);
+    group.addLink(fya);
+    account.addYear(fya);
   }
 
   /**

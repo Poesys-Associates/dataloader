@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import com.poesys.accounting.dataloader.newaccounting.Account.AccountType;
 import com.poesys.db.InvalidParametersException;
 
 
@@ -29,10 +28,10 @@ public class AccountCollectionDistributorTest {
   private static final BigDecimal PENNY = new BigDecimal(".01");
   /** negative one cent in decimal form */
   private static final BigDecimal NEG_PENNY = new BigDecimal("-.01");
-  
+
   /** BigDecimal scale for arithmetic and comparisons */
   private static final int SCALE = 2;
-  
+
   /** multiplier for converting money to integer value */
   private static final BigDecimal CONVERTER = new BigDecimal("100");
 
@@ -52,7 +51,8 @@ public class AccountCollectionDistributorTest {
 
   // unequal amount to use in combination with above amounts
   private static final BigDecimal UNEQUAL_AMOUNT = new BigDecimal("23455.18");
-  private static final BigDecimal UNEQUAL_NEG_AMOUNT = new BigDecimal("-23456.18");
+  private static final BigDecimal UNEQUAL_NEG_AMOUNT =
+    new BigDecimal("-23456.18");
 
   // amounts not divisible by 2 ("odd", remainder 1)
   private static final BigDecimal ODD_AMOUNT = new BigDecimal("23456.25");
@@ -84,14 +84,6 @@ public class AccountCollectionDistributorTest {
   private static final Integer INT_INDIV_AMOUNT_R2 = 2345600;
   private static final Integer INT_NEG_INDIV_AMOUNT_R2 = -2345600;
 
-  // account group constants
-  private static final String INCOME_GROUP_NAME = "Earned Income";
-  private static final AccountGroup INCOME_GROUP =
-    new AccountGroup(INCOME_GROUP_NAME);
-  private static final String EQUITY_GROUP_NAME = "Personal Capital";
-  private static final AccountGroup EQUITY_GROUP =
-    new AccountGroup(EQUITY_GROUP_NAME);
-
   // account constants
   private static final String DESCRIPTION = "description";
   private static final String INCOME_ACCOUNT_NAME = "Salary";
@@ -107,31 +99,27 @@ public class AccountCollectionDistributorTest {
                                                     DESCRIPTION,
                                                     AccountType.INCOME,
                                                     CREDIT_DEFAULT,
-                                                    NOT_RECEIVABLE,
-                                                    INCOME_GROUP);
+                                                    NOT_RECEIVABLE);
 
   private final Account equityAccount1 = new Account(EQUITY_ACCOUNT_NAME_1,
                                                      DESCRIPTION,
                                                      AccountType.EQUITY,
                                                      !DEBIT_DEFAULT,
-                                                     NOT_RECEIVABLE,
-                                                     EQUITY_GROUP);
+                                                     NOT_RECEIVABLE);
   private final Account equityAccount2 = new Account(EQUITY_ACCOUNT_NAME_2,
                                                      DESCRIPTION,
                                                      AccountType.EQUITY,
                                                      !DEBIT_DEFAULT,
-                                                     NOT_RECEIVABLE,
-                                                     EQUITY_GROUP);
+                                                     NOT_RECEIVABLE);
   private final Account equityAccount3 = new Account(EQUITY_ACCOUNT_NAME_3,
                                                      DESCRIPTION,
                                                      AccountType.EQUITY,
                                                      !DEBIT_DEFAULT,
-                                                     NOT_RECEIVABLE,
-                                                     EQUITY_GROUP);
+                                                     NOT_RECEIVABLE);
 
   // messages for comparison
   private static final String INVALID_COLLECTION_ERROR =
-      "invalid balances, check whether balances were added to distributor and that balance amounts are equal or at most one penny different";
+    "invalid balances, check whether balances were added to distributor and that balance amounts are equal or at most one penny different";
 
   private static final String NULL_ACCOUNT_ERROR =
     "account is required but is null";
@@ -1906,8 +1894,8 @@ public class AccountCollectionDistributorTest {
     boolean equalized = distributor.equalize();
     assertTrue("balances not equal", distributor.equal());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("wrongly equalized", !equalized);
   }
 
@@ -1926,10 +1914,10 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not equal", distributor.equal());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -1949,13 +1937,13 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not equal", distributor.equal());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 3 amount not zero: "
-        + distributor.getItemAmount(equityAccount3),
+                   + distributor.getItemAmount(equityAccount3),
                distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -1974,10 +1962,10 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -1997,13 +1985,13 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 3 amount not zero: "
-        + distributor.getItemAmount(equityAccount3),
+                   + distributor.getItemAmount(equityAccount3),
                distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -2022,10 +2010,10 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances not equalized", equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not correct: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
     assertTrue("Item 2 amount not correct: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(PENNY.setScale(SCALE)));
   }
 
@@ -2045,13 +2033,13 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances not equalized", equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not correct: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(NEG_PENNY.setScale(SCALE)));
     assertTrue("Item 2 amount not correct: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 3 amount not correct: "
-        + distributor.getItemAmount(equityAccount3),
+                   + distributor.getItemAmount(equityAccount3),
                distributor.getItemAmount(equityAccount3).equals(PENNY.setScale(SCALE)));
   }
 
@@ -2070,10 +2058,10 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -2093,13 +2081,13 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances equalized", !equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not zero: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 2 amount not zero: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 3 amount not zero: "
-        + distributor.getItemAmount(equityAccount3),
+                   + distributor.getItemAmount(equityAccount3),
                distributor.getItemAmount(equityAccount3).equals(BigDecimal.ZERO.setScale(SCALE)));
   }
 
@@ -2118,10 +2106,10 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances not equalized", equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not correct: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
     assertTrue("Item 2 amount not correct: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(NEG_PENNY.setScale(SCALE)));
   }
 
@@ -2141,13 +2129,13 @@ public class AccountCollectionDistributorTest {
     assertTrue("balances not equalized", equalized);
     assertTrue("balances not nearly equal", distributor.isValid());
     assertTrue("Item 1 amount not correct: "
-        + distributor.getItemAmount(equityAccount1),
-    distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
+                   + distributor.getItemAmount(equityAccount1),
+               distributor.getItemAmount(equityAccount1).equals(PENNY.setScale(SCALE)));
     assertTrue("Item 2 amount not correct: "
-        + distributor.getItemAmount(equityAccount2),
+                   + distributor.getItemAmount(equityAccount2),
                distributor.getItemAmount(equityAccount2).equals(BigDecimal.ZERO.setScale(SCALE)));
     assertTrue("Item 3 amount not correct: "
-        + distributor.getItemAmount(equityAccount3),
+                   + distributor.getItemAmount(equityAccount3),
                distributor.getItemAmount(equityAccount3).equals(NEG_PENNY.setScale(SCALE)));
   }
 }

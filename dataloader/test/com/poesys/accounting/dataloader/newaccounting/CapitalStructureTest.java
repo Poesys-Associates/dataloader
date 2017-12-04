@@ -35,13 +35,38 @@ import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalTwoE
 public class CapitalStructureTest {
   private static final Logger logger =
     Logger.getLogger(CapitalStructureTest.class);
-  private static final String CAP_ACCOUNT_1_NAME = "Personal Capital Partner 1";
-  private static final String CAP_ACCOUNT_2_NAME = "Personal Capital Partner 2";
+  private static final String DESCRIPTION = "Equity Account";
+  private static final String CAP_ENTITY_1_NAME = "Partner 1";
+  private static final String CAP_ENTITY_2_NAME = "Partner 2";
+  private static final String CAPITAL_ACCOUNT_1_NAME = "Partner 1 Capital";
+  private static final Account CAPITAL_ACCOUNT_PARTNER_1 =
+    new Account(CAPITAL_ACCOUNT_1_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
+  private static final String DIST_ACCOUNT_1_NAME = "Partner 1 Distributions";
+  private static final Account DIST_ACCOUNT_1 =
+    new Account(DIST_ACCOUNT_1_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
   private static final String DIST_ACCOUNT_NAME = "Distributions";
-  private static final String DIST_ACCOUNT_1_NAME =
-    "Distributions to Partner 1";
-  private static final String DIST_ACCOUNT_2_NAME =
-    "Distributions to Partner 2";
+  private static final String CAPITAL_ACCOUNT_2_NAME = "Partner 2 Capital";
+  private static final Account CAPITAL_ACCOUNT_PARTNER_2 =
+    new Account(CAPITAL_ACCOUNT_2_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
+  private static final String DIST_ACCOUNT_2_NAME = "Partner 2 Distributions";
+  private static final Account DIST_ACCOUNT_2 =
+    new Account(DIST_ACCOUNT_2_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
   private static final BigDecimal OWNERSHIP_2 =
     new BigDecimal("0.50").setScale(CapitalEntity.SCALE);
   private static final Integer YEAR1 = 2017;
@@ -78,10 +103,12 @@ public class CapitalStructureTest {
       new CapitalStructure(parameters.getIncomeSummaryAccountName());
     assertTrue("no entities list for capital structure",
                capStruct.getEntities() != null);
-    CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1_NAME, DIST_ACCOUNT_1_NAME, OWNERSHIP_2);
-    CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_2_NAME, DIST_ACCOUNT_2_NAME, OWNERSHIP_2);
+    CapitalEntity entity1 = new CapitalEntity(CAP_ENTITY_1_NAME, OWNERSHIP_2);
+    entity1.setCapitalAccount(CAPITAL_ACCOUNT_PARTNER_1);
+    entity1.setDistributionAccount(DIST_ACCOUNT_1);
+    CapitalEntity entity2 = new CapitalEntity(CAP_ENTITY_2_NAME, OWNERSHIP_2);
+    entity2.setCapitalAccount(CAPITAL_ACCOUNT_PARTNER_2);
+    entity2.setDistributionAccount(DIST_ACCOUNT_2);
     List<CapitalEntity> list = new ArrayList<CapitalEntity>(2);
     list.add(entity1);
     list.add(entity2);
@@ -90,11 +117,11 @@ public class CapitalStructureTest {
     assertTrue("capital structure invalid after adding entity",
                capStruct.isValid());
     assertTrue("wrong entity 1 added: "
-                   + capStruct.getEntities().get(0).getCapitalAccount(),
-               capStruct.getEntities().get(0).getCapitalAccount().equals(CAP_ACCOUNT_1_NAME));
+                   + capStruct.getEntities().get(0).getName(),
+               capStruct.getEntities().get(0).getName().equals(CAP_ENTITY_1_NAME));
     assertTrue("wrong entity 2 added: "
-                   + capStruct.getEntities().get(1).getCapitalAccount(),
-               capStruct.getEntities().get(1).getCapitalAccount().equals(CAP_ACCOUNT_2_NAME));
+                   + capStruct.getEntities().get(1).getName(),
+               capStruct.getEntities().get(1).getName().equals(CAP_ENTITY_2_NAME));
   }
 
   /**
@@ -110,10 +137,12 @@ public class CapitalStructureTest {
       new CapitalStructure(parameters.getIncomeSummaryAccountName());
     assertTrue("no entities list for capital structure",
                capStruct.getEntities() != null);
-    CapitalEntity entity1 =
-      new CapitalEntity(CAP_ACCOUNT_1_NAME, DIST_ACCOUNT_1_NAME, OWNERSHIP_2);
-    CapitalEntity entity2 =
-      new CapitalEntity(CAP_ACCOUNT_2_NAME, DIST_ACCOUNT_2_NAME, OWNERSHIP_2);
+    CapitalEntity entity1 = new CapitalEntity(CAP_ENTITY_1_NAME, OWNERSHIP_2);
+    entity1.setCapitalAccount(CAPITAL_ACCOUNT_PARTNER_1);
+    entity1.setDistributionAccount(DIST_ACCOUNT_1);
+    CapitalEntity entity2 = new CapitalEntity(CAP_ENTITY_2_NAME, OWNERSHIP_2);
+    entity2.setCapitalAccount(CAPITAL_ACCOUNT_PARTNER_2);
+    entity2.setDistributionAccount(DIST_ACCOUNT_2);
     List<CapitalEntity> list = new ArrayList<CapitalEntity>(2);
     list.add(entity1);
     list.add(entity2);
@@ -487,41 +516,15 @@ public class CapitalStructureTest {
     year.addTransaction(transaction);
     logger.info("Done with income summary transfer");
 
-    // @formatter:off
-    /*
-    logger.info("Starting distribution transfer");
-    List<Transaction> transactions =
-      capStruct.getDistributionFromCapitalTransactions(year, builder);
-    assertTrue("no distribution transaction list created", transactions != null);
-    assertTrue("distribution transaction list is empty for structure with no distribution account",
-               !transactions.isEmpty());
-    for (Transaction distTransaction : transactions) {
-      year.addTransaction(distTransaction);
-    }
-    logger.info("Done with distribution transfer");
-    */
-    // @formatter:on
-
     Statement stmt =
       new Statement(year,
                     "Poesys Associates 1997 Balance Sheet",
                     StatementType.BALANCE_SHEET);
     assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
                stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
-    // @formatter:off
-    /*
-    assertTrue("distribution account 1 balance is not zero: "
-                   + stmt.getAccountBalance(distAccount1),
-               stmt.getAccountBalance(distAccount1).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
-    Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
-    assertTrue("distribution account 2 balance is not zero: "
-                   + stmt.getAccountBalance(distAccount2),
-               stmt.getAccountBalance(distAccount2).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
-    */
-    // @formatter:on
-    Account capAccount1 = builder.getAccountByName(CAP_ACCOUNT_1_NAME);
+    Account capAccount1 = builder.getAccountByName(CAPITAL_ACCOUNT_1_NAME);
     BigDecimal cap1Balance = stmt.getAccountBalance(capAccount1);
-    Account capAccount2 = builder.getAccountByName(CAP_ACCOUNT_2_NAME);
+    Account capAccount2 = builder.getAccountByName(CAPITAL_ACCOUNT_2_NAME);
     BigDecimal cap2Balance = stmt.getAccountBalance(capAccount2);
     // Test the bug in the Poesys 1997 balance sheet, 2-cent difference
     logger.info("capital balances: " + cap1Balance + " : " + cap2Balance);
@@ -572,8 +575,10 @@ public class CapitalStructureTest {
       year.addTransaction(distTransaction);
     }
     logger.info("Done with distribution transfer");
-    Transaction adjustingTransaction = capStruct.getCapitalAdjustmentTransaction(builder);
-    assertTrue("did not get adjusting transaction", adjustingTransaction != null);
+    Transaction adjustingTransaction =
+      capStruct.getCapitalAdjustmentTransaction(builder);
+    assertTrue("did not get adjusting transaction",
+               adjustingTransaction != null);
     year.addTransaction(adjustingTransaction);
 
     Statement stmt =
@@ -586,18 +591,24 @@ public class CapitalStructureTest {
                 + stmt.toDetailData() + "\n--------------------------------\n");
     assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
                stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
-    Account distAccount1 = builder.getAccountByName(DIST_ACCOUNT_1_NAME);
+    
+    assertTrue("no capital entity", capStruct.getEntities() != null);
+    assertTrue("wrong number of capital entities",
+               capStruct.getEntities().size() == 2);
+    CapitalEntity entity1 = capStruct.getEntities().get(0);
+    CapitalEntity entity2 = capStruct.getEntities().get(1);
+    Account distAccount1 = entity1.getDistributionAccount();
     assertTrue("distribution account 1 balance is not zero: "
                    + stmt.getAccountBalance(distAccount1),
                stmt.getAccountBalance(distAccount1).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
-    Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
+    Account distAccount2 = entity2.getDistributionAccount();
     assertTrue("distribution account 2 balance is not zero: "
                    + stmt.getAccountBalance(distAccount2),
                stmt.getAccountBalance(distAccount2).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
 
-    Account capAccount1 = builder.getAccountByName(CAP_ACCOUNT_1_NAME);
+    Account capAccount1 = entity1.getCapitalAccount();
     BigDecimal cap1Balance = stmt.getAccountBalance(capAccount1);
-    Account capAccount2 = builder.getAccountByName(CAP_ACCOUNT_2_NAME);
+    Account capAccount2 = entity2.getCapitalAccount();
     BigDecimal cap2Balance = stmt.getAccountBalance(capAccount2);
     // Test the bug in the Poesys 1998 balance sheet, 2-cent difference
     logger.info("capital balances: " + cap1Balance + " : " + cap2Balance);
@@ -691,11 +702,16 @@ public class CapitalStructureTest {
       assertTrue("balance sheet balance is not 0: " + balance,
                  balance.compareTo(BigDecimal.ZERO) == 0);
       logger.info("2 Entities 2 Years Balance Sheet test done");
-      Account distAccount1 = builder.getAccountByName(DIST_ACCOUNT_1_NAME);
+      assertTrue("no capital entity", capStruct.getEntities() != null);
+      assertTrue("wrong number of capital entities",
+                 capStruct.getEntities().size() == 2);
+      CapitalEntity entity1 = capStruct.getEntities().get(0);
+      CapitalEntity entity2 = capStruct.getEntities().get(1);
+      Account distAccount1 = entity1.getDistributionAccount();
       assertTrue("distribution account 1 balance is not zero: "
                      + stmt.getAccountBalance(distAccount1),
                  stmt.getAccountBalance(distAccount1).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
-      Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
+      Account distAccount2 = entity2.getDistributionAccount();
       assertTrue("distribution account 2 balance is not zero: "
                      + stmt.getAccountBalance(distAccount2),
                  stmt.getAccountBalance(distAccount2).compareTo(BigDecimal.ZERO.setScale(2)) == 0);
@@ -716,7 +732,7 @@ public class CapitalStructureTest {
     CapitalStructure capStruct = builder.getCapitalStructure();
     assertTrue("could not create capital structure", capStruct != null);
     assertTrue("string representation is wrong: " + capStruct,
-               capStruct.toString().equals("CapitalStructure [incomeSummaryAccountName=Income Summary, entities=[CapitalEntity [capitalAccount=Personal Capital Partner 1, distributionAccount=Distributions to Partner 1, ownership=0.500], CapitalEntity [capitalAccount=Personal Capital Partner 2, distributionAccount=Distributions to Partner 2, ownership=0.500]]]"));
+               capStruct.toString().equals("CapitalStructure [incomeSummaryAccountName=Income Summary, entities=[CapitalEntity [name=Partner 1, ownership=0.500, capitalAccount=null, distributionAccount=null], CapitalEntity [name=Partner 2, ownership=0.500, capitalAccount=null, distributionAccount=null]]]"));
   }
 
   /**
@@ -748,7 +764,8 @@ public class CapitalStructureTest {
     assertTrue("distribution transaction list is not empty for structure with no distribution account",
                transactions.isEmpty());
     Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
-    assertTrue("adjusting transaction created but should not have been", adjust == null);
+    assertTrue("adjusting transaction created but should not have been",
+               adjust == null);
     Statement stmt =
       new Statement(year,
                     "1 Entity 1 Year Balance Sheet",
@@ -790,7 +807,8 @@ public class CapitalStructureTest {
       year.addTransaction(distTransaction);
     }
     Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
-    assertTrue("adjusting transaction created but should not have been", adjust == null);
+    assertTrue("adjusting transaction created but should not have been",
+               adjust == null);
     Statement stmt =
       new Statement(year,
                     "2 Entities 1 Year Balance Sheet",

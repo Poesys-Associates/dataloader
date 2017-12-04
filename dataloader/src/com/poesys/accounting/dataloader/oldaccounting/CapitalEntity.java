@@ -51,6 +51,7 @@ public class CapitalEntity extends AbstractReaderDto {
     if (capitalAccountName == null || capitalAccountName.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
+    this.name = name;
     this.capitalAccountName = capitalAccountName;
     this.distributionAccountName = distributionAccountName;
     this.ownership = ownership != null ? ownership : 1.00D;
@@ -153,7 +154,7 @@ public class CapitalEntity extends AbstractReaderDto {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     distributionAccountName = fields[2].trim();
-    if (fields[2].isEmpty()) {
+    if (fields[3].isEmpty()) {
       ownership = 1.0D;
     } else {
       ownership = new Double(fields[3]);

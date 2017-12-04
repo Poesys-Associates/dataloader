@@ -24,9 +24,29 @@ import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalOneE
  */
 public class CapitalEntityTest {
 
+  private static final String CAPITAL_ENTITY_NAME = "Accounting System";
   private static final String CAPITAL_ACCOUNT_NAME = "Personal Capital";
-  private static final String DISTRIBUTION_ACCOUNT_NAME =
-    "Partner 1 Distributions";
+  private static final String DESCRIPTION = "Equity Account";
+  private static final Account CAPITAL_ACCOUNT_SINGLE =
+    new Account(CAPITAL_ACCOUNT_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
+  private static final String CAPITAL_ACCOUNT_1_NAME = "Partner 1 Capital";
+  private static final Account CAPITAL_ACCOUNT_PARTNER_1 =
+    new Account(CAPITAL_ACCOUNT_1_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
+  private static final String DIST_ACCOUNT_1_NAME = "Partner 1 Distributions";
+  private static final Account DIST_ACCOUNT_1 =
+    new Account(DIST_ACCOUNT_1_NAME,
+                DESCRIPTION,
+                AccountType.EQUITY,
+                false,
+                false);
   private static final BigDecimal OWNERSHIP_1 = BigDecimal.ONE;
   private static final BigDecimal OWNERSHIP_2 = new BigDecimal("0.50");
   private static final BigDecimal CAPITAL_BALANCE_AMOUNT =
@@ -34,37 +54,32 @@ public class CapitalEntityTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.math.BigDecimal)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.math.BigDecimal)}
    * . Tests the main constructor and the getters.
    */
   @Test
   public void testCapitalEntityIntegerOwnership() {
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
+    // no distribution account
     assertTrue("could not create capital entity", entity != null);
     assertTrue("wrong capital account name " + entity.getCapitalAccount(),
-               CAPITAL_ACCOUNT_NAME.equals(entity.getCapitalAccount()));
-    assertTrue("wrong distribution account name "
-                   + entity.getDistributionAccount(),
-               DISTRIBUTION_ACCOUNT_NAME.equals(entity.getDistributionAccount()));
+               CAPITAL_ACCOUNT_SINGLE.equals(entity.getCapitalAccount()));
     assertTrue("wrong ownership percentage " + entity.getOwnership(),
                OWNERSHIP_1.compareTo(entity.getOwnership()) == 0);
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.lang.String, java.math.BigDecimal)}
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalEntity#CapitalEntity(java.lang.String, java.math.BigDecimal)}
    * . Tests the main constructor with a partial (less than one) initial
    * ownership value.
    */
   @Test
   public void testCapitalEntityPartialOwnership() {
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_2);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_2);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_PARTNER_1);
+    entity.setDistributionAccount(DIST_ACCOUNT_1);
     assertTrue("wrong ownership percentage " + entity.getOwnership(),
                OWNERSHIP_2.compareTo(entity.getOwnership()) == 0);
   }
@@ -76,10 +91,8 @@ public class CapitalEntityTest {
    */
   @Test
   public void testSetOwnership() {
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
     entity.setOwnership(OWNERSHIP_2);
     assertTrue("wrong ownership percentage " + entity.getOwnership(),
                OWNERSHIP_2.compareTo(entity.getOwnership()) == 0);
@@ -92,10 +105,9 @@ public class CapitalEntityTest {
    */
   @Test
   public void testGetCapitalBalanceSingleYearOneEntity() {
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
+    // no distribution account
     IParameters parameters =
       new UnitTestParametersCapitalOneEntityOneYearNoDistribution();
     IBuilder builder = new OldDataBuilder(parameters);
@@ -120,9 +132,9 @@ public class CapitalEntityTest {
    */
   @Test
   public void testGetDistributionBalanceSingleYearNoAccount() {
-    // no distribution account for individual
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME, null, OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
+    // no distribution account
     IParameters parameters =
       new UnitTestParametersCapitalOneEntityOneYearNoDistribution();
     IBuilder builder = new OldDataBuilder(parameters);
@@ -145,10 +157,9 @@ public class CapitalEntityTest {
    */
   @Test
   public void testGetCapitalBalanceTwoYearsOneEntity() {
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
+    // no distribution account
     IParameters parameters =
       new UnitTestParametersCapitalOneEntityTwoYearsNoDistribution();
     IBuilder builder = new OldDataBuilder(parameters);
@@ -173,9 +184,9 @@ public class CapitalEntityTest {
    */
   @Test
   public void testGetDistributionBalanceTwoYearsNoAccount() {
-    // no distribution account for individual
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME, null, OWNERSHIP_1);
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
+    // no distribution account
     IParameters parameters =
       new UnitTestParametersCapitalOneEntityTwoYearsNoDistribution();
     IBuilder builder = new OldDataBuilder(parameters);
@@ -198,12 +209,10 @@ public class CapitalEntityTest {
    */
   @Test
   public void testToString() {
+    CapitalEntity entity = new CapitalEntity(CAPITAL_ENTITY_NAME, OWNERSHIP_1);
+    entity.setCapitalAccount(CAPITAL_ACCOUNT_SINGLE);
     // no distribution account for individual
-    CapitalEntity entity =
-      new CapitalEntity(CAPITAL_ACCOUNT_NAME,
-                        DISTRIBUTION_ACCOUNT_NAME,
-                        OWNERSHIP_1);
     assertTrue("string representation not correct: " + entity,
-               entity.toString().equals("CapitalEntity [capitalAccount=Personal Capital, distributionAccount=Partner 1 Distributions, ownership=1.000]"));
+               entity.toString().equals("CapitalEntity [name=Accounting System, ownership=1.000, capitalAccount=Account [name=Personal Capital, description=Equity Account, debitDefault=false, receivable=false, years=[]], distributionAccount=null]"));
   }
 }

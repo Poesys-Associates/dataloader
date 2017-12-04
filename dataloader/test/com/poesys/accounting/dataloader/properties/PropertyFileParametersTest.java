@@ -20,6 +20,7 @@ import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.NonStoringStorageManager;
 import com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater;
+import com.poesys.accounting.dataloader.newaccounting.RjmMlsFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 
@@ -274,7 +275,7 @@ public class PropertyFileParametersTest {
     IFiscalYearUpdater updater = parameters.getUpdater();
     assertTrue("no updater created", updater != null);
     assertTrue("wrong updater created",
-               updater instanceof UnitTestFiscalYearUpdater);
+               updater instanceof RjmMlsFiscalYearUpdater);
   }
 
   /**

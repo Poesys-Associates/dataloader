@@ -35,9 +35,8 @@ public interface IBuilder {
   public void buildFiscalYear(Integer year);
 
   /**
-   * Build a set of account groups. The implementation should accept a current
-   * set of account groups through the constructor and add any new groups to the
-   * set from input data. Depends on buildFiscalYear().
+   * Build a set of account groups. This builds a list of account groups in the
+   * current fiscal year and orders them. Depends on buildFiscalYear().
    */
   public void buildAccountGroups();
 

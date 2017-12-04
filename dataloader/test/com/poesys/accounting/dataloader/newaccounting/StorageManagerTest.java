@@ -36,6 +36,8 @@ public class StorageManagerTest {
   private static final AccountGroup EQUITY_GROUP =
     new AccountGroup("Personal Capital");
   private static final AccountGroup INCOME_GROUP = new AccountGroup("Salary");
+  private static final AccountGroup INCOME_CONTRA_GROUP =
+    new AccountGroup("Income Contra Accounts");
   private static final AccountGroup EXPENSE_GROUP =
     new AccountGroup("Household");
 
@@ -43,49 +45,40 @@ public class StorageManagerTest {
   // tests
   private final Account cashAccount = new Account("Checking",
                                                   "Checking Account",
-                                                  Account.AccountType.ASSET,
+                                                  AccountType.ASSETS,
                                                   true,
-                                                  false,
-                                                  CASH_GROUP);
+                                                  false);
   private final Account arAccount = new Account("Receivables",
                                                 "Accounts Receivable",
-                                                Account.AccountType.ASSET,
+                                                AccountType.ASSETS,
                                                 true,
-                                                false,
-                                                AR_GROUP);
+                                                false);
   private final Account liabilityAcccount =
     new Account("Credit Card",
                 "Credit Card",
-                Account.AccountType.LIABILITY,
+                AccountType.LIABILITIES,
                 false,
-                false,
-                LIABILITY_GROUP);
+                false);
   private final Account equityAccount = new Account("Personal Capital",
                                                     "Personal Capital",
-                                                    Account.AccountType.EQUITY,
+                                                    AccountType.EQUITY,
                                                     false,
-                                                    false,
-                                                    EQUITY_GROUP);
+                                                    false);
   private final Account incomeAccount = new Account("Salary",
                                                     "Salary",
-                                                    Account.AccountType.INCOME,
+                                                    AccountType.INCOME,
                                                     false,
-                                                    false,
-                                                    INCOME_GROUP);
-  private final Account incomeSummaryAccount =
-    new Account("Income Summary",
-                "Income Summary",
-                Account.AccountType.INCOME,
-                true,
-                false,
-                INCOME_GROUP);
-  private final Account expenseAccount =
-    new Account("Household",
-                "Household Expenses",
-                Account.AccountType.EXPENSE,
-                true,
-                false,
-                EXPENSE_GROUP);
+                                                    false);
+  private final Account incomeSummaryAccount = new Account("Income Summary",
+                                                           "Income Summary",
+                                                           AccountType.INCOME,
+                                                           true,
+                                                           false);
+  private final Account expenseAccount = new Account("Household",
+                                                     "Household Expenses",
+                                                     AccountType.EXPENSES,
+                                                     true,
+                                                     false);
 
   /**
    * Test method for
@@ -139,13 +132,48 @@ public class StorageManagerTest {
     assertTrue("wrong year created: " + fiscalYear.getYear(),
                fiscalYear.getYear() == year);
     // Add the accounts to the fiscal year.
-    fiscalYear.addAccount(cashAccount);
-    fiscalYear.addAccount(arAccount);
-    fiscalYear.addAccount(liabilityAcccount);
-    fiscalYear.addAccount(equityAccount);
-    fiscalYear.addAccount(incomeAccount);
-    fiscalYear.addAccount(incomeSummaryAccount);
-    fiscalYear.addAccount(expenseAccount);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.ASSETS,
+                             CASH_GROUP,
+                             1,
+                             cashAccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.ASSETS,
+                             AR_GROUP,
+                             2,
+                             arAccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.LIABILITIES,
+                             LIABILITY_GROUP,
+                             1,
+                             liabilityAcccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.EQUITY,
+                             EQUITY_GROUP,
+                             1,
+                             equityAccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.INCOME,
+                             INCOME_GROUP,
+                             1,
+                             incomeAccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.INCOME,
+                             INCOME_CONTRA_GROUP,
+                             2,
+                             incomeSummaryAccount,
+                             1);
+    addFiscalYearAccountLink(fiscalYear,
+                             AccountType.EXPENSES,
+                             EXPENSE_GROUP,
+                             1,
+                             expenseAccount,
+                             1);
 
     // Create a set of transactions that looks like a complete year's accounts.
     Transaction transaction = null;
@@ -272,6 +300,33 @@ public class StorageManagerTest {
     fiscalYear.addTransaction(transaction);
 
     return fiscalYear;
+  }
+
+  /**
+   * Link a year to an account and associate a group with the link.
+   * 
+   * @param year the fiscal year to link
+   * @param type the kind of account
+   * @param group the account group to associate with the link
+   * @param groupOrderNumber the order of the group within the kind of account
+   * @param account the account to link
+   * @param accountOrderNumber the order of the account in the group
+   */
+  private void addFiscalYearAccountLink(FiscalYear year, AccountType type,
+                                        AccountGroup group,
+                                        Integer groupOrderNumber,
+                                        Account account,
+                                        Integer accountOrderNumber) {
+    FiscalYearAccount link =
+      new FiscalYearAccount(year,
+                            type,
+                            group,
+                            groupOrderNumber,
+                            account,
+                            accountOrderNumber);
+    account.addYear(link);
+    group.addLink(link);
+    year.addAccount(link);
   }
 
   /**
