@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.*;
 
@@ -13,10 +26,9 @@ import org.junit.Test;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
  * CUT: AccountMap
- * 
+ *
  * @author Robert J. Muller
  */
 public class AccountMapTest {
@@ -33,8 +45,7 @@ public class AccountMapTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, java.lang.String)}
-   * . Tests constructor and getters
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, * java.lang.String)} . Tests constructor and getters
    */
   @Test
   public void testAccountMapFloatString() {
@@ -47,8 +58,7 @@ public class AccountMapTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, java.lang.String)}
-   * . Tests constructor for required account number
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, * java.lang.String)} . Tests constructor for required account number
    */
   @Test
   public void testAccountMapRequiredNumber() {
@@ -62,8 +72,7 @@ public class AccountMapTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, java.lang.String)}
-   * . Tests constructor for required account name
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#AccountMap(java.lang.Float, * java.lang.String)} . Tests constructor for required account name
    */
   @Test
   public void testAccountMapRequiredName() {
@@ -83,9 +92,8 @@ public class AccountMapTest {
   @Test
   public void testAccountMapBufferedReader() {
     String input =
-      ACCOUNT_NUMBER_1 + DELIMITER + NAME_1 + LINE_DELIMETER + ACCOUNT_NUMBER_2
-          + DELIMITER + NAME_2 + LINE_DELIMETER + ACCOUNT_NUMBER_3 + DELIMITER
-          + NAME_3;
+      ACCOUNT_NUMBER_1 + DELIMITER + NAME_1 + LINE_DELIMETER + ACCOUNT_NUMBER_2 + DELIMITER +
+      NAME_2 + LINE_DELIMETER + ACCOUNT_NUMBER_3 + DELIMITER + NAME_3;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     AccountMap map = new AccountMap(reader);
     assertTrue("no account map 1 created", map != null);
@@ -107,8 +115,8 @@ public class AccountMapTest {
   @Test
   public void testAccountMapBufferedReaderNullNumber() {
     String input =
-      DELIMITER + NAME_1 + LINE_DELIMETER + ACCOUNT_NUMBER_2 + DELIMITER
-          + NAME_2 + LINE_DELIMETER + ACCOUNT_NUMBER_3 + DELIMITER + NAME_3;
+      DELIMITER + NAME_1 + LINE_DELIMETER + ACCOUNT_NUMBER_2 + DELIMITER + NAME_2 + LINE_DELIMETER +
+      ACCOUNT_NUMBER_3 + DELIMITER + NAME_3;
     try {
       BufferedReader reader = new BufferedReader(new StringReader(input));
       new AccountMap(reader);
@@ -126,9 +134,8 @@ public class AccountMapTest {
   @Test
   public void testAccountMapBufferedReaderNullName() {
     String input =
-      ACCOUNT_NUMBER_1 + DELIMITER + LINE_DELIMETER + ACCOUNT_NUMBER_2
-          + DELIMITER + NAME_2 + LINE_DELIMETER + ACCOUNT_NUMBER_3 + DELIMITER
-          + NAME_3;
+      ACCOUNT_NUMBER_1 + DELIMITER + LINE_DELIMETER + ACCOUNT_NUMBER_2 + DELIMITER + NAME_2 +
+      LINE_DELIMETER + ACCOUNT_NUMBER_3 + DELIMITER + NAME_3;
     try {
       BufferedReader reader = new BufferedReader(new StringReader(input));
       new AccountMap(reader);
@@ -139,22 +146,17 @@ public class AccountMapTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#hashCode()}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#hashCode()} .
    */
   @Test
   public void testHashCodeEquality() {
     AccountMap map1 = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
     AccountMap map2 = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
-    assertTrue("equal account map but hash codes aren't equal",
-               map1.hashCode() == map2.hashCode());
+    assertTrue("equal account map but hash codes aren't equal", map1.hashCode() == map2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#hashCode()}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#hashCode()} .
    */
   @Test
   public void testHashCodeInequality() {
@@ -173,8 +175,7 @@ public class AccountMapTest {
   public void testEqualsObjectEquality() {
     AccountMap map1 = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
     AccountMap map2 = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
-    assertTrue("equal account maps that don't compare as equal",
-               map1.equals(map2));
+    assertTrue("equal account maps that don't compare as equal", map1.equals(map2));
   }
 
   /**
@@ -186,19 +187,16 @@ public class AccountMapTest {
   public void testEqualsObjectInequality() {
     AccountMap map1 = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
     AccountMap map2 = new AccountMap(ACCOUNT_NUMBER_2, NAME_2);
-    assertTrue("different account maps that compare as equal",
-               !map1.equals(map2));
+    assertTrue("different account maps that compare as equal", !map1.equals(map2));
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#toString()}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.AccountMap#toString()} .
    */
   @Test
   public void testToString() {
     AccountMap map = new AccountMap(ACCOUNT_NUMBER_1, NAME_1);
-    assertTrue("String representation failed: " + map + ", expecting "
-               + STRING_REP_1, STRING_REP_1.equals(map.toString()));
+    assertTrue("String representation failed: " + map + ", expecting " + STRING_REP_1,
+               STRING_REP_1.equals(map.toString()));
   }
 }

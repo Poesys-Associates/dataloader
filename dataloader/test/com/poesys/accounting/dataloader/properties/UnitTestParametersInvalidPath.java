@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.Reader;
 import java.io.Writer;
@@ -14,16 +27,14 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter
+ * getter
+ *
  * @author Robert J. Muller
  */
-public class UnitTestParametersInvalidPath extends
-    AbstractStatementMaintainingParameters {
+public class UnitTestParametersInvalidPath extends AbstractStatementMaintainingParameters {
   private int pathCalls = 0;
   private int entityCalls = 0;
   private int incomeSummaryCalls = 0;
@@ -77,7 +88,7 @@ public class UnitTestParametersInvalidPath extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -86,7 +97,7 @@ public class UnitTestParametersInvalidPath extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -95,7 +106,7 @@ public class UnitTestParametersInvalidPath extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -104,7 +115,7 @@ public class UnitTestParametersInvalidPath extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -113,7 +124,7 @@ public class UnitTestParametersInvalidPath extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {

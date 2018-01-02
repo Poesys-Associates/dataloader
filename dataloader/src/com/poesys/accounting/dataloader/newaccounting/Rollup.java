@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
-
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,11 +27,10 @@ import org.apache.log4j.Logger;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * A data transfer object containing the sum of a set of items against a
- * specific account contained within a statement for a fiscal year
- * 
+ * A data transfer object containing the sum of a set of items against a specific account contained
+ * within a statement for a fiscal year
+ *
  * @author Robert J. Muller
  */
 public class Rollup implements Comparable<Rollup> {
@@ -43,17 +55,14 @@ public class Rollup implements Comparable<Rollup> {
 
   private static final String NULL_PARAMETER_ERROR =
     "Rollup parameters are required but one is null";
-  private static final String NO_ACCOUNT_ERROR = "no account for rollup";
-  private static final String NO_STATEMENT_ERROR = "no statement for rollup";
   private static final String NO_STATEMENT_YEAR_ERROR = "no year for statement";
-  private static final String NO_ACCOUNT_TYPE_ERROR =
-    "no account type for rollup account";
+  private static final String NO_ACCOUNT_TYPE_ERROR = "no account type for rollup account";
 
   /**
    * Create a Rollup object.
-   * 
+   *
    * @param statement the parent statement
-   * @param account the account being summed
+   * @param account   the account being summed
    */
   public Rollup(Statement statement, Account account) {
     if (statement == null || account == null) {
@@ -65,7 +74,7 @@ public class Rollup implements Comparable<Rollup> {
 
   /**
    * Get the account.
-   * 
+   *
    * @return an account
    */
   public Account getAccount() {
@@ -73,31 +82,30 @@ public class Rollup implements Comparable<Rollup> {
   }
 
   /**
-   * Sum the items against the account for the fiscal year and return the total.
-   * Arithmetic uses BigDecimal and the total returned is a BigDecimal for
-   * accurately scaled comparisons.
-   * 
-   * @return the sum of the items against the account taking credits as positive
-   *         numbers and debits as negative numbers
+   * Sum the items against the account for the fiscal year and return the total. Arithmetic uses
+   * BigDecimal and the total returned is a BigDecimal for accurately scaled comparisons.
+   *
+   * @return the sum of the items against the account taking credits as positive numbers and debits
+   * as negative numbers
    */
   public BigDecimal getTotal() {
-    BigDecimal total = BigDecimal.ZERO.setScale(2);
+    BigDecimal total = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
     FiscalYear year = statement.getYear();
     for (Item item : account.getItems()) {
       Transaction transaction = item.getTransaction();
       Statement.StatementType type = statement.getType();
       // Iterate through all years up to the current year for balance sheet,
       // only current year for income statement.
-      if ((type.equals(StatementType.BALANCE_SHEET) && year.isInYearOrPriorYear(transaction.getDate()))
-          || (type.equals(StatementType.INCOME_STATEMENT) && year.isIn(transaction.getDate()))) {
-        BigDecimal amount =
-          new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+      if ((type.equals(StatementType.BALANCE_SHEET) &&
+           year.isInYearOrPriorYear(transaction.getDate())) ||
+          (type.equals(StatementType.INCOME_STATEMENT) && year.isIn(transaction.getDate()))) {
+        BigDecimal amount = new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
         // Negate the amount for debit items.
         amount = item.isDebit() ? amount.negate() : amount;
         total = total.add(amount);
-        logger.debug("Added item to " + account.getName()
-                     + " total for fiscal year " + year.getYear() + ": "
-                     + amount + ", total = " + total);
+        logger.debug(
+          "Added item to " + account.getName() + " total for fiscal year " + year.getYear() + ": " +
+          amount + ", total = " + total);
       }
     }
     return total;
@@ -107,31 +115,27 @@ public class Rollup implements Comparable<Rollup> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((account == null) ? 0 : account.hashCode());
-    result = prime * result + ((statement == null) ? 0 : statement.hashCode());
+    result = prime * result + account.hashCode();
+    result = prime * result + statement.hashCode();
     return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Rollup other = (Rollup)obj;
-    if (account == null) {
-      if (other.account != null)
-        return false;
-    } else if (!account.equals(other.account))
+    if (!account.equals(other.account)) {
       return false;
-    if (statement == null) {
-      if (other.statement != null)
-        return false;
-    } else if (!statement.equals(other.statement))
-      return false;
-    return true;
+    }
+    return statement.equals(other.statement);
   }
 
   @Override
@@ -147,10 +151,8 @@ public class Rollup implements Comparable<Rollup> {
     if (!this.equals(obj)) {
       // not equal, compare account type
       // Get the fiscal-year-account links for the two objects.
-      FiscalYearAccount thisLink =
-        getFiscalYearAccount(statement.getYear(), account);
-      FiscalYearAccount thatLink =
-        getFiscalYearAccount(statement.getYear(), obj.account);
+      FiscalYearAccount thisLink = getFiscalYearAccount(statement.getYear(), account);
+      FiscalYearAccount thatLink = getFiscalYearAccount(statement.getYear(), obj.account);
       AccountType thisType = account.getAccountType(statement.getYear());
       AccountType thatType = obj.account.getAccountType(statement.getYear());
       returnValue = thisType.compareTo(thatType);
@@ -173,13 +175,12 @@ public class Rollup implements Comparable<Rollup> {
 
   /**
    * Build a fiscal-year-account link given a year and account.
-   * 
-   * @param year the fiscal year to link
+   *
+   * @param year    the fiscal year to link
    * @param account the account to link
    * @return a fiscal-year-account link
    */
-  private FiscalYearAccount getFiscalYearAccount(FiscalYear year,
-                                                 Account account) {
+  private FiscalYearAccount getFiscalYearAccount(FiscalYear year, Account account) {
     FiscalYearAccount returnLink = null;
 
     for (FiscalYearAccount link : account.getYears()) {
@@ -193,24 +194,17 @@ public class Rollup implements Comparable<Rollup> {
 
   @Override
   public String toString() {
-    return "Rollup [statement=" + statement + ", account=" + account
-           + ", total=" + format.format(getTotal()) + "]";
+    return "Rollup [statement=" + statement + ", account=" + account + ", total=" +
+           format.format(getTotal()) + "]";
   }
 
   /**
-   * Return the rollup as a tab-delimited data string with four fields: account
-   * type, account group, account name, and total (formatted to two decimal
-   * places).
-   * 
+   * Return the rollup as a tab-delimited data string with four fields: account type, account group,
+   * account name, and total (formatted to two decimal places).
+   *
    * @return the tab-delimited data string
    */
   public String toData() {
-    if (account == null) {
-      throw new RuntimeException(NO_ACCOUNT_ERROR);
-    }
-    if (statement == null) {
-      throw new RuntimeException(NO_STATEMENT_ERROR);
-    }
     if (statement.getYear() == null) {
       throw new RuntimeException(NO_STATEMENT_YEAR_ERROR);
     }
@@ -230,11 +224,10 @@ public class Rollup implements Comparable<Rollup> {
   }
 
   /**
-   * Return the rollup as a set of tab-delimited data lines with each line
-   * containing a detail with the fields account type, account group, account
-   * name, the old transaction id, the transaction date, and the amount (debits
-   * are negative). Do not write out a line for rollups with no items.
-   * 
+   * Return the rollup as a set of tab-delimited data lines with each line containing a detail with
+   * the fields account type, account group, account name, the old transaction id, the transaction
+   * date, and the amount (debits are negative). Do not write out a line for rollups with no items.
+   *
    * @return the detail data
    */
   public String toDetailsData() {
@@ -245,14 +238,14 @@ public class Rollup implements Comparable<Rollup> {
       Transaction transaction = item.getTransaction();
 
       boolean balanceSheetAccount =
-        account.getAccountType(statement.getYear()).equals(AccountType.ASSETS)
-            || account.getAccountType(statement.getYear()).equals(AccountType.LIABILITIES)
-            || account.getAccountType(statement.getYear()).equals(AccountType.EQUITY);
+        account.getAccountType(statement.getYear()).equals(AccountType.ASSETS) ||
+        account.getAccountType(statement.getYear()).equals(AccountType.LIABILITIES) ||
+        account.getAccountType(statement.getYear()).equals(AccountType.EQUITY);
 
       // Process all transactions for balance sheet accounts, only those for the
       // current year for income statement accounts.
-      if ((balanceSheetAccount && year.isInYearOrPriorYear(transaction.getDate()))
-          || year.isIn(transaction.getDate())) {
+      if ((balanceSheetAccount && year.isInYearOrPriorYear(transaction.getDate())) ||
+          year.isIn(transaction.getDate())) {
         // Item is in year
 
         // Construct the date formatted as an Oracle date.
@@ -261,8 +254,7 @@ public class Rollup implements Comparable<Rollup> {
         String date = formatter.format(transaction.getDate());
 
         // Scale the amount as 2digit, then negate the amount for debit items.
-        BigDecimal amount =
-          new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+        BigDecimal amount = new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
         amount = item.isDebit() ? amount.negate() : amount;
 
         // Build the data line.

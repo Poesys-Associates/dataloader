@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.poesys.accounting.dataloader.properties;
 
 
@@ -26,15 +43,13 @@ public abstract class AbstractStatementMaintainingParameters implements
   protected Writer incomeStatementDetailsWriter = null;
 
   /** map of balance sheet data sets indexed by year */
-  protected Map<Integer, String> balanceSheets = new HashMap<Integer, String>();
+  protected final Map<Integer, String> balanceSheets = new HashMap<>();
   /** map of income statement data sets indexed by year */
-  protected Map<Integer, String> incomeStatements =
-    new HashMap<Integer, String>();
+  protected final Map<Integer, String> incomeStatements = new HashMap<>();
   /** map of balance sheet detail data sets indexed by year */
-  protected Map<Integer, String> balanceSheetDetails = new HashMap<Integer, String>();
+  protected final Map<Integer, String> balanceSheetDetails = new HashMap<>();
   /** map of income statement detail data sets indexed by year */
-  protected Map<Integer, String> incomeStatementDetails =
-    new HashMap<Integer, String>();
+  protected final Map<Integer, String> incomeStatementDetails = new HashMap<>();
 
   /** current year for writers */
   protected Integer year;

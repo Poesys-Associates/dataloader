@@ -1,10 +1,24 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
-
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,71 +26,56 @@ import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * <p>
- * Distributes a monetary amount among a set of accounts with the constraint of
- * making the resulting amounts equal or differing only by a penny. This class
- * is a type of Builder pattern: first construct the object, supplying the
- * monetary amount to distribute, then add the accounts into which to distribute
- * the amount, then distribute the amount, then get the current balances for the
- * accounts.
- * </p>
- * <p>
- * The account balances should already be equal or near-equal (different by at
- * most one penny). The validate() method verifies that; the distribute method
- * calls validate() and throws an exception if the current balances are not
- * near-equal.
- * </p>
- * <p>
- * This class abstracts the distribution process, providing a clear set of
- * process steps that you can unit-test individually. It also exposes most of
- * the logic of remainder distribution to enable unit testing of the logic
- * component methods. These methods may be of interest at some point for use in
- * other classes.
- * </p>
- * 
+ * <p> Distributes a monetary amount among a set of accounts with the constraint of making the
+ * resulting amounts equal or differing only by a penny. This class is a type of Builder pattern:
+ * first construct the object, supplying the monetary amount to distribute, then add the accounts
+ * into which to distribute the amount, then distribute the amount, then get the current balances
+ * for the accounts. </p> <p> The account balances should already be equal or near-equal (different
+ * by at most one penny). The validate() method verifies that; the distribute method calls
+ * validate() and throws an exception if the current balances are not near-equal. </p> <p> This
+ * class abstracts the distribution process, providing a clear set of process steps that you can
+ * unit-test individually. It also exposes most of the logic of remainder distribution to enable
+ * unit testing of the logic component methods. These methods may be of interest at some point for
+ * use in other classes. </p>
+ *
  * @author Robert J. Muller
  */
 public class AccountCollectionDistributor {
   /** logger for this class */
-  private static final Logger logger =
-    Logger.getLogger(AccountCollectionDistributor.class);
+  private static final Logger logger = Logger.getLogger(AccountCollectionDistributor.class);
   /** the amount to distribute */
   protected Integer amount;
   /** map of integer balances indexed by Account */
-  protected final Map<Account, Integer> balances =
-    new HashMap<Account, Integer>();
+  protected final Map<Account, Integer> balances = new HashMap<>();
   /** map of decimal item credits/debit amounts indexed by Account */
-  private final Map<Account, Integer> itemAmounts =
-    new HashMap<Account, Integer>();
+  private final Map<Account, Integer> itemAmounts = new HashMap<>();
   /** ordered list of balance accounts */
-  protected Account firstAccount = null;
+  private Account firstAccount = null;
 
   // constants
   /** the scale for BigDecimal values */
   protected static final int SCALE = 2;
   /** the multiplier that converts a BigDecimal monetary amount to integer */
-  protected static final BigDecimal MULTIPLIER =
-    new BigDecimal("100.00").setScale(SCALE);
+  private static final BigDecimal MULTIPLIER =
+    new BigDecimal("100.00").setScale(SCALE, RoundingMode.HALF_UP);
   /** the amount by which accounts may differ */
-  protected static final Integer PENNY = 1;
+  private static final Integer PENNY = 1;
 
   // messages
-  protected static final String INVALID_COLLECTION_ERROR =
-    "invalid balances, check whether balances were added to distributor and that balance amounts are equal or at most one penny different";
-  protected static final String NULL_ACCOUNT_ERROR =
-    "account is required but is null";
-  protected static final String NULL_BALANCE_ERROR =
-    "balance is required but is null";
-  protected static final String ACCOUNT_NOT_ADDED_ERROR = "account not added: ";
-  protected static final String NO_BALANCE_ERROR = "no balance for account ";
-  protected static final String NO_AMOUNT_ERROR = "no item amount for account ";
-  protected static final String NO_BALANCES_ERROR = "no balances";
+  private static final String INVALID_COLLECTION_ERROR =
+    "invalid balances, check whether balances were added to distributor and that balance amounts " +
+    "are equal or at most one penny different";
+  private static final String NULL_ACCOUNT_ERROR = "account is required but is null";
+  private static final String NULL_BALANCE_ERROR = "balance is required but is null";
+  private static final String ACCOUNT_NOT_ADDED_ERROR = "account not added: ";
+  private static final String NO_BALANCE_ERROR = "no balance for account ";
+  private static final String NO_AMOUNT_ERROR = "no item amount for account ";
+  private static final String NO_BALANCES_ERROR = "no balances";
 
   /**
    * Create a AccountCollectionDistributor object.
-   * 
+   *
    * @param amount the amount to distribute
    */
   public AccountCollectionDistributor(BigDecimal amount) {
@@ -85,7 +84,7 @@ public class AccountCollectionDistributor {
 
   /**
    * Get the amount.
-   * 
+   *
    * @return a monetary amount
    */
   public Integer getAmount() {
@@ -93,11 +92,10 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Add an account and its current balance to the balance map, converting the
-   * BigDecimal monetary amount (scale SCALE) into an integer amount for
-   * computation with integer arithmetic. Add the account to the ordered list of
-   * accounts, which imposes an order on the set of accounts.
-   * 
+   * Add an account and its current balance to the balance map, converting the BigDecimal monetary
+   * amount (scale SCALE) into an integer amount for computation with integer arithmetic. Add the
+   * account to the ordered list of accounts, which imposes an order on the set of accounts.
+   *
    * @param account the account that has the balance
    * @param balance the decimal monetary amount (scale SCALE)
    */
@@ -117,9 +115,8 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Get the current balance for an account as a BigDecimal monetary amount
-   * (scale SCALE).
-   * 
+   * Get the current balance for an account as a BigDecimal monetary amount (scale SCALE).
+   *
    * @param account the account for which to get the balance
    * @return the balance as a monetary amount (scale SCALE)
    */
@@ -131,14 +128,14 @@ public class AccountCollectionDistributor {
     if (balance == null) {
       throw new InvalidParametersException(ACCOUNT_NOT_ADDED_ERROR + account);
     }
-    BigDecimal decimalBalance = new BigDecimal(balance).setScale(SCALE);
-    return decimalBalance.divide(MULTIPLIER).setScale(SCALE);
+    BigDecimal decimalBalance = new BigDecimal(balance).setScale(SCALE, RoundingMode.HALF_UP);
+    return decimalBalance.divide(MULTIPLIER, RoundingMode.HALF_UP).setScale(SCALE,
+                                                                            RoundingMode.HALF_UP);
   }
 
   /**
-   * Get the current item amount for an account as a BigDecimal monetary amount
-   * (scale SCALE).
-   * 
+   * Get the current item amount for an account as a BigDecimal monetary amount (scale SCALE).
+   *
    * @param account the account for which to get the amount
    * @return the balance as a monetary amount (scale SCALE)
    */
@@ -150,20 +147,22 @@ public class AccountCollectionDistributor {
     if (amount == null) {
       throw new InvalidParametersException(ACCOUNT_NOT_ADDED_ERROR + account);
     }
-    BigDecimal decimalAmount = new BigDecimal(amount).setScale(SCALE);
-    return decimalAmount.divide(MULTIPLIER).setScale(SCALE);
+    BigDecimal decimalAmount = new BigDecimal(amount).setScale(SCALE, RoundingMode.HALF_UP);
+    return decimalAmount.divide(MULTIPLIER, RoundingMode.HALF_UP).setScale(SCALE,
+                                                                           RoundingMode.HALF_UP);
   }
 
   /**
-   * There must be at least one balance. Compare the balances; all should be
-   * equal or differ by at most one penny.
-   * 
+   * There must be at least one balance. Compare the balances; all should be equal or differ by at
+   * most one penny.
+   *
    * @return true if balances are equal or near-equal, false if not
    */
   public boolean isValid() {
     boolean valid = true;
     if (balances.size() > 0) {
-      outer: for (Account account : balances.keySet()) {
+      outer:
+      for (Account account : balances.keySet()) {
         for (Account otherAccount : balances.keySet()) {
           // Skip same-account comparisons
           if (!account.equals(otherAccount)) {
@@ -172,11 +171,9 @@ public class AccountCollectionDistributor {
               difference = -difference;
             }
             if (difference != 0 && difference != PENNY) {
-              logger.warn("Imbalance between capital accounts "
-                          + account.getName() + " and "
-                          + otherAccount.getName() + ": "
-                          + balances.get(account) + " vs. "
-                          + balances.get(otherAccount));
+              logger.warn("Imbalance between capital accounts " + account.getName() + " and " +
+                          otherAccount.getName() + ": " + balances.get(account) + " vs. " +
+                          balances.get(otherAccount));
               valid = false;
               break outer;
             }
@@ -192,10 +189,10 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Equalize the balances by shifting pennies between the accounts until the
-   * account balances are equal or differ by at most a penny. The direction of
-   * penny-shifting depends on the sign of the balances, negative or positive.
-   * 
+   * Equalize the balances by shifting pennies between the accounts until the account balances are
+   * equal or differ by at most a penny. The direction of penny-shifting depends on the sign of the
+   * balances, negative or positive.
+   *
    * @return true if balances were equalized, false if they were unchanged
    */
   public boolean equalize() {
@@ -221,20 +218,16 @@ public class AccountCollectionDistributor {
         balances.put(max, maxBalance);
         maxItemAmount--;
         itemAmounts.put(max, maxItemAmount);
-        // Set flag if not already true and result is true
-        equalized = equalize() && !equalized ? equalized = true : equalized;
       }
     }
     return equalized;
   }
 
   /**
-   * Distribute the amount across the current set of account balances, changing
-   * the balances to the distributed amounts plus the original amounts. This
-   * distributes an equal amount, leaving a remainder of zero or more pennies.
-   * This method does not distribute the remainder, to simplify unit testing.
-   * The method updates both the balances and the item amounts for the
-   * distributor.
+   * Distribute the amount across the current set of account balances, changing the balances to the
+   * distributed amounts plus the original amounts. This distributes an equal amount, leaving a
+   * remainder of zero or more pennies. This method does not distribute the remainder, to simplify
+   * unit testing. The method updates both the balances and the item amounts for the distributor.
    */
   public void distributeAmount() {
     // Check validity of initial balances.
@@ -258,13 +251,12 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Distribute the number of pennies remaining after the main distribution
-   * across the current set of account balances, keeping the balances within one
-   * penny of one another. The remainder can be positive or negative, and the
-   * balances can be positive, negative, or zero; the logic depends on the
-   * various combinations of these states. Also note that the remainder logic
-   * dictates that there must be at least two balances for there to be a
-   * remainder, as x%1 never produces a remainder.
+   * Distribute the number of pennies remaining after the main distribution across the current set
+   * of account balances, keeping the balances within one penny of one another. The remainder can be
+   * positive or negative, and the balances can be positive, negative, or zero; the logic depends on
+   * the various combinations of these states. Also note that the remainder logic dictates that
+   * there must be at least two balances for there to be a remainder, as x%1 never produces a
+   * remainder.
    */
   public void distributeRemainder() {
     if (balances.size() == 0) {
@@ -284,10 +276,10 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Recursive method that distributes one penny for each recursion until the
-   * remainder is gone. The method ensures that the set of balances stays equal
-   * or nearly equal. Keep this private to hide the recursion structure.
-   * 
+   * Recursive method that distributes one penny for each recursion until the remainder is gone. The
+   * method ensures that the set of balances stays equal or nearly equal. Keep this private to hide
+   * the recursion structure.
+   *
    * @param remainder the current remainder
    */
   private void distributePennyFromRemainder(Integer remainder) {
@@ -306,10 +298,9 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Distribute a penny from a remainder to nearly equal balances, then return
-   * the decremented remainder. If the remainder is zero, the method just
-   * returns the current remainder.
-   * 
+   * Distribute a penny from a remainder to nearly equal balances, then return the decremented
+   * remainder. If the remainder is zero, the method just returns the current remainder.
+   *
    * @param remainder the current remainder
    * @return the remainder after distribution
    */
@@ -324,12 +315,11 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Based on the current remainder, get the appropriate account to which to
-   * distribute part of the remainder.
-   * 
+   * Based on the current remainder, get the appropriate account to which to distribute part of the
+   * remainder.
+   *
    * @param remainder the current remainder
-   * @return the account to which to distribute a penny or null if the remainder
-   *         was zero
+   * @return the account to which to distribute a penny or null if the remainder was zero
    */
   public Account getAccount(Integer remainder) {
     Account account = null;
@@ -346,18 +336,16 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Compute a revised balance for an account from a remainder and set that
-   * balance into the balances map, then return the decremented remainder. If
-   * there is no balance for the specified account, the method throws a
-   * RuntimeException. The method adds a penny to the balance and decrements a
-   * penny from the remainder.
-   * 
+   * Compute a revised balance for an account from a remainder and set that balance into the
+   * balances map, then return the decremented remainder. If there is no balance for the specified
+   * account, the method throws a RuntimeException. The method adds a penny to the balance and
+   * decrements a penny from the remainder.
+   *
    * @param remainder the current remainder
-   * @param account the account to set
+   * @param account   the account to set
    * @return the decremented remainder
    */
-  public Integer setBalanceAndDecrementRemainder(Integer remainder,
-                                                 Account account) {
+  public Integer setBalanceAndDecrementRemainder(Integer remainder, Account account) {
     // set penny as +1 or -1 depending on remainder sign
     Integer penny = remainder > 0 ? 1 : -1;
     Integer balance = balances.get(account);
@@ -383,10 +371,10 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Get the account that contains the maximum balance. If several balances have
-   * this maximum, return the first one found. If there are no balances at all,
-   * the method throws a RuntimeException.
-   * 
+   * Get the account that contains the maximum balance. If several balances have this maximum,
+   * return the first one found. If there are no balances at all, the method throws a
+   * RuntimeException.
+   *
    * @return the account containing the maximum balance
    */
   public Account getMaximumBalanceAccount() {
@@ -413,9 +401,9 @@ public class AccountCollectionDistributor {
   }
 
   /**
-   * Get the account that contains the minimum balance. If several balances have
-   * this minimum, return the first one found.
-   * 
+   * Get the account that contains the minimum balance. If several balances have this minimum,
+   * return the first one found.
+   *
    * @return the account containing the minimum balance
    */
   public Account getMinimumBalanceAccount() {
@@ -439,7 +427,7 @@ public class AccountCollectionDistributor {
 
   /**
    * Are the balance values all the same?
-   * 
+   *
    * @return true if all the integers are the same, false if not
    */
   public boolean equal() {

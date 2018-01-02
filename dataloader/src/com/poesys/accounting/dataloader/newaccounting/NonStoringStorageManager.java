@@ -1,22 +1,36 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
-
 import java.util.List;
-
+import java.util.Set;
 
 /**
- * Implementation of the IStorageManager interface that validates but does not
- * actually persist the data; used for system testing
- * 
+ * Implementation of the IStorageManager interface that validates but does not actually persist the
+ * data; used for system testing
+ *
  * @author Robert J. Muller
  */
-public class NonStoringStorageManager extends AbstractValidatingStorageManager implements IStorageManager {
+public class NonStoringStorageManager extends AbstractValidatingStorageManager implements
+  IStorageManager {
   @Override
-  public void store(String entityName, List<FiscalYear> years,
-                    IDataAccessService storageService) {
+  public void store(String entityName, CapitalStructure structure, List<FiscalYear> years,
+                    Set<Transaction> transactions, IDataAccessService storageService) {
     // do nothing
   }
 }

@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,17 +30,15 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter for unit testing methods that
- * call the parameters, to make sure the method does make the required calls.
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter getter
+ * for unit testing methods that call the parameters, to make sure the method does make the required
+ * calls.
+ *
  * @author Robert J. Muller
  */
-public class UnitTestParametersNullLastFields extends
-    AbstractStatementMaintainingParameters {
+public class UnitTestParametersNullLastFields extends AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -61,8 +72,7 @@ public class UnitTestParametersNullLastFields extends
   private static final Float END_3 = 409.99F;
 
   private static final Float ACCOUNT_NUMBER_1 = 100.0F;
-  private static final String ACCOUNT_NAME_1 =
-    "Citicorp Checking (111222333444)";
+  private static final String ACCOUNT_NAME_1 = "Citicorp Checking (111222333444)";
   private static final Float ACCOUNT_NUMBER_2 = 110.0F;
   private static final String ACCOUNT_NAME_2 = "Accounts Receivable";
   private static final Float ACCOUNT_NUMBER_3 = 109.0F;
@@ -115,7 +125,7 @@ public class UnitTestParametersNullLastFields extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -124,7 +134,7 @@ public class UnitTestParametersNullLastFields extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -133,7 +143,7 @@ public class UnitTestParametersNullLastFields extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -142,7 +152,7 @@ public class UnitTestParametersNullLastFields extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -151,7 +161,7 @@ public class UnitTestParametersNullLastFields extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {
@@ -160,19 +170,16 @@ public class UnitTestParametersNullLastFields extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input =
-      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM
-          + OWNERSHIP.toString();
+    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM +
+                   OWNERSHIP.toString();
     return new StringReader(input);
   }
 
   @Override
   public Reader getAccountGroupReader(Integer year) {
-    String input =
-      START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1
-          + LINE_RET + START_2.toString() + DELIM + END_2.toString() + DELIM
-          + GROUP_NAME_2 + LINE_RET + START_3.toString() + DELIM
-          + END_3.toString() + DELIM;
+    String input = START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1 + LINE_RET +
+                   START_2.toString() + DELIM + END_2.toString() + DELIM + GROUP_NAME_2 + LINE_RET +
+                   START_3.toString() + DELIM + END_3.toString() + DELIM;
     return new StringReader(input);
   }
 
@@ -185,26 +192,24 @@ public class UnitTestParametersNullLastFields extends
   @Override
   public Reader getAccountReader(Integer year) {
     String input =
-      ACCOUNT_NUMBER_1 + DELIM + ACCOUNT_NAME_1 + DELIM + CREDIT + LINE_RET
-          + ACCOUNT_NUMBER_2 + DELIM + ACCOUNT_NAME_2 + DELIM + CREDIT
-          + LINE_RET + ACCOUNT_NUMBER_3 + DELIM + ACCOUNT_NAME_3 + DELIM
-          + CREDIT + LINE_RET + ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4
-          + DELIM;
+      ACCOUNT_NUMBER_1 + DELIM + ACCOUNT_NAME_1 + DELIM + CREDIT + LINE_RET + ACCOUNT_NUMBER_2 +
+      DELIM + ACCOUNT_NAME_2 + DELIM + CREDIT + LINE_RET + ACCOUNT_NUMBER_3 + DELIM +
+      ACCOUNT_NAME_3 + DELIM + CREDIT + LINE_RET + ACCOUNT_NUMBER_4 + DELIM + ACCOUNT_NAME_4 +
+      DELIM;
     return new StringReader(input);
   }
 
   @Override
   public Reader getReimbursementReader(Integer year) {
     String input =
-      REIM_ID + DELIM + REC_YEAR + DELIM + REC_ID + DELIM + ACCOUNT_NUMBER_2
-          + DELIM + AMOUNT + DELIM;
+      REIM_ID + DELIM + REC_YEAR + DELIM + REC_ID + DELIM + ACCOUNT_NUMBER_2 + DELIM + AMOUNT +
+      DELIM;
     return new StringReader(input);
   }
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input =
-      ACCOUNT_NUMBER_3 + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM;
+    String input = ACCOUNT_NUMBER_3 + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM;
     return new StringReader(input);
   }
 
@@ -212,9 +217,7 @@ public class UnitTestParametersNullLastFields extends
   public Reader getTransactionReader(Integer year) {
     // Input string ends with delimeter, not final "checked" field value
     // @formatter=off
-    String input =
-      TRANS_ID_1 + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE
-          + DELIM;
+    String input = TRANS_ID_1 + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE + DELIM;
     // @formatter=on
     return new StringReader(input);
   }
@@ -222,9 +225,8 @@ public class UnitTestParametersNullLastFields extends
   @Override
   public Reader getItemReader(Integer year) {
     String input =
-      TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_1 + DELIM + AMOUNT + DELIM + "DR"
-          + DELIM + "N" + LINE_RET + TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_4
-          + DELIM + AMOUNT + DELIM + "CR" + DELIM;
+      TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_1 + DELIM + AMOUNT + DELIM + "DR" + DELIM + "N" +
+      LINE_RET + TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_4 + DELIM + AMOUNT + DELIM + "CR" + DELIM;
     return new StringReader(input);
   }
 

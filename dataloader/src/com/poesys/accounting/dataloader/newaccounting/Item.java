@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
-
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,13 +25,11 @@ import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * A data transfer object containing data about a single item within a
- * transaction; the item has an amount which is a debit or credit against a
- * specific account; it also may have an optional set of Reimbursement objects
- * that represent links from receivable items to reimbursing items.
- * 
+ * A data transfer object containing data about a single item within a transaction; the item has an
+ * amount which is a debit or credit against a specific account; it also may have an optional set of
+ * Reimbursement objects that represent links from receivable items to reimbursing items.
+ *
  * @author Robert J. Muller
  */
 public class Item {
@@ -35,29 +46,24 @@ public class Item {
   /** whether the item has been reconciled against an external data source */
   private final Boolean checked;
   /** the set of reimbursements for a receivable item */
-  private final Set<Reimbursement> reimbursements =
-    new HashSet<Reimbursement>();
+  private final Set<Reimbursement> reimbursements = new HashSet<>();
 
   // messages
 
-  private static final String NULL_PARAMETER_ERROR =
-    "item parameters are required but one is null";
+  private static final String NULL_PARAMETER_ERROR = "item parameters are required but one is null";
   private static final String NOT_SAME_ACCOUNT_ERROR =
     "reimbursement must have same receivable account as receivable: ";
-  private static final String NOT_RECEIVABLE_ACCOUNT_ERROR =
-    "account is not receivable account: ";
+  private static final String NOT_RECEIVABLE_ACCOUNT_ERROR = "account is not receivable account: ";
   private static final String INVALID_AMOUNT_ERROR =
     "reimbursed amount must be less than or equal to item amount ";
-  private static final String NULL_AMOUNT_ERROR =
-    "reimbursement requires a reimbursed amount";
+  private static final String NULL_AMOUNT_ERROR = "reimbursement requires a reimbursed amount";
   private static final String NULL_REIMBURSEMENT_ERROR =
     "reimbursement requires a reimbursing item";
-  private static final String NULL_RECEIVABLE_ERROR =
-    "reimbursement requires a receivable item";
+  private static final String NULL_RECEIVABLE_ERROR = "reimbursement requires a receivable item";
 
   /**
-   * An association class that links this item to a reimbursing item; valid only
-   * for items with receivable accounts.
+   * An association class that links this item to a reimbursing item; valid only for items with
+   * receivable accounts.
    */
   public class Reimbursement {
     /** the item being reimbursed */
@@ -70,19 +76,16 @@ public class Item {
     private final Double allocatedAmount;
 
     /**
-     * Create a Reimbursement object. The reimbursed amount must be less than or
-     * equal to the amount of the reimbursing item. The two items must be
-     * against the same account.
-     * 
-     * @param receivable the item being reimbursed
-     * @param reimbursingItem the item reimbursing this receivable item
+     * Create a Reimbursement object. The reimbursed amount must be less than or equal to the amount
+     * of the reimbursing item. The two items must be against the same account.
+     *
+     * @param receivable       the item being reimbursed
+     * @param reimbursingItem  the item reimbursing this receivable item
      * @param reimbursedAmount the dollar amount reimbursed
-     * @param allocatedAmount the dollar amount written off
+     * @param allocatedAmount  the dollar amount written off
      */
-    public Reimbursement(Item receivable,
-                         Item reimbursingItem,
-                         Double reimbursedAmount,
-                         Double allocatedAmount) {
+    public Reimbursement(Item receivable, Item reimbursingItem, Double reimbursedAmount, Double
+      allocatedAmount) {
       if (receivable == null) {
         throw new InvalidParametersException(NULL_RECEIVABLE_ERROR);
       }
@@ -100,24 +103,20 @@ public class Item {
 
       // Validate reimbursed amount against reimbursing item amount
       if (reimbursedAmount.compareTo(reimbursingItem.amount) > 0) {
-        throw new InvalidParametersException(INVALID_AMOUNT_ERROR
-                                             + reimbursingItem.amount + ": "
-                                             + reimbursedAmount);
-
+        throw new InvalidParametersException(
+          INVALID_AMOUNT_ERROR + reimbursingItem.amount + ": " + reimbursedAmount);
       }
 
       if (!receivable.getAccount().isReceivable()) {
-        throw new InvalidParametersException(NOT_RECEIVABLE_ACCOUNT_ERROR
-                                             + receivable.getAccount());
+        throw new InvalidParametersException(
+          NOT_RECEIVABLE_ACCOUNT_ERROR + receivable.getAccount());
       }
 
       // Ensure that both items are against the same receivable account.
       if (!receivable.getAccount().equals(reimbursingItem.getAccount())) {
-        throw new InvalidParametersException(NOT_SAME_ACCOUNT_ERROR
-                                             + receivable.getAccount()
-                                             + " vs. "
-                                             + reimbursingItem.getAccount()
-                                             + " for " + reimbursingItem);
+        throw new InvalidParametersException(
+          NOT_SAME_ACCOUNT_ERROR + receivable.getAccount() + " vs. " +
+          reimbursingItem.getAccount() + " for " + reimbursingItem);
       }
     }
 
@@ -126,41 +125,46 @@ public class Item {
       final int prime = 31;
       int result = 1;
       result = prime * result + getOuterType().hashCode();
-      result =
-        prime * result + ((receivable == null) ? 0 : receivable.hashCode());
-      result =
-        prime * result
-            + ((reimbursingItem == null) ? 0 : reimbursingItem.hashCode());
+      result = prime * result + ((receivable == null) ? 0 : receivable.hashCode());
+      result = prime * result + ((reimbursingItem == null) ? 0 : reimbursingItem.hashCode());
       return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       Reimbursement other = (Reimbursement)obj;
-      if (!getOuterType().equals(other.getOuterType()))
+      if (!getOuterType().equals(other.getOuterType())) {
         return false;
+      }
       if (receivable == null) {
-        if (other.receivable != null)
+        if (other.receivable != null) {
           return false;
-      } else if (!receivable.equals(other.receivable))
+        }
+      } else if (!receivable.equals(other.receivable)) {
         return false;
+      }
       if (reimbursingItem == null) {
-        if (other.reimbursingItem != null)
+        if (other.reimbursingItem != null) {
           return false;
-      } else if (!reimbursingItem.equals(other.reimbursingItem))
+        }
+      } else if (!reimbursingItem.equals(other.reimbursingItem)) {
         return false;
+      }
       return true;
     }
 
     /**
      * Get the receivable item.
-     * 
+     *
      * @return an item against a receivable account
      */
     public Item getReceivable() {
@@ -169,7 +173,7 @@ public class Item {
 
     /**
      * Get the reimbursingItem.
-     * 
+     *
      * @return a reimbursingItem
      */
     public Item getReimbursingItem() {
@@ -178,7 +182,7 @@ public class Item {
 
     /**
      * Get the reimbursedAmount.
-     * 
+     *
      * @return a reimbursedAmount
      */
     public Double getReimbursedAmount() {
@@ -187,7 +191,7 @@ public class Item {
 
     /**
      * Get the allocatedAmount.
-     * 
+     *
      * @return a allocatedAmount
      */
     public Double getAllocatedAmount() {
@@ -200,32 +204,27 @@ public class Item {
 
     @Override
     public String toString() {
-      return "Reimbursement [receivable=" + receivable + ", reimbursingItem="
-             + reimbursingItem + ", reimbursedAmount=" + reimbursedAmount
-             + ", allocatedAmount=" + allocatedAmount + "]";
+      return "Reimbursement [receivable=" + receivable + ", reimbursingItem=" + reimbursingItem +
+             ", reimbursedAmount=" + reimbursedAmount + ", allocatedAmount=" + allocatedAmount +
+             "]";
     }
   }
 
   /**
    * Create an Item object.
-   * 
+   *
    * @param transaction the parent transaction that owns this item
-   * @param amount the dollar amount of the item
-   * @param account the account to which the item applies
-   * @param debit whether the item is a debit (true) or credit (false) item
-   * @param checked whether the item has been reconciled against an external
-   *          data source; default false
+   * @param amount      the dollar amount of the item
+   * @param account     the account to which the item applies
+   * @param debit       whether the item is a debit (true) or credit (false) item
+   * @param checked     whether the item has been reconciled against an external data source;
+   *                    default false
    */
-  public Item(Transaction transaction,
-              Double amount,
-              Account account,
-              Boolean debit,
-              Boolean checked) {
-    if (transaction == null || amount == null || account == null
-        || debit == null) {
-      throw new InvalidParametersException(NULL_PARAMETER_ERROR + ": "
-                                           + transaction + ", " + amount + ", "
-                                           + account + ", " + debit);
+  public Item(Transaction transaction, Double amount, Account account, Boolean debit, Boolean
+    checked) {
+    if (transaction == null || amount == null || account == null || debit == null) {
+      throw new InvalidParametersException(
+        NULL_PARAMETER_ERROR + ": " + transaction + ", " + amount + ", " + account + ", " + debit);
     }
     this.transaction = transaction;
     this.amount = amount;
@@ -242,36 +241,42 @@ public class Item {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((account == null) ? 0 : account.hashCode());
-    result =
-      prime * result + ((transaction == null) ? 0 : transaction.hashCode());
+    result = prime * result + ((transaction == null) ? 0 : transaction.hashCode());
     return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Item other = (Item)obj;
     if (account == null) {
-      if (other.account != null)
+      if (other.account != null) {
         return false;
-    } else if (!account.equals(other.account))
+      }
+    } else if (!account.equals(other.account)) {
       return false;
+    }
     if (transaction == null) {
-      if (other.transaction != null)
+      if (other.transaction != null) {
         return false;
-    } else if (!transaction.equals(other.transaction))
+      }
+    } else if (!transaction.equals(other.transaction)) {
       return false;
+    }
     return true;
   }
 
   /**
    * Get the transaction.
-   * 
+   *
    * @return a transaction
    */
   public Transaction getTransaction() {
@@ -280,7 +285,7 @@ public class Item {
 
   /**
    * Get the account.
-   * 
+   *
    * @return an account
    */
   public Account getAccount() {
@@ -289,7 +294,7 @@ public class Item {
 
   /**
    * Get the amount.
-   * 
+   *
    * @return a dollar amount
    */
   public Double getAmount() {
@@ -297,9 +302,9 @@ public class Item {
   }
 
   /**
-   * Get a thread-safe set of the reimbursements against this receivable. If
-   * this is not a receivable item, returns an empty set
-   * 
+   * Get a thread-safe set of the reimbursements against this receivable. If this is not a
+   * receivable item, returns an empty set
+   *
    * @return a set of reimbursements or an empty set if not a receivable
    */
   public Set<Reimbursement> getReimbursements() {
@@ -308,7 +313,7 @@ public class Item {
 
   /**
    * Is the item is a debit item?
-   * 
+   *
    * @return true if debit, false if credit
    */
   public Boolean isDebit() {
@@ -317,7 +322,7 @@ public class Item {
 
   /**
    * Has the item been reconciled?
-   * 
+   *
    * @return true if reconciled, false if not
    */
   public Boolean isChecked() {
@@ -325,26 +330,21 @@ public class Item {
   }
 
   /**
-   * Create a Reimbursement link and add it to the reimbursements for this item
-   * and to the reimbursements in the reimbursing item. The account for this
-   * item and the account for the reimbursing item must be the same. The
-   * allocated amount is optional and defaults to 0.00. The reimbursing amount
-   * must be less than or equal to the amount from the reimbursing item. The sum
-   * of the reimbursed and allocated amounts for all Reimbursements must be less
-   * than or equal to the amount of this item.
-   * 
-   * @param reimbursingItem the reimbursing item, required
-   * @param reimbursedAmount the amount reimbursed by the reimbursing item,
-   *          required
-   * @param allocatedAmount the amount written off by this item, optional,
-   *          default 0.090
+   * Create a Reimbursement link and add it to the reimbursements for this item and to the
+   * reimbursements in the reimbursing item. The account for this item and the account for the
+   * reimbursing item must be the same. The allocated amount is optional and defaults to 0.00. The
+   * reimbursing amount must be less than or equal to the amount from the reimbursing item. The sum
+   * of the reimbursed and allocated amounts for all Reimbursements must be less than or equal to
+   * the amount of this item.
+   *
+   * @param reimbursingItem  the reimbursing item, required
+   * @param reimbursedAmount the amount reimbursed by the reimbursing item, required
+   * @param allocatedAmount  the amount written off by this item, optional, default 0.090
    */
-  public void reimburse(Item reimbursingItem, Double reimbursedAmount,
-                        Double allocatedAmount) {
+  public void reimburse(Item reimbursingItem, Double reimbursedAmount, Double allocatedAmount) {
     // Item must be a debit against a receivable account to be reimbursed.
     if (!(account.isReceivable() && debit)) {
-      throw new InvalidParametersException("Cannot reimburse non-receivable item "
-                                           + this);
+      throw new InvalidParametersException("Cannot reimburse non-receivable item " + this);
     }
     // Validate against receivable amount and current set of reimbursements.
     Double total = reimbursedAmount + allocatedAmount;
@@ -354,20 +354,15 @@ public class Item {
     }
     // Total must be less than or equal to the receivable amount.
     if (total.compareTo(amount) > 0) {
-      throw new InvalidParametersException("Total reimbursement is "
-                                           + total
-                                           + " but receivable amount is "
-                                           + amount
-                                           + "; check for prior-year reimbursement of receivable in these reimbursements "
-                                           + reimbursements + ")");
+      throw new InvalidParametersException(
+        "Total reimbursement is " + total + " but receivable amount is " + amount +
+        "; check for prior-year reimbursement of receivable in these reimbursements " +
+        reimbursements + ")");
     }
     // Add the reimbursement to the set of reimbursements in both this item and
     // the reimbursing item (two-way visibility).
     Reimbursement reimbursement =
-      new Reimbursement(this,
-                        reimbursingItem,
-                        reimbursedAmount,
-                        allocatedAmount);
+      new Reimbursement(this, reimbursingItem, reimbursedAmount, allocatedAmount);
     reimbursements.add(reimbursement);
     reimbursingItem.getReimbursements().add(reimbursement);
   }
@@ -376,12 +371,9 @@ public class Item {
   public String toString() {
     // Get only transaction id and description to avoid infinite loop in display
     // of items within transaction
-    return "Item [year="
-           + transaction.getYear()
-           + ", transaction="
-           + (transaction.getId() == null ? "(no trans id)"
-               : transaction.getId()) + ", description="
-           + transaction.getDescription() + ", amount=" + amount + ", account="
-           + account + ", debit=" + debit + ", checked=" + checked + "]";
+    return "Item [year=" + transaction.getYear() + ", transaction=" +
+           (transaction.getId() == null ? "(no trans id)" : transaction.getId()) +
+           ", description=" + transaction.getDescription() + ", amount=" + amount + ", account=" +
+           account + ", debit=" + debit + ", checked=" + checked + "]";
   }
 }

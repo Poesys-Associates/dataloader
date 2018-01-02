@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,22 +30,18 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter for unit testing methods that
- * call the parameters, to make sure the method does make the required calls.
- * This particular version creates a complete set of transactions that set up a
- * test of year closing through the capital accounts for a single capital entity
- * over a single fiscal year. The numbers replicate a real-life situation from
- * the Poesys 1998 accounts that results in a two-penny difference in the
- * capital accounts after closing.
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter getter
+ * for unit testing methods that call the parameters, to make sure the method does make the required
+ * calls. This particular version creates a complete set of transactions that set up a test of year
+ * closing through the capital accounts for a single capital entity over a single fiscal year. The
+ * numbers replicate a real-life situation from the Poesys 1998 accounts that results in a two-penny
+ * difference in the capital accounts after closing.
+ *
  * @author Robert J. Muller
  */
-public class UnitTestParametersCapitalPoesys1997Bug extends
-    AbstractStatementMaintainingParameters {
+public class UnitTestParametersCapitalPoesys1997Bug extends AbstractStatementMaintainingParameters {
 
   // test counters
   private int pathCalls = 0;
@@ -75,8 +84,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final Float TAXES_END = 509.99F;
 
   private static final Float CHECKING_ACCOUNT = 100.0F;
-  private static final String CHECKING_ACCOUNT_NAME =
-    "Citicorp Checking (111222333444)";
+  private static final String CHECKING_ACCOUNT_NAME = "Citicorp Checking (111222333444)";
   private static final String NEW_CHECKING_ACCOUNT_NAME = "Citicorp Checking";
 
   private static final Float CASH_ACCOUNT = 109.0F;
@@ -91,16 +99,14 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final String CAPITAL_ENTITY_1_NAME = "Partner 1";
   private static final String CAP_ACCOUNT_1_NAME = "Partner 1 Capital";
   private static final Float CAP_ACCOUNT_1 = 300.0F;
-  private static final String DIST_ACCOUNT_1_NAME =
-    "Distributions to Partner 1";
+  private static final String DIST_ACCOUNT_1_NAME = "Distributions to Partner 1";
   private static final Float DIST_ACCOUNT_1 = 310.0F;
 
   private static final String CAPITAL_ENTITY_2_NAME = "Partner 2";
   private static final String CAP_ACCOUNT_2_NAME = "Partner 2 Capital";
   private static final Float CAP_ACCOUNT_2 = 301.0F;
 
-  private static final String DIST_ACCOUNT_2_NAME =
-    "Distributions to Partner 2";
+  private static final String DIST_ACCOUNT_2_NAME = "Distributions to Partner 2";
   private static final Float DIST_ACCOUNT_2 = 311.0F;
 
   private static final Float REVENUE_ACCOUNT = 400.0F;
@@ -134,8 +140,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
   private static final String INCOME_DESC = "\"cash income              \"";
 
   /** description for dist transaction enclosed in quotes with trailing blanks */
-  private static final String DIST_DESC =
-    "\"cash distribution to partners by check        \"";
+  private static final String DIST_DESC = "\"cash distribution to partners by check        \"";
 
   /** balance date as Oracle-formatted string representation */
   private static final String BALANCE_DATE = "01-JAN-17";
@@ -177,7 +182,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -186,7 +191,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -195,7 +200,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -204,7 +209,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -213,7 +218,7 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {
@@ -254,21 +259,17 @@ public class UnitTestParametersCapitalPoesys1997Bug extends
 
   @Override
   public Reader getAccountReader(Integer year) {
-    String input =
-      CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME
-          + DELIM + DEBIT + LINE_RET + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME
-          + DELIM + CREDIT + LINE_RET + CREDIT_ACCOUNT + DELIM
-          + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET + CAP_ACCOUNT_1
-          + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT + LINE_RET
-          + CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM + CREDIT
-          + LINE_RET + DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME + DELIM
-          + DEBIT + LINE_RET + DIST_ACCOUNT_2 + DELIM + DIST_ACCOUNT_2_NAME
-          + DELIM + DEBIT + LINE_RET + REVENUE_ACCOUNT + DELIM
-          + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET
-          + INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME
-          + DELIM + DEBIT + LINE_RET + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME
-          + DELIM + DEBIT;
+    String input = CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME + DELIM + DEBIT + LINE_RET +
+                   CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   CREDIT_ACCOUNT + DELIM + CREDIT_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   CAP_ACCOUNT_1 + DELIM + CAP_ACCOUNT_1_NAME + DELIM + CREDIT + LINE_RET +
+                   CAP_ACCOUNT_2 + DELIM + CAP_ACCOUNT_2_NAME + DELIM + CREDIT + LINE_RET +
+                   DIST_ACCOUNT_1 + DELIM + DIST_ACCOUNT_1_NAME + DELIM + DEBIT + LINE_RET +
+                   DIST_ACCOUNT_2 + DELIM + DIST_ACCOUNT_2_NAME + DELIM + DEBIT + LINE_RET +
+                   REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   INCOME_SUMMARY_ACCOUNT + DELIM + INCOME_SUMMARY_ACCOUNT_NAME + DELIM + DEBIT +
+                   LINE_RET + TAX_ACCOUNT + DELIM + TAX_ACCOUNT_NAME + DELIM + DEBIT;
     return new StringReader(input);
   }
 

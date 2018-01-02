@@ -1,5 +1,21 @@
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.poesys.accounting.dataloader.newaccounting;
-
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -10,10 +26,9 @@ import org.junit.Test;
 
 import com.poesys.db.StringUtilities;
 
-
 /**
  * CUT: OldId
- * 
+ *
  * @author Robert J. Muller
  */
 public class OldIdTest {
@@ -28,8 +43,7 @@ public class OldIdTest {
   public void testOldId() {
     OldId oldId = new OldId(NAME, YEAR, ID);
     assertTrue("could not create old id", oldId != null);
-    assertTrue("wrong name: " + oldId.getEntityName(),
-               NAME.equals(oldId.getEntityName()));
+    assertTrue("wrong name: " + oldId.getEntityName(), NAME.equals(oldId.getEntityName()));
     assertTrue("wrong year: " + oldId.getYear(), YEAR.equals(oldId.getYear()));
     assertTrue("wrong id: " + oldId.getId(), ID.equals(oldId.getId()));
   }
@@ -79,9 +93,8 @@ public class OldIdTest {
   @Test
   public void testToString() {
     OldId oldId = new OldId(NAME, YEAR, ID);
-    String stringRep =
-      "OldId [entityName=" + NAME + ", year=" + YEAR + ", id=" + ID + "]";
-    assertTrue("wrong string representation: " + oldId + ", should be \""
-               + stringRep + "\"", oldId.toString().equals(stringRep));
+    String stringRep = "OldId [entityName=" + NAME + ", year=" + YEAR + ", id=" + ID + "]";
+    assertTrue("wrong string representation: " + oldId + ", should be \"" + stringRep + "\"",
+               oldId.toString().equals(stringRep));
   }
 }

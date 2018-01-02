@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.*;
 
@@ -13,10 +26,9 @@ import org.junit.Test;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
  * CUT: Receivable
- * 
+ *
  * @author Robert J. Muller
  */
 public class ReceivableTest {
@@ -29,29 +41,25 @@ public class ReceivableTest {
   private static final Double AMOUNT = 100.00D;
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * . Tests constructor and getters.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang
+   * .Integer, java.lang.Double)} . Tests constructor and getters.
    */
   @Test
   public void testReceivable() {
-    Receivable receivable =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
 
     assertTrue("wrong account number " + receivable.getAccountNumber(),
                receivable.getAccountNumber().equals(ACCOUNT_NUMBER));
-    assertTrue("wrong amount " + receivable.getAmount(),
-               receivable.getAmount().equals(-AMOUNT));
+    assertTrue("wrong amount " + receivable.getAmount(), receivable.getAmount().equals(-AMOUNT));
     assertTrue("wrong transaction id " + receivable.getTransactionId(),
                receivable.getTransactionId().equals(TRANS_ID_1));
-    assertTrue("wrong year " + receivable.getYear(),
-               receivable.getYear().equals(YEAR));
+    assertTrue("wrong year " + receivable.getYear(), receivable.getYear().equals(YEAR));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * Test null year argument.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang.Integer, java.lang.Double)} Test null year argument.
    */
   @Test
   public void testReceivableNullYear() {
@@ -64,9 +72,9 @@ public class ReceivableTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * Test null account-number argument.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang
+   * .Integer, java.lang.Double)} Test null account-number argument.
    */
   @Test
   public void testReceivableNullAccountNumber() {
@@ -79,9 +87,9 @@ public class ReceivableTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * Test null account-number argument.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang
+   * .Integer, java.lang.Double)} Test null account-number argument.
    */
   @Test
   public void testReceivableInvalidAccountNumber() {
@@ -94,9 +102,9 @@ public class ReceivableTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * Test null transaction-id argument.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang
+   * .Integer, java.lang.Double)} Test null transaction-id argument.
    */
   @Test
   public void testReceivableNullTransactionId() {
@@ -110,8 +118,7 @@ public class ReceivableTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * Test null amount argument.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang.Integer, java.lang.Double)} Test null amount argument.
    */
   @Test
   public void testReceivableNullAmount() {
@@ -124,69 +131,57 @@ public class ReceivableTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#Receivable(java.lang.Integer, java.lang.Float, java.lang.Integer, java.lang.Double)}
-   * . Tests constructor and getters.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.Receivable#Receivable(java.lang.Integer, * java.lang.Float, java.lang
+   * .Integer, java.lang.Double)} . Tests constructor and getters.
    */
   @Test
   public void testReceivableReader() {
-    String input =
-      YEAR + "\t" + TRANS_ID_1 + "\t" + ACCOUNT_NUMBER + "\t" + AMOUNT;
+    String input = YEAR + "\t" + TRANS_ID_1 + "\t" + ACCOUNT_NUMBER + "\t" + AMOUNT;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Receivable receivable = new Receivable(reader);
 
-    assertTrue("wrong year " + receivable.getYear(),
-               receivable.getYear().equals(YEAR));
+    assertTrue("wrong year " + receivable.getYear(), receivable.getYear().equals(YEAR));
     assertTrue("wrong transaction id " + receivable.getTransactionId(),
                receivable.getTransactionId().equals(TRANS_ID_1));
     assertTrue("wrong account number " + receivable.getAccountNumber(),
                receivable.getAccountNumber().equals(ACCOUNT_NUMBER));
-    assertTrue("wrong amount " + receivable.getAmount(),
-               receivable.getAmount().equals(-AMOUNT));
+    assertTrue("wrong amount " + receivable.getAmount(), receivable.getAmount().equals(-AMOUNT));
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()}
-   * . Tests has codes for the same object.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()} .
+   * Tests has codes for the same object.
    */
   @Test
   public void testHashCodeEquality() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
 
     assertTrue("equal objects have different hash codes",
                receivable1.hashCode() == receivable2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()}
-   * . Tests hash codes for objects that differ by year.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()} .
+   * Tests hash codes for objects that differ by year.
    */
   @Test
   public void testHashCodeInequalityYear() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR_2, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR_2, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
     assertTrue("different objects have equal hash codes",
                receivable1.hashCode() != receivable2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()}
-   * . Tests hash codes for objects that differ by transaction id.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#hashCode()} .
+   * Tests hash codes for objects that differ by transaction id.
    */
   @Test
   public void testHashCodeInequalityId() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_2, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_2, AMOUNT);
     assertTrue("different objects have equal hash codes",
                receivable1.hashCode() != receivable2.hashCode());
   }
@@ -198,10 +193,8 @@ public class ReceivableTest {
    */
   @Test
   public void testEqualsObjectEquality() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
 
     assertTrue("equal objects get false equals()",
                receivable1.hashCode() == receivable2.hashCode());
@@ -214,10 +207,8 @@ public class ReceivableTest {
    */
   @Test
   public void testEqualsObjectInequalityYear() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR_2, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR_2, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
 
     assertTrue("different objects get true equals()",
                receivable1.hashCode() != receivable2.hashCode());
@@ -230,25 +221,21 @@ public class ReceivableTest {
    */
   @Test
   public void testEqualsObjectInequality() {
-    Receivable receivable1 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
-    Receivable receivable2 =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_2, AMOUNT);
+    Receivable receivable1 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable2 = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_2, AMOUNT);
 
     assertTrue("different objects get true equals()",
                receivable1.hashCode() != receivable2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#toString()}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Receivable#toString()} .
    */
   @Test
   public void testToString() {
-    Receivable receivable =
-      new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
+    Receivable receivable = new Receivable(YEAR, ACCOUNT_NUMBER, TRANS_ID_1, AMOUNT);
     assertTrue("receivable string representation wrong: " + receivable,
-               receivable.toString().equals("Receivable [year=2017, accountNumber=110.0, transactionId=200, amount=-100.0]"));
+               receivable.toString().equals(
+                 "Receivable [year=2017, accountNumber=110.0, transactionId=200, amount=-100.0]"));
   }
 }

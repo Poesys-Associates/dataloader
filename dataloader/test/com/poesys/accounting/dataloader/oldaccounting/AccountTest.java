@@ -1,5 +1,21 @@
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -12,16 +28,10 @@ import org.junit.Test;
 import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * <p>
- * CUT: Account DTO
- * </p>
- * <p>
- * Note: getItems() method is tested in the TransactionTest class because it
- * requires extensive transaction and item creation already done in that class.
- * </p>
- * 
+ * <p> CUT: Account DTO </p> <p> Note: getItems() method is tested in the TransactionTest class
+ * because it requires extensive transaction and item creation already done in that class. </p>
+ *
  * @author Robert J. Muller
  */
 public class AccountTest {
@@ -33,7 +43,8 @@ public class AccountTest {
   private static final String NAME2 = "Accounts Receivable";
   private static final Boolean DEFAULT_DEBIT = Boolean.TRUE;
   private static final String STRING_REP =
-    "Account [year=2017, name=Cash, accountNumber=109.0, defaultDebit=true, getAccountType()=Assets]";
+    "Account [year=2017, name=Cash, accountNumber=109.0, defaultDebit=true, getAccountType()" +
+    "=Assets]";
 
   /**
    * Test constructor and getters (getAccount is separate from this test)
@@ -42,13 +53,10 @@ public class AccountTest {
   public void testAccount() {
     Account account = new Account(YEAR, ACCOUNT, NAME, DEFAULT_DEBIT);
 
-    assertTrue("constructor failed", account != null);
     assertTrue("year getter failed", YEAR.equals(account.getYear()));
-    assertTrue("account number getter failed",
-               ACCOUNT.equals(account.getAccountNumber()));
+    assertTrue("account number getter failed", ACCOUNT.equals(account.getAccountNumber()));
     assertTrue("name getter failed", NAME.equals(account.getName()));
-    assertTrue("default debit getter failed",
-               DEFAULT_DEBIT.equals(account.getDefaultDebit()));
+    assertTrue("default debit getter failed", DEFAULT_DEBIT.equals(account.getDefaultDebit()));
   }
 
   /**
@@ -112,42 +120,37 @@ public class AccountTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Account#Account(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor and getters. Also tests multiple-line input.
+   * Test method for {@link com
+   * .poesys.accounting.dataloader.oldaccounting.Account#Account(java.lang.Integer, * java.io
+   * .BufferedReader)} . Tests reader constructor and getters. Also tests multiple-line
+   * input.
    */
   @Test
   public void testAccountReader() {
     Float accountNumber = 100.00F;
     String accountName = "Citicorp Checking (111222333444)";
     String input =
-      accountNumber + "\t" + accountName + "\t" + "CR" + "\n" + "101" + "\t"
-          + "Schwab One (111222333444) Money Market Fund" + "\t" + "CR" + "\n"
-          + "109" + "\t" + "Cash" + "\t" + "CR";
+      accountNumber + "\t" + accountName + "\t" + "CR" + "\n" + "101" + "\t" + "Money Market Fund" +
+      "\t" + "CR" + "\n" + "109" + "\t" + "Cash" + "\t" + "CR";
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Account account = new Account(YEAR, reader);
 
     assertTrue("year getter failed", YEAR.equals(account.getYear()));
-    assertTrue("account number getter failed",
-               accountNumber.equals(account.getAccountNumber()));
-    assertTrue("account name getter failed",
-               accountName.equals(account.getName()));
-    assertTrue("default debit getter failed",
-               Boolean.FALSE.equals(account.getDefaultDebit()));
+    assertTrue("account number getter failed", accountNumber.equals(account.getAccountNumber()));
+    assertTrue("account name getter failed", accountName.equals(account.getName()));
+    assertTrue("default debit getter failed", Boolean.FALSE.equals(account.getDefaultDebit()));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Account#Account(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor and getters.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Account#Account(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor and getters.
    */
   @Test
   public void testAccountReaderNullYear() {
     Float accountNumber = 100.00F;
     String input =
-      accountNumber + "\t" + "Citicorp Checking (937-4002518)" + "\t" + "CR"
-          + "\n" + "101" + "\t" + "Schwab One (6522-1969) Money Market Fund"
-          + "\t" + "CR" + "\n" + "109" + "\t" + "Cash" + "\t" + "CR";
+      accountNumber + "\t" + "Citicorp Checking (937-4002518)" + "\t" + "CR" + "\n" + "101" + "\t" +
+      "Money Market Fund" + "\t" + "CR" + "\n" + "109" + "\t" + "Cash" + "\t" + "CR";
     BufferedReader reader = new BufferedReader(new StringReader(input));
     try {
       new Account(null, reader);
@@ -169,8 +172,8 @@ public class AccountTest {
 
     Account account2 = new Account(YEAR, ACCOUNT, NAME, DEFAULT_DEBIT);
 
-    assertTrue("Hash codes for same values don't match: " + hash + ", "
-               + account2.hashCode(), hash == account2.hashCode());
+    assertTrue("Hash codes for same values don't match: " + hash + ", " + account2.hashCode(),
+               hash == account2.hashCode());
   }
 
   /**
@@ -181,11 +184,10 @@ public class AccountTest {
     Account account = new Account(YEAR, ACCOUNT, NAME, DEFAULT_DEBIT);
     int hash = account.hashCode();
 
-    Account account2 =
-      new Account(YEAR, RECEIVABLE_ACCOUNT, NAME2, DEFAULT_DEBIT);
+    Account account2 = new Account(YEAR, RECEIVABLE_ACCOUNT, NAME2, DEFAULT_DEBIT);
 
-    assertTrue("Hash codes for different values match: " + hash + ", "
-               + account2.hashCode(), hash != account2.hashCode());
+    assertTrue("Hash codes for different values match: " + hash + ", " + account2.hashCode(),
+               hash != account2.hashCode());
   }
 
   /**
@@ -207,8 +209,7 @@ public class AccountTest {
   public void testEqualsObjectInequality() {
     Account account = new Account(YEAR, ACCOUNT, NAME, DEFAULT_DEBIT);
 
-    Account account2 =
-      new Account(YEAR, RECEIVABLE_ACCOUNT, NAME2, DEFAULT_DEBIT);
+    Account account2 = new Account(YEAR, RECEIVABLE_ACCOUNT, NAME2, DEFAULT_DEBIT);
 
     assertTrue("Not-Equals comparison failed", !account.equals(account2));
   }
@@ -220,8 +221,8 @@ public class AccountTest {
   public void testToString() {
     Account account = new Account(YEAR, ACCOUNT, NAME, DEFAULT_DEBIT);
 
-    assertTrue("String representation failed: " + account + ", expecting "
-               + STRING_REP, STRING_REP.equals(account.toString()));
+    assertTrue("String representation failed: " + account + ", expecting " + STRING_REP,
+               STRING_REP.equals(account.toString()));
   }
 
   /**
@@ -240,10 +241,11 @@ public class AccountTest {
   }
 
   /**
-   * Create an account with a specified account number, get the account type,
-   * and validate that type against a specified, expected type.
+   * Create an account with a specified account number, get the account type, and validate that type
+   * against a specified, expected type.
+   *
    * @param number the account number
-   * @param type the account type
+   * @param type   the account type
    */
   private void validateAccountType(Float number, AccountType type) {
     Account account = new Account(YEAR, number, NAME, DEFAULT_DEBIT);
@@ -251,8 +253,7 @@ public class AccountTest {
       assertTrue("expecting null but got type " + account.getAccountType(),
                  account.getAccountType() == null);
     } else {
-      assertTrue("expecting " + type.toString() + " but got "
-                     + account.getAccountType(),
+      assertTrue("expecting " + type.toString() + " but got " + account.getAccountType(),
                  account.getAccountType().equals(type));
     }
   }

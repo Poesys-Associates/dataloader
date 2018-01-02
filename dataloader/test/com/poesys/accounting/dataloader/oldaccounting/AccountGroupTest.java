@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,10 +30,9 @@ import org.junit.Test;
 import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
-
 /**
  * CUT: AccountGroup
- * 
+ *
  * @author Robert J. Muller
  */
 public class AccountGroupTest {
@@ -29,12 +41,13 @@ public class AccountGroupTest {
   private static final Float START = 100.00F;
   private static final Float END = 109.99F;
   private static final String STRING_REP =
-    "AccountGroup [year=2017, name=Cash, start=100.0, end=109.99, orderNumber=null, getAccountType()=Assets]";
+    "AccountGroup [year=2017, name=Cash, start=100.0, end=109.99, orderNumber=null, " +
+    "getAccountType()=Assets]";
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.lang.String, java.lang.Float, java.lang.Float)}
-   * . Tests field constructor and getters.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.lang.String, java.lang
+   * .Float, java.lang.Float)} . Tests field constructor and getters.
    */
   @Test
   public void testAccountGroup() {
@@ -77,7 +90,7 @@ public class AccountGroupTest {
   @Test
   public void testEqualsFalseYear() {
     AccountGroup group1 = new AccountGroup(YEAR, NAME, START, END);
-    AccountGroup group2 = new AccountGroup(YEAR+1, NAME, START, END);
+    AccountGroup group2 = new AccountGroup(YEAR + 1, NAME, START, END);
     assertTrue("non-equality comparison failed", !group1.equals(group2));
   }
 
@@ -89,7 +102,7 @@ public class AccountGroupTest {
   @Test
   public void testEqualsFalseName() {
     AccountGroup group1 = new AccountGroup(YEAR, NAME, START, END);
-    AccountGroup group2 = new AccountGroup(YEAR, NAME+"aaa", START, END);
+    AccountGroup group2 = new AccountGroup(YEAR, NAME + "aaa", START, END);
     assertTrue("non-equality comparison failed", !group1.equals(group2));
   }
 
@@ -119,9 +132,10 @@ public class AccountGroupTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.lang.String, java.lang.Float, java.lang.Float)}
-   * . Tests constructor required year exception.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.lang.String, java.lang
+   * .Float, java.lang.Float)} . Tests constructor required year
+   * exception.
    */
   @Test
   public void testAccountGroupRequiredYear() {
@@ -136,9 +150,10 @@ public class AccountGroupTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.lang.String, java.lang.Float, java.lang.Float)}
-   * . Tests constructor required name exception.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.lang.String, java.lang
+   * .Float, java.lang.Float)} . Tests constructor required name
+   * exception.
    */
   @Test
   public void testAccountGroupRequiredName() {
@@ -153,9 +168,10 @@ public class AccountGroupTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.lang.String, java.lang.Float, java.lang.Float)}
-   * . Tests constructor required start exception.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.lang.String, java.lang
+   * .Float, java.lang.Float)} . Tests constructor required start
+   * exception.
    */
   @Test
   public void testAccountGroupRequiredStart() {
@@ -170,9 +186,10 @@ public class AccountGroupTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.lang.String, java.lang.Float, java.lang.Float)}
-   * . Tests constructor required end exception.
+   * Test method for {@link com.poesys.accounting.dataloader
+   * .oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.lang.String, java.lang
+   * .Float, java.lang.Float)} . Tests constructor required end
+   * exception.
    */
   @Test
   public void testAccountGroupRequiredEnd() {
@@ -188,8 +205,7 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor and getters.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor and getters.
    */
   @Test
   public void testAccountGroupReaderValid() {
@@ -204,8 +220,7 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor required year.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor required year.
    */
   @Test
   public void testAccountGroupReaderNullYear() {
@@ -223,8 +238,7 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor required reader.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor required reader.
    */
   @Test
   public void testAccountGroupReaderNullReader() {
@@ -240,8 +254,7 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor reader end-of-stream.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor reader end-of-stream.
    */
   @Test
   public void testAccountGroupReaderEndOfStream() {
@@ -262,8 +275,7 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor invalid fields error.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor invalid fields error.
    */
   @Test
   public void testAccountGroupReaderInvalidFields() {
@@ -287,7 +299,7 @@ public class AccountGroupTest {
 
     /**
      * Create an IoExceptionBufferedReader object.
-     * 
+     *
      * @param in the input reader to buffer
      */
     public IoExceptionBufferedReader(Reader in) {
@@ -302,22 +314,19 @@ public class AccountGroupTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor I/O exception.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#AccountGroup(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor I/O exception.
    */
   @Test
   public void testAccountGroupReaderIoException() {
     // input stream missing third field NAME
     String input = START.toString() + "\t" + END.toString();
-    BufferedReader reader =
-      new IoExceptionBufferedReader(new StringReader(input));
+    BufferedReader reader = new IoExceptionBufferedReader(new StringReader(input));
     try {
       new AccountGroup(YEAR, reader);
       fail("No IO exception");
     } catch (RuntimeException e) {
       if (!e.getMessage().equals("I/O exception reading account group")) {
-        fail("Wrong runtime exception, expecting I/O message: "
-             + e.getMessage());
+        fail("Wrong runtime exception, expecting I/O message: " + e.getMessage());
       }
     } catch (Exception e) {
       fail("Wrong exception for end of stream: " + e.getMessage());
@@ -344,8 +353,7 @@ public class AccountGroupTest {
   @Test
   public void testGetAccountTypeLiabilities() {
     AccountGroup group = new AccountGroup(YEAR, NAME, 200.00F, 299.99F);
-    assertTrue("liabilities group returns other type: "
-                   + group.getAccountType(),
+    assertTrue("liabilities group returns other type: " + group.getAccountType(),
                group.getAccountType().equals(AccountType.LIABILITIES));
   }
 
@@ -393,54 +401,49 @@ public class AccountGroupTest {
   @Test
   public void testGetAccountTypeUnknown() {
     AccountGroup group = new AccountGroup(YEAR, NAME, 900.00F, 999.99F);
-    assertTrue("invalid group returns type rather than null: "
-                   + group.getAccountType(),
+    assertTrue("invalid group returns type rather than null: " + group.getAccountType(),
                group.getAccountType() == null);
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, Float)}
-   * . Tests contains method where a group contains the account.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, * Float)} . Tests contains method where a group contains the account.
    */
   @Test
   public void testContainsTrue() {
     String input = START.toString() + "\t" + END.toString() + "\t" + NAME;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     AccountGroup group = new AccountGroup(YEAR, reader);
-    assertTrue("group does not contain account 105 for year " + YEAR + ": "
-               + group, group.contains(YEAR, 105.00F));
+    assertTrue("group does not contain account 105 for year " + YEAR + ": " + group,
+               group.contains(YEAR, 105.00F));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, Float)}
-   * . Tests contains method where a group does not contain the account because
-   * of the fiscal year being different.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, * Float)} . Tests contains method where a group does not contain the account because of the
+   * fiscal year being different.
    */
   @Test
   public void testContainsFalseYear() {
     String input = START.toString() + "\t" + END.toString() + "\t" + NAME;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     AccountGroup group = new AccountGroup(YEAR, reader);
-    assertTrue("group contains account 105 for year " + (YEAR + 2) + ": "
-                   + group + " but should not because the year is different",
-               !group.contains(YEAR + 2, 105.00F));
+    assertTrue("group contains account 105 for year " + (YEAR + 2) + ": " + group +
+               " but should not because the year is different", !group.contains(YEAR + 2, 105.00F));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, Float)}
-   * . Tests contains method where a group does not contain the account because
-   * of the account being out of range.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#contains(Integer, * Float)} . Tests contains method where a group does not contain the account because of the
+   * account being out of range.
    */
   @Test
   public void testContainsFalseAccount() {
     String input = START.toString() + "\t" + END.toString() + "\t" + NAME;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     AccountGroup group = new AccountGroup(YEAR, reader);
-    assertTrue("group contains account 205 for year " + YEAR + ": " + group
-                   + " but should not because the account is out of range",
+    assertTrue("group contains account 205 for year " + YEAR + ": " + group +
+               " but should not because the account is out of range",
                !group.contains(YEAR, 205.00F));
   }
 
@@ -448,7 +451,7 @@ public class AccountGroupTest {
    * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#compareTo(AccountGroup)}
    * . Tests compareTo for same start.
-   * 
+   *
    * @throws IOException when the reader can't be closed
    */
   @Test
@@ -461,16 +464,16 @@ public class AccountGroupTest {
     AccountGroup group2 = new AccountGroup(YEAR, reader);
     assertTrue("same start but compareTo not zero: " + group1.compareTo(group2),
                group1.compareTo(group2) == 0);
-    assertTrue("same start but compareTo and equals don't return equivalently: "
-                   + group1.compareTo(group2),
-               group1.equals(group2));
+    assertTrue(
+      "same start but compareTo and equals don't return equivalently: " + group1.compareTo(group2),
+      group1.equals(group2));
   }
 
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#compareTo(AccountGroup)}
    * . Tests compareTo for lower start.
-   * 
+   *
    * @throws IOException when the reader can't be closed
    */
   @Test
@@ -482,8 +485,7 @@ public class AccountGroupTest {
     reader.close();
     reader = new BufferedReader(new StringReader(input2));
     AccountGroup group2 = new AccountGroup(YEAR, reader);
-    assertTrue("lower start but compareTo not negative: "
-                   + group1.compareTo(group2),
+    assertTrue("lower start but compareTo not negative: " + group1.compareTo(group2),
                group1.compareTo(group2) < 0);
   }
 
@@ -491,7 +493,7 @@ public class AccountGroupTest {
    * Test method for
    * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#compareTo(AccountGroup)}
    * . Tests compareTo for higher start.
-   * 
+   *
    * @throws IOException when the reader can't be closed
    */
   @Test
@@ -503,21 +505,18 @@ public class AccountGroupTest {
     reader.close();
     reader = new BufferedReader(new StringReader(input2));
     AccountGroup group1 = new AccountGroup(YEAR, reader);
-    assertTrue("higher start but compareTo not positive: "
-                   + group1.compareTo(group2),
+    assertTrue("higher start but compareTo not positive: " + group1.compareTo(group2),
                group1.compareTo(group2) > 0);
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#toString()}
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.AccountGroup#toString()}
    * . Tests string representation.
    */
   @Test
   public void testToString() {
     AbstractReaderDto group = new AccountGroup(YEAR, NAME, START, END);
-    assertTrue("String representation incorrect: " + group.toString()
-                   + ", expecting " + STRING_REP,
+    assertTrue("String representation incorrect: " + group.toString() + ", expecting " + STRING_REP,
                STRING_REP.equals(group.toString()));
   }
 }

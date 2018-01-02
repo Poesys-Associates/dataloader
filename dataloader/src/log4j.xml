@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <!-- the log configuration file for the Poesys Dataloader project -->
@@ -45,7 +45,7 @@
   </category>
 
   <category name="com.poesys.db.dao.PoesysTrackingThread">
-    <priority value="INFO" />
+    <priority value="DEBUG" />
   </category>
 
   <category name="com.poesys.db.dto">
@@ -75,7 +75,7 @@
 
   <category name="com.poesys.accounting.dataloader.DataLoader">
     <!-- debugging for DataLoader -->
-    <priority value="DEBUG" />
+    <priority value="INFO" />
   </category>
 
   <category name="com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder">

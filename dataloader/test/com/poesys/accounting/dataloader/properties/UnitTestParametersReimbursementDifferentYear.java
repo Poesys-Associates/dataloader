@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,22 +30,19 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter for unit testing methods that
- * call the parameters, to make sure the method does make the required calls.
- * This particular version creates a receivable transaction and a later
- * reimbursement for that receivable (2 transactions and a reimbursement link),
- * with the two transactions in different fiscal years. This requires two
- * separate parameter classes, one for the first year (this one) and one for the
- * second, reimbursing year (UnitTestParametersReimbursementDifferentYear2).
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter getter
+ * for unit testing methods that call the parameters, to make sure the method does make the required
+ * calls. This particular version creates a receivable transaction and a later reimbursement for
+ * that receivable (2 transactions and a reimbursement link), with the two transactions in different
+ * fiscal years. This requires two separate parameter classes, one for the first year (this one) and
+ * one for the second, reimbursing year (UnitTestParametersReimbursementDifferentYear2).
+ *
  * @author Robert J. Muller
  */
 public class UnitTestParametersReimbursementDifferentYear extends
-    AbstractStatementMaintainingParameters {
+  AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -44,8 +54,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
   private static final int YEAR_2 = 2017;
 
   /**
-   * special tracking variable for this implementation to allow conditionals on
-   * current year
+   * special tracking variable for this implementation to allow conditionals on current year
    */
   private int currentYear = YEAR_1;
 
@@ -70,8 +79,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
   private static final Float END_3 = 409.99F;
 
   private static final Float CHECKING_ACCOUNT = 100.0F;
-  private static final String CHECKING_ACCOUNT_NAME =
-    "Citicorp Checking (111222333444)";
+  private static final String CHECKING_ACCOUNT_NAME = "Citicorp Checking (111222333444)";
   private static final String NEW_CHECKING_ACCOUNT_NAME = "Citicorp Checking";
   private static final Float RECEIVABLE_ACCOUNT = 110.0F;
   private static final String RECEIVABLE_ACCOUNT_NAME = "Accounts Receivable";
@@ -91,15 +99,13 @@ public class UnitTestParametersReimbursementDifferentYear extends
   private static final String FALSE = "N";
 
   /** description for receivable enclosed in quotes with trailing blanks */
-  private static final String RECEIVABLE_DESC =
-    "\"receivable income              \"";
+  private static final String RECEIVABLE_DESC = "\"receivable income              \"";
 
   /** receivable date as Oracle-formatted string representation */
   private static final String RECEIVABLE_DATE = "26-JUN-16";
 
   /** description for reimbursement enclosed in quotes with trailing blanks */
-  private static final String REIMBURSEMENT_DESC =
-    "\"reimbursement              \"";
+  private static final String REIMBURSEMENT_DESC = "\"reimbursement              \"";
 
   /** reimbursement date as Oracle-formatted string representation */
   private static final String REIMBURSEMENT_DATE = "20-JUL-17";
@@ -141,7 +147,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -150,7 +156,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -159,7 +165,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -168,7 +174,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -177,7 +183,7 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {
@@ -186,19 +192,16 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input =
-      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM
-          + OWNERSHIP.toString();
+    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM +
+                   OWNERSHIP.toString();
     return new StringReader(input);
   }
 
   @Override
   public Reader getAccountGroupReader(Integer year) {
-    String input =
-      START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1
-          + LINE_RET + START_2.toString() + DELIM + END_2.toString() + DELIM
-          + GROUP_NAME_2 + LINE_RET + START_3.toString() + DELIM
-          + END_3.toString() + DELIM + GROUP_NAME_3;
+    String input = START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1 + LINE_RET +
+                   START_2.toString() + DELIM + END_2.toString() + DELIM + GROUP_NAME_2 + LINE_RET +
+                   START_3.toString() + DELIM + END_3.toString() + DELIM + GROUP_NAME_3;
     return new StringReader(input);
   }
 
@@ -210,12 +213,10 @@ public class UnitTestParametersReimbursementDifferentYear extends
 
   @Override
   public Reader getAccountReader(Integer year) {
-    String input =
-      CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME
-          + DELIM + CREDIT + LINE_RET + CASH_ACCOUNT + DELIM
-          + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET + REVENUE_ACCOUNT
-          + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT;
+    String input = CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME + DELIM + CREDIT +
+                   LINE_RET + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT;
     return new StringReader(input);
   }
 
@@ -225,17 +226,15 @@ public class UnitTestParametersReimbursementDifferentYear extends
     String input = "";
     if (currentYear == YEAR_2) {
       input =
-        REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_YEAR + DELIM
-            + RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT
-            + DELIM + ALLOCATED_AMOUNT;
+        REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_YEAR + DELIM + RECEIVABLE_TRANS_ID + DELIM +
+        RECEIVABLE_ACCOUNT + DELIM + AMOUNT + DELIM + ALLOCATED_AMOUNT;
     }
     return new StringReader(input);
   }
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input =
-      CASH_ACCOUNT + DELIM + RECEIVABLE_DATE + DELIM + DEBIT + DELIM + AMOUNT;
+    String input = CASH_ACCOUNT + DELIM + RECEIVABLE_DATE + DELIM + DEBIT + DELIM + AMOUNT;
     return new StringReader(input);
   }
 
@@ -245,12 +244,11 @@ public class UnitTestParametersReimbursementDifferentYear extends
     String input = null;
     if (currentYear == YEAR_1) {
       input =
-        RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_DESC + DELIM + RECEIVABLE_DATE
-            + DELIM + FALSE;
+        RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_DESC + DELIM + RECEIVABLE_DATE + DELIM + FALSE;
     } else {
       input =
-        REIMBURSEMENT_TRANS_ID + DELIM + REIMBURSEMENT_DESC + DELIM
-            + REIMBURSEMENT_DATE + DELIM + FALSE;
+        REIMBURSEMENT_TRANS_ID + DELIM + REIMBURSEMENT_DESC + DELIM + REIMBURSEMENT_DATE + DELIM +
+        FALSE;
     }
     return new StringReader(input);
   }
@@ -261,24 +259,22 @@ public class UnitTestParametersReimbursementDifferentYear extends
     String input = null;
     if (currentYear == 2016) {
       input =
-        RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT
-            + DELIM + DEBIT + DELIM + FALSE + LINE_RET + RECEIVABLE_TRANS_ID
-            + DELIM + REVENUE_ACCOUNT + DELIM + AMOUNT + DELIM + CREDIT + DELIM
-            + FALSE;
+        RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT + DELIM + DEBIT + DELIM +
+        FALSE + LINE_RET + RECEIVABLE_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + AMOUNT + DELIM +
+        CREDIT + DELIM + FALSE;
     } else {
       input =
-        REIMBURSEMENT_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + AMOUNT
-            + DELIM + DEBIT + DELIM + FALSE + LINE_RET + REIMBURSEMENT_TRANS_ID
-            + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT + DELIM + CREDIT
-            + DELIM + FALSE;
+        REIMBURSEMENT_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + AMOUNT + DELIM + DEBIT + DELIM +
+        FALSE + LINE_RET + REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + AMOUNT +
+        DELIM + CREDIT + DELIM + FALSE;
     }
     return new StringReader(input);
   }
 
   /**
-   * Method for this implementation; sets the current year for use in
-   * conditionals that determine actual data returned
-   * 
+   * Method for this implementation; sets the current year for use in conditionals that determine
+   * actual data returned
+   *
    * @param year the current fiscal year being processed
    */
   public void setCurrentYear(int year) {

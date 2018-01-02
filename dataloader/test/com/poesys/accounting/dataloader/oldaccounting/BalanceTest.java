@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,9 +30,7 @@ import org.junit.Test;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * 
  * @author Robert J. Muller
  */
 public class BalanceTest {
@@ -33,7 +44,7 @@ public class BalanceTest {
 
   /**
    * Create a timestamp for the balance date.
-   * 
+   *
    * @return a timestamp
    */
   private Timestamp getDate() {
@@ -49,27 +60,26 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor and getters.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * and getters.
    */
   @Test
   public void testBalance() {
     Balance balance = new Balance(YEAR, ACCOUNT1, getDate(), AMOUNT, DEBIT);
 
-    assertTrue("account not correct: " + balance.getAccountNumber()
-                   + ", but expected " + ACCOUNT1,
+    assertTrue("account not correct: " + balance.getAccountNumber() + ", but expected " + ACCOUNT1,
                balance.getAccountNumber().equals(ACCOUNT1));
-    assertTrue("amount not correct: " + balance.getAmount(),
-               balance.getAmount().equals(AMOUNT));
-    assertTrue("debit flag not correct: " + balance.isDebit(),
-               balance.isDebit());
+    assertTrue("amount not correct: " + balance.getAmount(), balance.getAmount().equals(AMOUNT));
+    assertTrue("debit flag not correct: " + balance.isDebit(), balance.isDebit());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests reader constructor and getters.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests reader
+   * constructor and getters.
    */
   @Test
   public void testBalanceReaderValid() {
@@ -77,19 +87,17 @@ public class BalanceTest {
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Balance balance = new Balance(YEAR, reader);
 
-    assertTrue("account not correct: " + balance.getAccountNumber()
-                   + ", but expected " + ACCOUNT1,
+    assertTrue("account not correct: " + balance.getAccountNumber() + ", but expected " + ACCOUNT1,
                balance.getAccountNumber().equals(ACCOUNT1));
-    assertTrue("amount not correct: " + balance.getAmount(),
-               balance.getAmount().equals(AMOUNT));
-    assertTrue("debit flag not correct: " + balance.isDebit(),
-               balance.isDebit());
+    assertTrue("amount not correct: " + balance.getAmount(), balance.getAmount().equals(AMOUNT));
+    assertTrue("debit flag not correct: " + balance.isDebit(), balance.isDebit());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor with null year.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * with null year.
    */
   @Test
   public void testBalanceNullYear() {
@@ -104,9 +112,10 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor with null account number.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * with null account number.
    */
   @Test
   public void testBalanceNullAccountNumber() {
@@ -121,9 +130,10 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor with null amount.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * with null amount.
    */
   @Test
   public void testBalanceNullAmount() {
@@ -138,9 +148,10 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor with null balance date.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * with null balance date.
    */
   @Test
   public void testBalanceNullBalanceDate() {
@@ -155,9 +166,10 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#Balance(java.lang.Integer, java.lang.Float, java.sql.Timestamp, java.lang.Double, java.lang.Boolean)}
-   * . Tests constructor with null amount.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Balance#Balance(java.lang.Integer, * java.lang.Float, java.sql.Timestamp, java.lang.Double,
+   * java.lang.Boolean)} . Tests constructor
+   * with null amount.
    */
   @Test
   public void testBalanceNullDebit() {
@@ -172,8 +184,7 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#hashCode()}.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Balance#hashCode()}.
    */
   @Test
   public void testHashCodeEquality() {
@@ -196,8 +207,7 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#hashCode()}.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Balance#hashCode()}.
    */
   @Test
   public void testHashCodeInequality() {
@@ -220,8 +230,7 @@ public class BalanceTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Balance#toString()}.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Balance#toString()}.
    */
   @Test
   public void testToString() {

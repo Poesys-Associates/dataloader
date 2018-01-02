@@ -1,26 +1,39 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
 
+/* Copyright (c) 2017 Poesys Associates. All rights reserved. */
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 import org.junit.Test;
 
-import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
-
 
 /**
  * CUT: FiscalYear
- * 
+ *
  * @author Robert J. Muller
  */
 public class FiscalYearTest {
@@ -36,8 +49,7 @@ public class FiscalYearTest {
   @Test
   public void testFiscalYear() {
     FiscalYear year = new FiscalYear(YEAR);
-    assertTrue("no fiscal year created", year != null);
-    assertTrue("wrong year", year.getYear() == YEAR);
+    assertTrue("wrong year", Objects.equals(year.getYear(), YEAR));
     assertTrue("no start date", year.getStart() != null);
     assertTrue("no end date", year.getEnd() != null);
     Timestamp start = Timestamp.valueOf(YEAR + "-01-01 00:00:00");
@@ -48,34 +60,45 @@ public class FiscalYearTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#hashCode()}
-   * .
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#FiscalYear(java.lang.Integer)}
+   * . Tests exception from constructor with null date.
+   */
+  @Test
+  public void testFiscalYearNullYear() {
+    try {
+      new FiscalYear(null);
+      fail("null input year but no exception");
+    } catch (InvalidParametersException e) {
+      assertTrue("null input year with wrong message: " + e.getMessage(),
+                 e.getMessage().equals("FiscalYear parameters are required but one is null"));
+    } catch (Exception e) {
+      fail("Wrong exception from null input year: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#hashCode()} .
    */
   @Test
   public void testHashCodeEquality() {
     FiscalYear year1 = new FiscalYear(YEAR);
     FiscalYear year2 = new FiscalYear(YEAR);
-    assertTrue("same year but different hash code",
-               year1.hashCode() == year2.hashCode());
+    assertTrue("same year but different hash code", year1.hashCode() == year2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#hashCode()}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#hashCode()} .
    */
   @Test
   public void testHashCodeInequality() {
     FiscalYear year1 = new FiscalYear(YEAR);
     FiscalYear year2 = new FiscalYear(PRIOR_YEAR);
-    assertTrue("different year but same hash code",
-               year1.hashCode() != year2.hashCode());
+    assertTrue("different year but same hash code", year1.hashCode() != year2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object obj)}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object
+   * obj)} .
    */
   @Test
   public void testEqualsEquality() {
@@ -85,9 +108,8 @@ public class FiscalYearTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object obj)}
-   * .
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object
+   * obj)} .
    */
   @Test
   public void testEqualsInequality() {
@@ -97,26 +119,33 @@ public class FiscalYearTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#getTransactions()}
-   * . Tests addTransaction and getTransactions.
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object
+   * obj)} . Tests comparison to same object being true.
    */
   @Test
-  public void testGetTransactions() {
-    FiscalYear year = new FiscalYear(YEAR);
-    assertTrue("no transactions set", year.getTransactions() != null);
-    Timestamp date = Timestamp.valueOf("2017-01-01 00:00:00");
-    Transaction transaction =
-      new Transaction(new BigInteger("1"), "description", date, false, false);
-    year.addTransaction(transaction);
-    Set<Transaction> set = year.getTransactions();
-    boolean found = false;
-    for (Transaction trans : set) {
-      if (trans.equals(transaction)) {
-        found = true;
-      }
-    }
-    assertTrue("Did not find added transaction", found);
+  public void testEqualsSameObject() {
+    FiscalYear year1 = new FiscalYear(YEAR);
+    assertTrue("same fiscal year object but equals false", year1.equals(year1));
+  }
+
+  /**
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object
+   * obj)} . Tests null comparison object being false.
+   */
+  @Test
+  public void testEqualsNullObject() {
+    FiscalYear year1 = new FiscalYear(YEAR);
+    assertTrue("null year but equals true", !year1.equals(null));
+  }
+
+  /**
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#equals(Object
+   * obj)} . Tests comparison to different class object being false.
+   */
+  @Test
+  public void testEqualsDifferentClass() {
+    FiscalYear year1 = new FiscalYear(YEAR);
+    assertTrue("different class but equal", !year1.equals(new Integer(2017)));
   }
 
   /**
@@ -135,21 +164,40 @@ public class FiscalYearTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
-   * .
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isIn(java.sql.Timestamp)}
+   * . Tests exception from null input date.
    */
   @Test
-  public void testIsInYearOrPriorYearSameYear() {
+  public void testIsInNull() {
     FiscalYear year = new FiscalYear(YEAR);
-    Timestamp date = Timestamp.valueOf(YEAR + "-05-01 00:00:00");
-    assertTrue("date in year but isInYearOrPriorYear is false",
-               year.isInYearOrPriorYear(date));
+    try {
+      year.isIn(null);
+      fail("no exception from null input date to isIn()");
+    } catch (InvalidParametersException e) {
+      // success
+      assertTrue("null input date but wrong exception: " + e.getMessage(),
+                 e.getMessage().equals("date for comparison is null but is required"));
+    } catch (Exception e) {
+      fail("null input date but wrong exception: " + e.getMessage());
+    }
   }
 
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
-   * .
+   * . Tests where input date is in year.
+   */
+  @Test
+  public void testIsInYearOrPriorYearSameYear() {
+    FiscalYear year = new FiscalYear(YEAR);
+    Timestamp date = Timestamp.valueOf(YEAR + "-05-01 00:00:00");
+    assertTrue("date in year but isInYearOrPriorYear is false", year.isInYearOrPriorYear(date));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
+   * . Tests where input date is in previous year.
    */
   @Test
   public void testIsInYearOrPriorYearPriorYear() {
@@ -162,7 +210,7 @@ public class FiscalYearTest {
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
-   * .
+   * . Tests where input date is in later year.
    */
   @Test
   public void testIsInYearOrPriorYearLaterYear() {
@@ -174,14 +222,32 @@ public class FiscalYearTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#toString()}
-   * .
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#isInYearOrPriorYear(java.sql.Timestamp)}
+   * . Tests exception from null comparison year.
+   */
+  @Test
+  public void testIsInYearOrPriorYearNullYear() {
+    FiscalYear year = new FiscalYear(YEAR);
+    try {
+      year.isInYearOrPriorYear(null);
+      fail("null date but no exception");
+    } catch (InvalidParametersException e) {
+      assertTrue(e.getMessage().equals("date for comparison is null but is required"));
+    } catch (Exception e) {
+      fail("Wrong exception from null input date: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#toString()} .
    */
   @Test
   public void testToString() {
     FiscalYear year = new FiscalYear(YEAR);
     assertTrue("toString not correct: " + year.toString(),
-               "FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0]".equals(year.toString()));
+               "FiscalYear [year=2017, start=2017-01-01 00:00:00.0, end=2017-12-31 23:59:59.0]"
+                 .equals(
+                 year.toString()));
   }
 
   /**
@@ -192,12 +258,9 @@ public class FiscalYearTest {
   @Test
   public void testAddAccount() {
     FiscalYear year = new FiscalYear(YEAR);
-    assertTrue("no transactions set", year.getTransactions() != null);
     AccountGroup group = new AccountGroup("Income");
-    Account account =
-      new Account("Income", "Income", AccountType.INCOME, true, false);
-    FiscalYearAccount fya =
-      new FiscalYearAccount(year, AccountType.INCOME, group, 1, account, 1);
+    Account account = new Account("Income", "Income", AccountType.INCOME, true, false);
+    FiscalYearAccount fya = new FiscalYearAccount(year, AccountType.INCOME, group, 1, account, 1);
     account.addYear(fya);
     year.addAccount(fya);
     List<FiscalYearAccount> list = year.getAccounts();
@@ -229,7 +292,6 @@ public class FiscalYearTest {
   @Test
   public void testAddAccountNullAccount() {
     FiscalYear year = new FiscalYear(YEAR);
-    assertTrue("no transactions set", year.getTransactions() != null);
     try {
       year.addAccount(null);
       fail("did not throw invalid parameters exception with null account added");

@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,17 +30,15 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter for unit testing methods that
- * call the parameters, to make sure the method does make the required calls.
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter getter
+ * for unit testing methods that call the parameters, to make sure the method does make the required
+ * calls.
+ *
  * @author Robert J. Muller
  */
-public class UnitTestParametersNoExceptions extends
-    AbstractStatementMaintainingParameters {
+public class UnitTestParametersNoExceptions extends AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -68,8 +79,7 @@ public class UnitTestParametersNoExceptions extends
   private static final Float END_5 = 319.99F;
 
   private static final Float ACCOUNT_NUMBER_1 = 100.0F;
-  private static final String ACCOUNT_NAME_1 =
-    "Citicorp Checking (111222333444)";
+  private static final String ACCOUNT_NAME_1 = "Citicorp Checking (111222333444)";
   private static final String ACCOUNT_NAME_NEW = "Citicorp Checking";
   private static final Float ACCOUNT_NUMBER_2 = 110.0F;
   private static final String ACCOUNT_NAME_2 = "Accounts Receivable";
@@ -131,7 +141,7 @@ public class UnitTestParametersNoExceptions extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -140,7 +150,7 @@ public class UnitTestParametersNoExceptions extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -149,7 +159,7 @@ public class UnitTestParametersNoExceptions extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -158,7 +168,7 @@ public class UnitTestParametersNoExceptions extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -167,7 +177,7 @@ public class UnitTestParametersNoExceptions extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {
@@ -176,7 +186,8 @@ public class UnitTestParametersNoExceptions extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM + OWNERSHIP.toString();
+    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM +
+                   OWNERSHIP.toString();
     return new StringReader(input);
   }
 
@@ -216,33 +227,30 @@ public class UnitTestParametersNoExceptions extends
   @Override
   public Reader getReimbursementReader(Integer year) {
     String input =
-      REIM_ID + DELIM + REC_YEAR + DELIM + REC_ID + DELIM + ACCOUNT_NUMBER_2
-          + DELIM + AMOUNT + DELIM + ALLOCATED_AMOUNT;
+      REIM_ID + DELIM + REC_YEAR + DELIM + REC_ID + DELIM + ACCOUNT_NUMBER_2 + DELIM + AMOUNT +
+      DELIM + ALLOCATED_AMOUNT;
     return new StringReader(input);
   }
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input =
-      ACCOUNT_NUMBER_3 + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM
-          + AMOUNT;
+    String input = ACCOUNT_NUMBER_3 + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM + AMOUNT;
     return new StringReader(input);
   }
 
   @Override
   public Reader getTransactionReader(Integer year) {
     String input =
-      TRANS_ID_1 + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE
-          + DELIM + FALSE;
+      TRANS_ID_1 + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE + DELIM + FALSE;
     return new StringReader(input);
   }
 
   @Override
   public Reader getItemReader(Integer year) {
     String input =
-      TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_1 + DELIM + AMOUNT + DELIM + "DR"
-          + DELIM + "N" + LINE_RET + TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_4
-          + DELIM + AMOUNT + DELIM + "CR" + DELIM + "N";
+      TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_1 + DELIM + AMOUNT + DELIM + "DR" + DELIM + "N" +
+      LINE_RET + TRANS_ID_1 + DELIM + ACCOUNT_NUMBER_4 + DELIM + AMOUNT + DELIM + "CR" + DELIM +
+      "N";
     return new StringReader(input);
   }
 

@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.newaccounting;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,19 +27,16 @@ import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * A data transfer object that contains data relating to an account, the
- * conceptual entity grouping a set of transaction items relating to a single
- * concept. Accounts correspond to external accounts, accounting concepts, and
- * categories of income and expense, among other things. Each account has a name
- * and description, a boolean indicating the default debit or credit designation
- * for new items against the account, and a boolean indicator designating the
- * account as an Accounts Receivable account. The account applies only in a
- * designated list of fiscal years. The account contains a set of items against
- * the account; the sum (taking debits as negative and credits as positive) is
- * the current balance of the account.
- * 
+ * A data transfer object that contains data relating to an account, the conceptual entity grouping
+ * a set of transaction items relating to a single concept. Accounts correspond to external
+ * accounts, accounting concepts, and categories of income and expense, among other things. Each
+ * account has a name and description, a boolean indicating the default debit or credit designation
+ * for new items against the account, and a boolean indicator designating the account as an Accounts
+ * Receivable account. The account applies only in a designated list of fiscal years. The account
+ * contains a set of items against the account; the sum (taking debits as negative and credits as
+ * positive) is the current balance of the account.
+ *
  * @author Robert J. Muller
  */
 public class Account {
@@ -42,10 +52,9 @@ public class Account {
   /** whether the account is a Receivables account */
   private final Boolean receivable;
   /** an ordered list of fiscal years in which the account is active */
-  private final List<FiscalYearAccount> years =
-    new ArrayList<FiscalYearAccount>();
+  private final List<FiscalYearAccount> years = new ArrayList<>();
   /** the set of items against the account */
-  private final Set<Item> items = new HashSet<Item>();
+  private final Set<Item> items = new HashSet<>();
   private CapitalEntity capitalEntity = null;
 
   // Messages
@@ -54,26 +63,20 @@ public class Account {
   private static final String NULL_PARAMETER_ERROR =
     "Account parameters are required but one is null";
   /** null parameter to addYear() */
-  private static final String NULL_YEAR_ERROR =
-    "fiscal year required but is null";
+  private static final String NULL_YEAR_ERROR = "fiscal year required but is null";
 
   /**
    * Create an Account object.
-   * 
-   * @param name the unique name for the account
-   * @param description text describing the nature of the account
-   * @param accountType kind of account: Asset, Liability, Equity, Income,
-   *          Expense
+   *
+   * @param name         the unique name for the account
+   * @param description  text describing the nature of the account
+   * @param accountType  kind of account: Asset, Liability, Equity, Income, Expense
    * @param debitDefault whether the default for items is a debit or credit
-   * @param receivable whether the account is a Receivables account
+   * @param receivable   whether the account is a Receivables account
    */
-  public Account(String name,
-                 String description,
-                 AccountType accountType,
-                 Boolean debitDefault,
+  public Account(String name, String description, AccountType accountType, Boolean debitDefault,
                  Boolean receivable) {
-    if (name == null || description == null || accountType == null
-        || debitDefault == null) {
+    if (name == null || description == null || accountType == null || debitDefault == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
 
@@ -89,31 +92,29 @@ public class Account {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + name.hashCode();
     return result;
   }
 
   // Override equals() to specify primary key
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Account other = (Account)obj;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    } else if (!name.equals(other.name))
-      return false;
-    return true;
+    return name.equals(other.name);
   }
 
   /**
    * Get the name.
-   * 
+   *
    * @return a name
    */
   public String getName() {
@@ -122,7 +123,7 @@ public class Account {
 
   /**
    * Get the description.
-   * 
+   *
    * @return a description
    */
   public String getDescription() {
@@ -131,9 +132,8 @@ public class Account {
 
   /**
    * Get the account type of the account in a specified fiscal year.
-   * 
+   *
    * @param year the fiscal year
-   * 
    * @return the account type of the account in the year
    */
   public AccountType getAccountType(FiscalYear year) {
@@ -150,7 +150,7 @@ public class Account {
 
   /**
    * Is the default value for items debit?
-   * 
+   *
    * @return true if debit, false if credit
    */
   public Boolean isDebitDefault() {
@@ -159,7 +159,7 @@ public class Account {
 
   /**
    * Is this account a Receivables account?
-   * 
+   *
    * @return true if receivable, false if not
    */
   public Boolean isReceivable() {
@@ -167,9 +167,9 @@ public class Account {
   }
 
   /**
-   * Add the fiscal year link to the list of links for the account. Ensure that
-   * the list of links is ordered by year, account type, group, and account.
-   * 
+   * Add the fiscal year link to the list of links for the account. Ensure that the list of links is
+   * ordered by year, account type, group, and account.
+   *
    * @param year the fiscal year account link to add
    */
   public void addYear(FiscalYearAccount year) {
@@ -182,7 +182,7 @@ public class Account {
 
   /**
    * Get the fiscal years in which the account is active.
-   * 
+   *
    * @return a threadsafe list of fiscal-year-account links
    */
   public List<FiscalYearAccount> getYears() {
@@ -191,7 +191,7 @@ public class Account {
 
   /**
    * Get the account group for the account in a specified fiscal year.
-   * 
+   *
    * @param year the fiscal year
    * @return the account group that contains the account in the fiscal year
    */
@@ -199,7 +199,7 @@ public class Account {
     AccountGroup group = null;
 
     for (FiscalYearAccount link : years) {
-      if (link.getFiscalYear().equals(link.getFiscalYear())) {
+      if (link.getFiscalYear().equals(year)) {
         group = link.getGroup();
         break; // found group, done
       }
@@ -209,7 +209,7 @@ public class Account {
 
   /**
    * Get the items associated with this account.
-   * 
+   *
    * @return an unmodifiable set of items
    */
   public Set<Item> getItems() {
@@ -218,7 +218,7 @@ public class Account {
 
   /**
    * Add an item to the set of items in this account.
-   * 
+   *
    * @param item the item to add
    */
   public void addItem(Item item) {
@@ -228,7 +228,7 @@ public class Account {
 
   /**
    * Get the capital entity or null if there is none.
-   * 
+   *
    * @return a capital entity or null
    */
   public CapitalEntity getCapitalEntity() {
@@ -237,7 +237,7 @@ public class Account {
 
   /**
    * Set the capital entity.
-   * 
+   *
    * @param capitalEntity a capital entity
    */
   public void setCapitalEntity(CapitalEntity capitalEntity) {
@@ -246,8 +246,7 @@ public class Account {
 
   @Override
   public String toString() {
-    return "Account [name=" + name + ", description=" + description
-           + ", debitDefault=" + debitDefault + ", receivable=" + receivable
-           + ", years=" + years + "]";
+    return "Account [name=" + name + ", description=" + description + ", debitDefault=" +
+           debitDefault + ", receivable=" + receivable + ", years=" + years + "]";
   }
 }

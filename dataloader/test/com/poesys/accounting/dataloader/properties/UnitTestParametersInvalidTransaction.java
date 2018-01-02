@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,19 +30,16 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
 import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
 
-
 /**
- * An implementation of IParameters that returns the parameters for a unit test
- * without looking at a properties file or command line arguments; maintains
- * counts of the calls to each parameter getter for unit testing methods that
- * call the parameters, to make sure the method does make the required calls.
- * This particular version creates a transaction with items that don't balance,
- * thus setting up a test of invalid transaction processing.
- * 
+ * An implementation of IParameters that returns the parameters for a unit test without looking at a
+ * properties file or command line arguments; maintains counts of the calls to each parameter getter
+ * for unit testing methods that call the parameters, to make sure the method does make the required
+ * calls. This particular version creates a transaction with items that don't balance, thus setting
+ * up a test of invalid transaction processing.
+ *
  * @author Robert J. Muller
  */
-public class UnitTestParametersInvalidTransaction extends
-    AbstractStatementMaintainingParameters {
+public class UnitTestParametersInvalidTransaction extends AbstractStatementMaintainingParameters {
   private static final String LINE_RET = "\n";
   private int pathCalls = 0;
   private int entityCalls = 0;
@@ -60,8 +70,7 @@ public class UnitTestParametersInvalidTransaction extends
   private static final Float END_3 = 409.99F;
 
   private static final Float CHECKING_ACCOUNT = 100.0F;
-  private static final String CHECKING_ACCOUNT_NAME =
-    "Citicorp Checking (111222333444)";
+  private static final String CHECKING_ACCOUNT_NAME = "Citicorp Checking (111222333444)";
   private static final String NEW_CHECKING_ACCOUNT_NAME = "Citicorp Checking";
   private static final Float RECEIVABLE_ACCOUNT = 110.0F;
   private static final String RECEIVABLE_ACCOUNT_NAME = "Accounts Receivable";
@@ -80,8 +89,7 @@ public class UnitTestParametersInvalidTransaction extends
   private static final String FALSE = "N";
 
   /** description for receivable enclosed in quotes with trailing blanks */
-  private static final String FORMATTED_DESC =
-    "\"revenue to checking              \"";
+  private static final String FORMATTED_DESC = "\"revenue to checking              \"";
 
   /** receivable date as Oracle-formatted string representation */
   private static final String FORMATTED_TRANS_DATE = "26-JUN-17";
@@ -123,7 +131,7 @@ public class UnitTestParametersInvalidTransaction extends
 
   /**
    * Get the count of getPath() calls.
-   * 
+   *
    * @return a count
    */
   public int getPathCalls() {
@@ -132,7 +140,7 @@ public class UnitTestParametersInvalidTransaction extends
 
   /**
    * Get the count of getEntity() calls.
-   * 
+   *
    * @return a count
    */
   public int getEntityCalls() {
@@ -141,7 +149,7 @@ public class UnitTestParametersInvalidTransaction extends
 
   /**
    * Get the count of getIncomeSummaryAccountName() calls.
-   * 
+   *
    * @return a count
    */
   public int getIncomeSummaryCalls() {
@@ -150,7 +158,7 @@ public class UnitTestParametersInvalidTransaction extends
 
   /**
    * Get the count of getStartYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getStartCalls() {
@@ -159,7 +167,7 @@ public class UnitTestParametersInvalidTransaction extends
 
   /**
    * Get the count of getEndYear() calls.
-   * 
+   *
    * @return a count
    */
   public int getEndCalls() {
@@ -168,19 +176,16 @@ public class UnitTestParametersInvalidTransaction extends
 
   @Override
   public Reader getCapitalEntityReader() {
-    String input =
-      SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM
-          + OWNERSHIP.toString();
+    String input = SINGLE_ENTITY_NAME + DELIM + CAP_ACCOUNT + DELIM + DIST_ACCOUNT + DELIM +
+                   OWNERSHIP.toString();
     return new StringReader(input);
   }
 
   @Override
   public Reader getAccountGroupReader(Integer year) {
-    String input =
-      START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1
-          + LINE_RET + START_2.toString() + DELIM + END_2.toString() + DELIM
-          + GROUP_NAME_2 + LINE_RET + START_3.toString() + DELIM
-          + END_3.toString() + DELIM + GROUP_NAME_3;
+    String input = START_1.toString() + DELIM + END_1.toString() + DELIM + GROUP_NAME_1 + LINE_RET +
+                   START_2.toString() + DELIM + END_2.toString() + DELIM + GROUP_NAME_2 + LINE_RET +
+                   START_3.toString() + DELIM + END_3.toString() + DELIM + GROUP_NAME_3;
     return new StringReader(input);
   }
 
@@ -192,12 +197,10 @@ public class UnitTestParametersInvalidTransaction extends
 
   @Override
   public Reader getAccountReader(Integer year) {
-    String input =
-      CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT
-          + LINE_RET + RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME
-          + DELIM + CREDIT + LINE_RET + CASH_ACCOUNT + DELIM
-          + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET + REVENUE_ACCOUNT
-          + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT;
+    String input = CHECKING_ACCOUNT + DELIM + CHECKING_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   RECEIVABLE_ACCOUNT + DELIM + RECEIVABLE_ACCOUNT_NAME + DELIM + CREDIT +
+                   LINE_RET + CASH_ACCOUNT + DELIM + CASH_ACCOUNT_NAME + DELIM + CREDIT + LINE_RET +
+                   REVENUE_ACCOUNT + DELIM + REVENUE_ACCOUNT_NAME + DELIM + CREDIT;
     return new StringReader(input);
   }
 
@@ -209,17 +212,13 @@ public class UnitTestParametersInvalidTransaction extends
 
   @Override
   public Reader getBalanceReader(Integer year) {
-    String input =
-      CASH_ACCOUNT + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM
-          + AMOUNT;
+    String input = CASH_ACCOUNT + DELIM + FORMATTED_TRANS_DATE + DELIM + DEBIT + DELIM + AMOUNT;
     return new StringReader(input);
   }
 
   @Override
   public Reader getTransactionReader(Integer year) {
-    String input =
-      TRANS_ID + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE + DELIM
-          + FALSE;
+    String input = TRANS_ID + DELIM + FORMATTED_DESC + DELIM + FORMATTED_TRANS_DATE + DELIM + FALSE;
     return new StringReader(input);
   }
 
@@ -229,9 +228,9 @@ public class UnitTestParametersInvalidTransaction extends
     // amount is different from the credit amount, so the transaction doesn't
     // balance and is invalid.
     String input =
-      TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + ALT_AMOUNT + DELIM + DEBIT
-          + DELIM + FALSE + LINE_RET + TRANS_ID + DELIM + REVENUE_ACCOUNT
-          + DELIM + AMOUNT + DELIM + CREDIT + DELIM + FALSE;
+      TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + ALT_AMOUNT + DELIM + DEBIT + DELIM + FALSE +
+      LINE_RET + TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + AMOUNT + DELIM + CREDIT + DELIM +
+      FALSE;
     return new StringReader(input);
   }
 

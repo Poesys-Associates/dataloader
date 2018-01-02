@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.properties;
-
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,27 +41,22 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
 import com.poesys.accounting.dataloader.newaccounting.StorageManager;
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * Implementation of the IParameters interface that provides the parameter
- * values from a property file on the class path; construct an object of this
- * class to access the properties currently in the file
- * 
+ * Implementation of the IParameters interface that provides the parameter values from a property
+ * file on the class path; construct an object of this class to access the properties currently in
+ * the file
+ *
  * @author Robert J. Muller
  */
-public class PropertyFileParameters extends
-    AbstractStatementMaintainingParameters {
+public class PropertyFileParameters extends AbstractStatementMaintainingParameters {
 
   /** logger for this class */
-  private static final Logger logger =
-    Logger.getLogger(PropertyFileParameters.class);
+  private static final Logger logger = Logger.getLogger(PropertyFileParameters.class);
 
   /** IO error loading file */
-  private static final String PROPERTIES_FILE_ERROR =
-    "IO Error loading properties file ";
+  private static final String PROPERTIES_FILE_ERROR = "IO Error loading properties file ";
   /** IO error closing file */
-  private static final String PROPERTIES_FILE_CLOSE_ERROR =
-    "IO Error closing properties file ";
+  private static final String PROPERTIES_FILE_CLOSE_ERROR = "IO Error closing properties file ";
 
   /** properties object initialized from properties file */
   private static final Properties properties = new Properties();
@@ -58,8 +66,7 @@ public class PropertyFileParameters extends
   private static final String START_KEY = "start";
   private static final String END_KEY = "end";
   private static final String ENTITY = "entity";
-  private static final String INCOME_SUMMARY_ACCOUNT_NAME =
-    "income_summary_account_name";
+  private static final String INCOME_SUMMARY_ACCOUNT_NAME = "income_summary_account_name";
 
   private static final String PATH_DELIMITER = "/";
 
@@ -76,10 +83,8 @@ public class PropertyFileParameters extends
   // keys in properties file for output accounting statement filenames
   private static final String BALANCE_SHEET_FILE = "balance_sheet_file";
   private static final String INCOME_STMT_FILE = "income_statement_file";
-  private static final String BALANCE_SHEET_DETAILS_FILE =
-    "balance_sheet_details_file";
-  private static final String INCOME_STMT_DETAILS_FILE =
-    "income_statement_details_file";
+  private static final String BALANCE_SHEET_DETAILS_FILE = "balance_sheet_details_file";
+  private static final String INCOME_STMT_DETAILS_FILE = "income_statement_details_file";
 
   // plug-in class specifications
   /** keyword for updater */
@@ -94,38 +99,34 @@ public class PropertyFileParameters extends
   private static final String NULL_PARAMETERS = "null file parameters";
 
   /**
-   * Create a PropertyFileParameters object. This constructor reads the
-   * properties file and sets the internal properties from the file as read-only
-   * (final) values. The name of the property file should correspond to a file
-   * on the classpath. Supplying the name as a parameter lets you create
+   * Create a PropertyFileParameters object. This constructor reads the properties file and sets the
+   * internal properties from the file as read-only (final) values. The name of the property file
+   * should correspond to a file on the classpath. Supplying the name as a parameter lets you create
    * separate property files for unit tests.
-   * 
+   *
    * @param propertyFileName the name of the property file to use
-   * @throws FatalProgramException when there is a fatal error reading the
-   *           properties file
+   * @throws FatalProgramException when there is a fatal error reading the properties file
    */
-  public PropertyFileParameters(String propertyFileName)
-      throws FatalProgramException {
+  public PropertyFileParameters(String propertyFileName) throws FatalProgramException {
     InputStream stream = null;
     try {
-      stream =
-        PropertyFileParameters.class.getClassLoader().getResourceAsStream(propertyFileName);
+      stream = PropertyFileParameters.class.getClassLoader().getResourceAsStream(propertyFileName);
       if (stream != null) {
         properties.load(stream);
       } else {
-        throw new IOException("cannot open stream for properties file "
-                              + propertyFileName);
+        throw new IOException("cannot open stream for properties file " + propertyFileName);
       }
     } catch (IOException e) {
       logger.fatal(PROPERTIES_FILE_ERROR + propertyFileName, e);
       throw new FatalProgramException(e.getMessage(), e);
-    } finally {
+    }
+    finally {
       if (stream != null) {
         try {
           stream.close();
         } catch (IOException e) {
           logger.fatal(PROPERTIES_FILE_CLOSE_ERROR + propertyFileName, e);
-          throw new FatalProgramException(e.getMessage(), e);
+          // ignore exception
         }
       }
     }
@@ -157,14 +158,13 @@ public class PropertyFileParameters extends
   }
 
   /**
-   * Get the Reader that reads data from the specified file. The filename is
-   * required.
-   * 
+   * Get the Reader that reads data from the specified file. The filename is required.
+   *
    * @param filename the fully qualified filename for the file
    * @return a Reader pointing at the file data
    */
   private Reader getReader(String filename) {
-    Reader r = null;
+    Reader r;
 
     if (filename == null || filename.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETERS);
@@ -180,14 +180,13 @@ public class PropertyFileParameters extends
   }
 
   /**
-   * Get the Writer that writes data to the specified file. The filename is
-   * required.
-   * 
+   * Get the Writer that writes data to the specified file. The filename is required.
+   *
    * @param filename the fully qualified filename for the file
    * @return a Writer pointing at the file for appending
    */
   private Writer getWriter(String filename) {
-    Writer w = null;
+    Writer w;
 
     if (filename == null || filename.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETERS);
@@ -203,19 +202,18 @@ public class PropertyFileParameters extends
   }
 
   /**
-   * Get the fully qualified filename based on the fiscal year number and the
-   * file name; this appends the file name from the properties file to the path
-   * and year, producing the fully qualified name. The path property, the year,
-   * and the filename are all required for the function to succeed.
-   * 
-   * @param year the fiscal year number (directory name) (required)
+   * Get the fully qualified filename based on the fiscal year number and the file name; this
+   * appends the file name from the properties file to the path and year, producing the fully
+   * qualified name. The path property, the year, and the filename are all required for the function
+   * to succeed.
+   *
+   * @param year     the fiscal year number (directory name) (required)
    * @param filename the simple file name (required)
    * @return the fully qualified file name
    */
   private String getFullyQualifiedFilename(Integer year, String filename) {
     String path = getPath();
-    if (path == null || path.isEmpty() || year == null || filename == null
-        || filename.isEmpty()) {
+    if (path == null || path.isEmpty() || year == null || filename == null || filename.isEmpty()) {
       throw new InvalidParametersException(NULL_PARAMETERS);
     }
 
@@ -227,11 +225,10 @@ public class PropertyFileParameters extends
   }
 
   /**
-   * Get the fully qualified filename for a file at the top level of the
-   * accounting entity; this appends the file name from the properties file to
-   * the path, producing the fully qualified name. The path property is required
-   * for this method to succeed.
-   * 
+   * Get the fully qualified filename for a file at the top level of the accounting entity; this
+   * appends the file name from the properties file to the path, producing the fully qualified name.
+   * The path property is required for this method to succeed.
+   *
    * @param filename the simple file name (required)
    * @return the fully qualified file name
    */
@@ -290,10 +287,8 @@ public class PropertyFileParameters extends
   public void createWriters(Integer year) {
     closeWriters();
     this.year = year;
-    balanceSheetWriter =
-      getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
-    incomeStatementWriter =
-      getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
+    balanceSheetWriter = getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_FILE));
+    incomeStatementWriter = getWriter(getFullyQualifiedFilename(year, INCOME_STMT_FILE));
     balanceSheetDetailsWriter =
       getWriter(getFullyQualifiedFilename(year, BALANCE_SHEET_DETAILS_FILE));
     incomeStatementDetailsWriter =
@@ -302,58 +297,57 @@ public class PropertyFileParameters extends
 
   @Override
   public IFiscalYearUpdater getUpdater() {
-    IFiscalYearUpdater updater = null;
+    IFiscalYearUpdater updater;
     String plugin = properties.getProperty(UPDATER);
     switch (plugin) {
-    case "RjmMlsFiscalYearUpdater":
-      updater = new RjmMlsFiscalYearUpdater();
-      break;
-    case "PoesysFiscalYearUpdater":
-      updater = new PoesysFiscalYearUpdater();
-      break;
-    case "UnitTestFiscalYearUpdater":
-      updater = new UnitTestFiscalYearUpdater();
-      break;
-    default:
-      logger.warn("updater parameter value not supported: " + plugin);
-      updater = new UnitTestFiscalYearUpdater();
+      case "RjmMlsFiscalYearUpdater":
+        updater = new RjmMlsFiscalYearUpdater();
+        break;
+      case "PoesysFiscalYearUpdater":
+        updater = new PoesysFiscalYearUpdater();
+        break;
+      case "UnitTestFiscalYearUpdater":
+        updater = new UnitTestFiscalYearUpdater();
+        break;
+      default:
+        logger.warn("updater parameter value not supported: " + plugin);
+        updater = new UnitTestFiscalYearUpdater();
     }
     return updater;
   }
 
   @Override
   public IDataAccessService getDataAccessService() {
-    IDataAccessService service = null;
+    IDataAccessService service;
     String plugin = properties.getProperty(DATA_ACCESS_SERVICE);
     switch (plugin) {
-    case "DoNothingDataAccessService":
-      service = new DoNothingDataAccessService();
-      break;
-    case "AccountingDbService":
-      service = new AccountingDbService();
-      break;
-    default:
-      logger.warn("data_access_service parameter value not supported: "
-                  + plugin);
-      service = new DoNothingDataAccessService();
+      case "DoNothingDataAccessService":
+        service = new DoNothingDataAccessService();
+        break;
+      case "AccountingDbService":
+        service = new AccountingDbService();
+        break;
+      default:
+        logger.warn("data_access_service parameter value not supported: " + plugin);
+        service = new DoNothingDataAccessService();
     }
     return service;
   }
 
   @Override
   public IStorageManager getStorageManager() {
-    IStorageManager manager = null;
+    IStorageManager manager;
     String plugin = properties.getProperty(STORAGE_MGR);
     switch (plugin) {
-    case "NonStoringStorageManager":
-      manager = new NonStoringStorageManager();
-      break;
-    case "StorageManager":
-      manager = new StorageManager();
-      break;
-    default:
-      logger.warn("storage_manager parameter value not supported: " + plugin);
-      manager = new NonStoringStorageManager();
+      case "NonStoringStorageManager":
+        manager = new NonStoringStorageManager();
+        break;
+      case "StorageManager":
+        manager = new StorageManager();
+        break;
+      default:
+        logger.warn("storage_manager parameter value not supported: " + plugin);
+        manager = new NonStoringStorageManager();
     }
     return manager;
   }

@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -17,17 +30,15 @@ import org.junit.Test;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
  * CUT: Transaction
- * 
+ *
  * @author Robert J. Muller
  */
 public class TransactionTest {
   // Oracle-formatted transaction date
   private static final String FORMAT = "dd-MMM-yy";
-  private static final SimpleDateFormat formatter =
-    new SimpleDateFormat(FORMAT);
+  private static final SimpleDateFormat formatter = new SimpleDateFormat(FORMAT);
   private static final Integer YEAR_1 = 2016;
   private static final Integer YEAR_2 = 2017;
   private static final Integer TRANS_ID_1 = 10;
@@ -46,24 +57,22 @@ public class TransactionTest {
   // Set up the transaction date static constant in a block to handle exceptions
   static {
     try {
-      TRANS_DATE =
-        new Timestamp(formatter.parse(FORMATTED_TRANS_DATE).getTime());
+      TRANS_DATE = new Timestamp(formatter.parse(FORMATTED_TRANS_DATE).getTime());
     } catch (ParseException e) {
       fail("couldn't parse formatted date " + FORMATTED_TRANS_DATE);
     }
   }
 
   /**
-   * } Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.lang.Integer, java.sql.Timestamp, java.lang.String, java.lang.Boolean)}
-   * . Tests field constructor and getters.
+   * } Test method for {@link com.poesys.accounting.dataloader.oldaccounting
+   * .Transaction#Transaction(java.lang.Integer, * java.lang.Integer, java.sql.Timestamp, java
+   * .lang.String, java.lang.Boolean)} . Tests field
+   * constructor and getters.
    */
   @Test
   public void testTransactionIntegerIntegerTimestampStringBoolean() {
-    Transaction transaction =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    assertTrue("wrong year: " + transaction.getYear(),
-               YEAR_1.equals(transaction.getYear()));
+    Transaction transaction = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    assertTrue("wrong year: " + transaction.getYear(), YEAR_1.equals(transaction.getYear()));
     assertTrue("wrong transaction id: " + transaction.getTransactionId(),
                TRANS_ID_1.equals(transaction.getTransactionId()));
     assertTrue("wrong transaction date: " + transaction.getTransactionDate(),
@@ -76,18 +85,15 @@ public class TransactionTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor and getters.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor and getters.
    */
   @Test
   public void testTransactionIntegerBufferedReader() {
     String input =
-      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t"
-          + STRING_NOT_CHECKED;
+      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t" + STRING_NOT_CHECKED;
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Transaction transaction = new Transaction(YEAR_1, reader);
-    assertTrue("wrong year: " + transaction.getYear(),
-               YEAR_1.equals(transaction.getYear()));
+    assertTrue("wrong year: " + transaction.getYear(), YEAR_1.equals(transaction.getYear()));
     assertTrue("wrong transaction id: " + transaction.getTransactionId(),
                TRANS_ID_1.equals(transaction.getTransactionId()));
     assertTrue("wrong transaction date: " + transaction.getTransactionDate(),
@@ -100,14 +106,12 @@ public class TransactionTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor with null year.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor with null year.
    */
   @Test
   public void testTransactionIntegerBufferedReaderNullYear() {
     String input =
-      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t"
-          + STRING_NOT_CHECKED;
+      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + FORMATTED_TRANS_DATE + "\t" + STRING_NOT_CHECKED;
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -122,14 +126,12 @@ public class TransactionTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests reader constructor with date in wrong format.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#Transaction(java.lang.Integer, * java.io.BufferedReader)} . Tests reader constructor with date in wrong format.
    */
   @Test
   public void testTransactionIntegerBufferedReaderBadDate() {
-    String input =
-      TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + BAD_FORMATTED_TRANS_DATE
-          + "\t" + STRING_NOT_CHECKED;
+    String input = TRANS_ID_1 + "\t" + FORMATTED_DESC + "\t" + BAD_FORMATTED_TRANS_DATE + "\t" +
+                   STRING_NOT_CHECKED;
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -143,46 +145,37 @@ public class TransactionTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()}
-   * . Tests equal objects with same year and transaction id
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()} .
+   * Tests equal objects with same year and transaction id
    */
   @Test
   public void testHashCodeEqualityYear() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("same object but different hash codes",
                transaction1.hashCode() == transaction2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()}
-   * . Tests different year objects.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()} .
+   * Tests different year objects.
    */
   @Test
   public void testHashCodeInequalityYear() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_2, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_2, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("same object but different hash codes",
                transaction1.hashCode() != transaction2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()}
-   * . Tests different id objects.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#hashCode()} .
+   * Tests different id objects.
    */
   @Test
   public void testHashCodeInequalityId() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_1, TRANS_ID_2, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_1, TRANS_ID_2, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("same object but different hash codes",
                transaction1.hashCode() != transaction2.hashCode());
   }
@@ -194,10 +187,8 @@ public class TransactionTest {
    */
   @Test
   public void testEqualsObjectEquality() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("same object but not equal", transaction1.equals(transaction2));
   }
 
@@ -208,10 +199,8 @@ public class TransactionTest {
    */
   @Test
   public void testEqualsObjectInequalityYear() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_2, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_2, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("different object but equal", !transaction1.equals(transaction2));
   }
 
@@ -222,23 +211,21 @@ public class TransactionTest {
    */
   @Test
   public void testEqualsObjectInequalityId() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
-    Transaction transaction2 =
-      new Transaction(YEAR_1, TRANS_ID_2, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction2 = new Transaction(YEAR_1, TRANS_ID_2, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("different object but equal", !transaction1.equals(transaction2));
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#toString()}
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Transaction#toString()}
    * .
    */
   @Test
   public void testToString() {
-    Transaction transaction1 =
-      new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
+    Transaction transaction1 = new Transaction(YEAR_1, TRANS_ID_1, TRANS_DATE, DESC, NOT_CHECKED);
     assertTrue("string representation wrong: " + transaction1,
-               "Transaction [year=2016, transactionId=10, transactionDate=2017-06-26 00:00:00.0, description=description]".equals(transaction1.toString()));
+               ("Transaction [year=2016, transactionId=10, transactionDate=2017-06-26 00:00:00.0, " +
+                "description=description]").equals(
+                 transaction1.toString()));
   }
 }

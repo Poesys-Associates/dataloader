@@ -1,8 +1,21 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import static org.junit.Assert.*;
 
@@ -13,10 +26,9 @@ import org.junit.Test;
 
 import com.poesys.db.InvalidParametersException;
 
-
 /**
  * CUT: Item
- * 
+ *
  * @author Robert J. Muller
  */
 public class ItemTest {
@@ -32,30 +44,25 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor and getters.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor and getters.
    */
   @Test
   public void testItemValid() {
-    Item item =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("wrong year: " + item.getYear(), YEAR_1.equals(item.getYear()));
-    assertTrue("wrong id: " + item.getTransactionId(),
-               TRANS_ID_1.equals(item.getTransactionId()));
+    assertTrue("wrong id: " + item.getTransactionId(), TRANS_ID_1.equals(item.getTransactionId()));
     assertTrue("wrong account number: " + item.getAccountNumber(),
                ACCOUNT_NO_1.equals(item.getAccountNumber()));
-    assertTrue("wrong amount: " + item.getAmount(),
-               AMOUNT.equals(item.getAmount()));
-    assertTrue("wrong debit flag: " + item.isDebit(),
-               DEBIT.equals(item.isDebit()));
-    assertTrue("wrong checked flag: " + item.isChecked(),
-               NOT_CHECKED.equals(item.isChecked()));
+    assertTrue("wrong amount: " + item.getAmount(), AMOUNT.equals(item.getAmount()));
+    assertTrue("wrong debit flag: " + item.isDebit(), DEBIT.equals(item.isDebit()));
+    assertTrue("wrong checked flag: " + item.isChecked(), NOT_CHECKED.equals(item.isChecked()));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null year.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null year.
    */
   @Test
   public void testItemNullYear() {
@@ -71,8 +78,8 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null transaction id.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null transaction id.
    */
   @Test
   public void testItemNullTransactionId() {
@@ -88,8 +95,8 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null account number.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null account number.
    */
   @Test
   public void testItemNullAccountNumber() {
@@ -105,8 +112,8 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null amount.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null amount.
    */
   @Test
   public void testItemNullAmount() {
@@ -122,8 +129,8 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null debit flag.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null debit flag.
    */
   @Test
   public void testItemNullDebitFlag() {
@@ -139,8 +146,8 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)}
-   * . Tests field constructor with null checked flag.
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.lang.Integer, java.lang.Float, java.lang.Double, java.lang.Boolean, java.lang.Boolean)} .
+   * Tests field constructor with null checked flag.
    */
   @Test
   public void testItemNullCheckedFlag() {
@@ -156,39 +163,29 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests buffered reader constructor and getters
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.io.BufferedReader)} . Tests buffered reader constructor and getters
    */
   @Test
   public void testItemIntegerBufferedReader() {
-    String input =
-      TRANS_ID_1 + "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t"
-          + "N";
+    String input = TRANS_ID_1 + "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t" + "N";
     BufferedReader reader = new BufferedReader(new StringReader(input));
     Item item = new Item(YEAR_1, reader);
     assertTrue("wrong year: " + item.getYear(), YEAR_1.equals(item.getYear()));
-    assertTrue("wrong id: " + item.getTransactionId(),
-               TRANS_ID_1.equals(item.getTransactionId()));
+    assertTrue("wrong id: " + item.getTransactionId(), TRANS_ID_1.equals(item.getTransactionId()));
     assertTrue("wrong account number: " + item.getAccountNumber(),
                ACCOUNT_NO_1.equals(item.getAccountNumber()));
-    assertTrue("wrong amount: " + item.getAmount(),
-               AMOUNT.equals(item.getAmount()));
-    assertTrue("wrong debit flag: " + item.isDebit(),
-               DEBIT.equals(item.isDebit()));
-    assertTrue("wrong checked flag: " + item.isChecked(),
-               NOT_CHECKED.equals(item.isChecked()));
+    assertTrue("wrong amount: " + item.getAmount(), AMOUNT.equals(item.getAmount()));
+    assertTrue("wrong debit flag: " + item.isDebit(), DEBIT.equals(item.isDebit()));
+    assertTrue("wrong checked flag: " + item.isChecked(), NOT_CHECKED.equals(item.isChecked()));
   }
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests buffered reader constructor with null year
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.io.BufferedReader)} . Tests buffered reader constructor with null year
    */
   @Test
   public void testItemIntegerBufferedReaderNullYear() {
-    String input =
-      TRANS_ID_1 + "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t"
-          + "N";
+    String input = TRANS_ID_1 + "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t" + "N";
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -203,14 +200,11 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests buffered reader constructor with null transaction id
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.io.BufferedReader)} . Tests buffered reader constructor with null transaction id
    */
   @Test
   public void testItemIntegerBufferedReaderNullId() {
-    String input =
-      "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t"
-          + "N";
+    String input = "\t" + ACCOUNT_NO_1 + "\t" + AMOUNT + "\t" + "DR" + "\t" + "N";
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -225,14 +219,11 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests buffered reader constructor with null account number
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.io.BufferedReader)} . Tests buffered reader constructor with null account number
    */
   @Test
   public void testItemIntegerBufferedReaderNullAccountNumber() {
-    String input =
-        TRANS_ID_1 + "\t" + "\t" + AMOUNT + "\t" + "DR" + "\t"
-          + "N";
+    String input = TRANS_ID_1 + "\t" + "\t" + AMOUNT + "\t" + "DR" + "\t" + "N";
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -247,14 +238,11 @@ public class ItemTest {
 
   /**
    * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, java.io.BufferedReader)}
-   * . Tests buffered reader constructor with null amount
+   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#Item(java.lang.Integer, * java.io.BufferedReader)} . Tests buffered reader constructor with null amount
    */
   @Test
   public void testItemIntegerBufferedReaderNullAmount() {
-    String input =
-        TRANS_ID_1 + "\t" + ACCOUNT_NO_1  + "\t" + "\t" + "DR" + "\t"
-          + "N";
+    String input = TRANS_ID_1 + "\t" + ACCOUNT_NO_1 + "\t" + "\t" + "DR" + "\t" + "N";
     BufferedReader reader = new BufferedReader(new StringReader(input));
 
     try {
@@ -268,61 +256,47 @@ public class ItemTest {
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}.
-   * Tests hashCode on same objects
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}. Tests
+   * hashCode on same objects
    */
   @Test
   public void testHashCodeEquality() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    assertTrue("same item but different hash codes",
-               item1.hashCode() == item2.hashCode());
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("same item but different hash codes", item1.hashCode() == item2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}.
-   * Tests hashCode() on objects differing by year
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}. Tests
+   * hashCode() on objects differing by year
    */
   @Test
   public void testHashCodeInequalityYear() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_2, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    assertTrue("different item on year but same hash codes",
-               item1.hashCode() != item2.hashCode());
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_2, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("different item on year but same hash codes", item1.hashCode() != item2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}.
-   * Tests hashCode() on objects differing by transaction id
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}. Tests
+   * hashCode() on objects differing by transaction id
    */
   @Test
   public void testHashCodeInequalityTransactionId() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_2, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_2, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("different item on transaction id but same hash codes",
                item1.hashCode() != item2.hashCode());
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}.
-   * Tests hashCode() on objects differing by account
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Item#hashCode()}. Tests
+   * hashCode() on objects differing by account
    */
   @Test
   public void testHashCodeInequalityAccount() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_2, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_2, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("different item on account number but same hash codes",
                item1.hashCode() != item2.hashCode());
   }
@@ -334,10 +308,8 @@ public class ItemTest {
    */
   @Test
   public void testEqualsObjectEquality() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("same item but objects not equal", item1.equals(item2));
   }
 
@@ -348,10 +320,8 @@ public class ItemTest {
    */
   @Test
   public void testEqualsObjectInequalityYear() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_2, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_2, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("different item on year but equal objects", !item1.equals(item2));
   }
 
@@ -362,12 +332,9 @@ public class ItemTest {
    */
   @Test
   public void testEqualsObjectInequalityTransactionId() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_2, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    assertTrue("different item on transaction id but equal objects",
-               !item1.equals(item2));
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_2, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("different item on transaction id but equal objects", !item1.equals(item2));
   }
 
   /**
@@ -377,24 +344,20 @@ public class ItemTest {
    */
   @Test
   public void testEqualsObjectInequalityAccount() {
-    Item item1 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
-    Item item2 =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_2, AMOUNT, DEBIT, NOT_CHECKED);
-    assertTrue("different item on account number but equal objects",
-               !item1.equals(item2));
+    Item item1 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item2 = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_2, AMOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("different item on account number but equal objects", !item1.equals(item2));
   }
 
   /**
-   * Test method for
-   * {@link com.poesys.accounting.dataloader.oldaccounting.Item#toString()}.
+   * Test method for {@link com.poesys.accounting.dataloader.oldaccounting.Item#toString()}.
    */
   @Test
   public void testToString() {
-    Item item =
-      new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
+    Item item = new Item(YEAR_1, TRANS_ID_1, ACCOUNT_NO_1, AMOUNT, DEBIT, NOT_CHECKED);
     assertTrue("string representation wrong: " + item.toString(),
-               "Item [year=2016, transactionId=10, accountNumber=100.0, amount=1024.56, debit=true, checked=false]".equals(item.toString()));
-
+               ("Item [year=2016, transactionId=10, accountNumber=100.0, amount=1024.56, " +
+                "debit=true, checked=false]").equals(
+                 item.toString()));
   }
 }

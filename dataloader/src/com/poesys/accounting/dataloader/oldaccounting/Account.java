@@ -1,19 +1,31 @@
-/**
- * Copyright (c) 2017 Poesys Associates. All rights reserved.
+/*
+ * Copyright (c) 2018 Poesys Associates. All rights reserved.
+ *
+ * This file is part of Poesys/Dataloader.
+ *
+ * Poesys/Dataloader is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Poesys/Dataloader is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Poesys/Dataloader. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.poesys.accounting.dataloader.oldaccounting;
-
 
 import java.io.BufferedReader;
 
 import com.poesys.accounting.dataloader.newaccounting.AccountType;
 import com.poesys.db.InvalidParametersException;
 
-
 /**
- * Data transfer object for old-accounting Account data. There are 3 data
- * fields: account number, name, and default debit.
- * 
+ * Data transfer object for old-accounting Account data. There are 3 data fields: account number,
+ * name, and default debit.
+ *
  * @author Robert J. Muller
  */
 public class Account extends AbstractReaderDto {
@@ -34,20 +46,15 @@ public class Account extends AbstractReaderDto {
 
   /**
    * Create an Account object.
-   * 
-   * @param year the number of the fiscal year in which the account exists
-   * @param accountNumber the unique identifier for the account in the old
-   *          system
-   * @param name the account name, which should be unique for the same account
-   *          across multiple years
-   * @param defaultDebit whether items in the account default to debit
+   *
+   * @param year          the number of the fiscal year in which the account exists
+   * @param accountNumber the unique identifier for the account in the old system
+   * @param name          the account name, which should be unique for the same account across
+   *                      multiple years
+   * @param defaultDebit  whether items in the account default to debit
    */
-  public Account(Integer year,
-                 Float accountNumber,
-                 String name,
-                 Boolean defaultDebit) {
-    if (year == null || accountNumber == null || name == null
-        || defaultDebit == null) {
+  public Account(Integer year, Float accountNumber, String name, Boolean defaultDebit) {
+    if (year == null || accountNumber == null || name == null || defaultDebit == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.year = year;
@@ -57,11 +64,10 @@ public class Account extends AbstractReaderDto {
   }
 
   /**
-   * Create an Account object from an input data reader. The client is
-   * responsible for opening the reader and handling the end-of-stream
-   * exception, then closing the reader.
-   * 
-   * @param year the number of the year in which the account exists
+   * Create an Account object from an input data reader. The client is responsible for opening the
+   * reader and handling the end-of-stream exception, then closing the reader.
+   *
+   * @param year   the number of the year in which the account exists
    * @param reader the buffered reader containing the next line of data
    */
   public Account(Integer year, BufferedReader reader) {
@@ -100,24 +106,29 @@ public class Account extends AbstractReaderDto {
   // Override to compare by name as primary key
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Account other = (Account)obj;
     if (name == null) {
-      if (other.name != null)
+      if (other.name != null) {
         return false;
-    } else if (!name.equals(other.name))
+      }
+    } else if (!name.equals(other.name)) {
       return false;
+    }
     return true;
   }
 
   /**
    * Get the year.
-   * 
+   *
    * @return a year
    */
   public Integer getYear() {
@@ -125,9 +136,9 @@ public class Account extends AbstractReaderDto {
   }
 
   /**
-   * Get the new-accounting account type based on the account number. This gets
-   * the new-accounting type rather than any value read from data.
-   * 
+   * Get the new-accounting account type based on the account number. This gets the new-accounting
+   * type rather than any value read from data.
+   *
    * @return the account type
    */
   public AccountType getAccountType() {
@@ -148,7 +159,7 @@ public class Account extends AbstractReaderDto {
 
   /**
    * Get the accountNumber.
-   * 
+   *
    * @return a accountNumber
    */
   public Float getAccountNumber() {
@@ -157,7 +168,7 @@ public class Account extends AbstractReaderDto {
 
   /**
    * Get the name.
-   * 
+   *
    * @return a name
    */
   public String getName() {
@@ -166,7 +177,7 @@ public class Account extends AbstractReaderDto {
 
   /**
    * Get the defaultDebit.
-   * 
+   *
    * @return a defaultDebit
    */
   public Boolean getDefaultDebit() {
@@ -175,8 +186,7 @@ public class Account extends AbstractReaderDto {
 
   @Override
   public String toString() {
-    return "Account [year=" + year + ", name=" + name + ", accountNumber="
-           + accountNumber + ", defaultDebit=" + defaultDebit
-           + ", getAccountType()=" + getAccountType() + "]";
+    return "Account [year=" + year + ", name=" + name + ", accountNumber=" + accountNumber +
+           ", defaultDebit=" + defaultDebit + ", getAccountType()=" + getAccountType() + "]";
   }
 }
