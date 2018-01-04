@@ -17,6 +17,7 @@
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
@@ -278,7 +279,8 @@ public class Item implements Comparable<Item> {
   }
 
   // Natural order of item is account type, account group order number, account order number,
-  // transaction date
+  // transaction date, old transaction id; this produces the correct order in lists of statement
+  // detail transactions.
   @Override
   public int compareTo(Item other) {
     int returnValue = 0;
@@ -324,6 +326,11 @@ public class Item implements Comparable<Item> {
             Timestamp thisDate = transaction.getDate();
             Timestamp thatDate = other.transaction.getDate();
             returnValue = thisDate.compareTo(thatDate);
+            if (returnValue == 0) {
+              BigInteger thisId = transaction.getId();
+              BigInteger thatId = other.transaction.getId();
+              returnValue = thisId.compareTo(thatId);
+            }
           }
         }
       }
