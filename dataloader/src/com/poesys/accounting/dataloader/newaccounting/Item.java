@@ -17,6 +17,7 @@
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,9 +33,10 @@ import com.poesys.db.InvalidParametersException;
  *
  * @author Robert J. Muller
  */
-public class Item {
+public class Item implements Comparable<Item> {
   /** logger for this class */
   private static final Logger logger = Logger.getLogger(Item.class);
+  public static final String NO_ACCOUNT_TYPE_ERROR = "no account type for account ";
   /** the parent transaction that owns this item */
   private final Transaction transaction;
   /** the dollar amount of the item */
@@ -60,6 +62,7 @@ public class Item {
   private static final String NULL_REIMBURSEMENT_ERROR =
     "reimbursement requires a reimbursing item";
   private static final String NULL_RECEIVABLE_ERROR = "reimbursement requires a receivable item";
+  private static final String NULL_ITEM_ERROR = "null item in compareTo()";
 
   /**
    * An association class that links this item to a reimbursing item; valid only for items with
@@ -272,6 +275,80 @@ public class Item {
       return false;
     }
     return true;
+  }
+
+  // Natural order of item is account type, account group order number, account order number,
+  // transaction date
+  @Override
+  public int compareTo(Item other) {
+    int returnValue = 0;
+
+    // Check inputs valid
+    if (other == null) {
+      throw new RuntimeException(NULL_ITEM_ERROR);
+    }
+
+    // First compare for equality.
+    if (!this.equals(other)) {
+      // not equal, compare account type
+
+      // First get the year of the transaction.
+      Integer year = transaction.getYear();
+      // Create the fiscal year corresponding to the year.
+      FiscalYear fiscalYear = new FiscalYear(year);
+
+      // Get the fiscal-year-account links for the two objects.
+      FiscalYearAccount thisLink = getFiscalYearAccount(fiscalYear, account);
+      FiscalYearAccount thatLink = getFiscalYearAccount(fiscalYear, other.account);
+      AccountType thisType = account.getAccountType(fiscalYear);
+      if (thisType == null) {
+        throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR + account + " for fiscal year " + year);
+      }
+      AccountType thatType = other.account.getAccountType(fiscalYear);
+      if (thatType == null) {
+        throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR + account + " for fiscal year " + year);
+      }
+      returnValue = thisType.compareTo(thatType);
+      if (returnValue == 0) {
+        // same type, compare account group order
+        Integer thisGroupOrder = thisLink.getGroupOrderNumber();
+        Integer thatGroupOrder = thatLink.getGroupOrderNumber();
+        returnValue = thisGroupOrder.compareTo(thatGroupOrder);
+        if (returnValue == 0) {
+          // same group order, compare account order
+          Integer thisAccountOrder = thisLink.getAccountOrderNumber();
+          Integer thatAccountOrder = thatLink.getAccountOrderNumber();
+          returnValue = thisAccountOrder.compareTo(thatAccountOrder);
+          if (returnValue == 0) {
+            // same account order, compare date
+            Timestamp thisDate = transaction.getDate();
+            Timestamp thatDate = other.transaction.getDate();
+            returnValue = thisDate.compareTo(thatDate);
+          }
+        }
+      }
+    }
+
+    return returnValue;
+  }
+
+  /**
+   * Build a fiscal-year-account link given a year and account.
+   *
+   * @param year    the fiscal year to link
+   * @param account the account to link
+   * @return a fiscal-year-account link
+   */
+  private FiscalYearAccount getFiscalYearAccount(FiscalYear year, Account account) {
+    FiscalYearAccount returnLink = null;
+
+    for (FiscalYearAccount link : account.getYears()) {
+      if (link.getFiscalYear().equals(year)) {
+        returnLink = link;
+        break;
+      }
+    }
+    return returnLink;
   }
 
   /**

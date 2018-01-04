@@ -19,8 +19,7 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -223,7 +222,11 @@ public class Statement {
     StringBuilder builder = new StringBuilder();
     // Initialize line delimiter to empty so as not to write delimiter first.
     String line = "";
-    for (Rollup rollup : getRollups().values()) {
+
+    List<Rollup> rollups = getSortedRollups();
+
+    // Build the string.
+    for (Rollup rollup : rollups) {
       Account account = rollup.getAccount();
       if (account == null) {
         throw new RuntimeException(NO_ACCOUNT_ERROR);
@@ -265,6 +268,18 @@ public class Statement {
   }
 
   /**
+   * Get a sorted list of the rollups for the statement.
+   *
+   * @return a list sorted in natural rollup order
+   */
+  private List<Rollup> getSortedRollups() {
+    // Extract the rollups and sort.
+    List<Rollup> rollups = new ArrayList<>(getRollups().values());
+    Collections.sort(rollups);
+    return rollups;
+  }
+
+  /**
    * Append a data line to a builder building an output data set.
    *
    * @param builder   the in-progress builder
@@ -288,7 +303,10 @@ public class Statement {
     StringBuilder builder = new StringBuilder();
     // Initialize line delimiter to empty so as not to write delimiter first.
     String line = "";
-    for (Rollup rollup : getRollups().values()) {
+
+    List<Rollup> rollups = getSortedRollups();
+
+    for (Rollup rollup : rollups) {
       Account account = rollup.getAccount();
       if (account.getItems().size() > 0) {
         switch (type) {

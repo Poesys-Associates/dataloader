@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -57,6 +60,7 @@ public class Rollup implements Comparable<Rollup> {
     "Rollup parameters are required but one is null";
   private static final String NO_STATEMENT_YEAR_ERROR = "no year for statement";
   private static final String NO_ACCOUNT_TYPE_ERROR = "no account type for rollup account";
+  private static final String NULL_ROLLUP_ERROR = "null rollup in compareTo()";
 
   /**
    * Create a Rollup object.
@@ -132,10 +136,7 @@ public class Rollup implements Comparable<Rollup> {
       return false;
     }
     Rollup other = (Rollup)obj;
-    if (!account.equals(other.account)) {
-      return false;
-    }
-    return statement.equals(other.statement);
+    return account.equals(other.account) && statement.equals(other.statement);
   }
 
   @Override
@@ -144,7 +145,7 @@ public class Rollup implements Comparable<Rollup> {
 
     // Check inputs valid
     if (obj == null) {
-      throw new RuntimeException("null rollup in compareTo()");
+      throw new RuntimeException(NULL_ROLLUP_ERROR);
     }
 
     // First compare for equality.
@@ -227,6 +228,7 @@ public class Rollup implements Comparable<Rollup> {
    * Return the rollup as a set of tab-delimited data lines with each line containing a detail with
    * the fields account type, account group, account name, the old transaction id, the transaction
    * date, and the amount (debits are negative). Do not write out a line for rollups with no items.
+   * The items sort in natural order.
    *
    * @return the detail data
    */
@@ -234,7 +236,12 @@ public class Rollup implements Comparable<Rollup> {
     StringBuilder data = new StringBuilder("");
     FiscalYear year = statement.getYear();
     String line = "";
-    for (Item item : account.getItems()) {
+
+    // Get the items and sort.
+    List<Item> items = new ArrayList<>(account.getItems());
+    Collections.sort(items);
+
+    for (Item item : items) {
       Transaction transaction = item.getTransaction();
 
       boolean balanceSheetAccount =

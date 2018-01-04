@@ -591,6 +591,7 @@ public class OldDataBuilder implements IBuilder {
   @Override
   public void buildFiscalYear(Integer year) {
     this.fiscalYear = new FiscalYear(year);
+    fiscalYears.add(this.fiscalYear);
 
     logger.debug("Building fiscal year " + year);
 
