@@ -17,12 +17,13 @@
  */
 package com.poesys.accounting.dataloader.newaccounting;
 
+import com.poesys.db.InvalidParametersException;
+
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.poesys.db.InvalidParametersException;
 
 /**
  * A data transfer object containing data about a fiscal year, an accounting period defined by a
@@ -38,17 +39,19 @@ public class FiscalYear {
   private final Timestamp start;
   /** the date and time at which the fiscal year ends */
   private final Timestamp end;
+  /** the last "old" identifier allocated to a transaction */
+  private BigInteger id = BigInteger.ZERO;
 
   /** the set of accounts in the fiscal year */
   private final List<FiscalYearAccount> accounts = new ArrayList<>();
 
   // Messages
 
-  /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "FiscalYear parameters are required but one is null";
   private static final String NULL_ACCOUNT_ERROR = "account to add is null but is required";
   private static final String NO_DATE_ERROR = "date for comparison is null but is required";
+  public static final String NO_ID_ERROR = "no last id supplied but one is required";
 
   /**
    * Create a FiscalYear object.
@@ -90,6 +93,46 @@ public class FiscalYear {
    */
   public Timestamp getEnd() {
     return end;
+  }
+
+  /**
+   * Get the last id for the fiscal year; this is either the default id ONE or the last id
+   * registered with setLastId().
+   *
+   * @return the current id
+   */
+  public BigInteger getId() {
+    return id;
+  }
+
+  /**
+   * Get the next "old" id for the fiscal year, incrementing the stored "last" id by one. This
+   * method supports creating new transactions for the accounting year, such as the capital and
+   * distribution and income summary transactions. Make sure you call setLastId() before calling
+   * this method, or the method will return ONE.
+   *
+   * @return the next identifier
+   */
+  public BigInteger getNextId() {
+    id = id.add(BigInteger.ONE);
+    return id;
+  }
+
+  /**
+   * If the current "old" id is less than the specified id, reset the id to the new id. This logic
+   * maintains the greatest id value processed from a set of transactions with ids already
+   * allocated and does not depend on the order of reading those transactions.
+   *
+   * @param id the identifier value to set to become the last id allocated if it is greater than
+   *           the current id
+   */
+  public void setLastId(BigInteger id) {
+    if (id == null) {
+      throw new InvalidParametersException(NO_ID_ERROR);
+    }
+    if (id.compareTo(this.id) > 0) {
+      this.id = id;
+    }
   }
 
   /**

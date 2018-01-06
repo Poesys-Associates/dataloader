@@ -20,16 +20,17 @@ package com.poesys.accounting.dataloader.newaccounting;
 
 /* Copyright (c) 2017 Poesys Associates. All rights reserved. */
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.poesys.db.InvalidParametersException;
+import org.apache.log4j.Logger;
+import org.junit.Test;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Test;
-
-import com.poesys.db.InvalidParametersException;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * CUT: FiscalYear
@@ -37,6 +38,7 @@ import com.poesys.db.InvalidParametersException;
  * @author Robert J. Muller
  */
 public class FiscalYearTest {
+  private static final Logger logger = Logger.getLogger(FiscalYearTest.class);
   private static final Integer YEAR = 2017;
   private static final Integer PRIOR_YEAR = 2016;
   private static final Integer LATER_YEAR = 2018;
@@ -125,6 +127,7 @@ public class FiscalYearTest {
   @Test
   public void testEqualsSameObject() {
     FiscalYear year1 = new FiscalYear(YEAR);
+    //noinspection EqualsWithItself
     assertTrue("same fiscal year object but equals false", year1.equals(year1));
   }
 
@@ -297,6 +300,62 @@ public class FiscalYearTest {
       fail("did not throw invalid parameters exception with null account added");
     } catch (InvalidParametersException e) {
       // success
+    }
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#getNextId()}
+   * . Tests the trio of methods for ids with a standard scenario: set id, get id, get next id.
+   */
+  @Test
+  public void testNextId() {
+    BigInteger lastId = new BigInteger("100");
+    BigInteger nextId = lastId.add(BigInteger.ONE);
+    FiscalYear year = new FiscalYear(YEAR);
+    year.setLastId(lastId);
+    assertTrue("year does not have correct id: " + year.getId(), lastId.equals(year.getId()));
+    assertTrue("did not get correct next id", nextId.equals(year.getNextId()));
+    assertTrue("year id not set to correct next id", year.getId().equals(nextId));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#getId()}
+   * . Tests the methods getID and getNextId for ids with a default scenario: get id, get next id.
+   */
+  @Test
+  public void testNextDefaultId() {
+    BigInteger lastId = BigInteger.ZERO;
+    BigInteger nextId = BigInteger.ONE;
+    FiscalYear year = new FiscalYear(YEAR);
+    assertTrue("year does not have correct id zero: " + year.getId(), lastId.equals(year.getId()));
+    assertTrue("did not get correct next id one", nextId.equals(year.getNextId()));
+    assertTrue("year id not set to correct next id", year.getId().equals(nextId));
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.FiscalYear#setLastId(BigInteger)}
+   * . Tests the methods getID and getNextId for ids with a default scenario: get id, get next id.
+   */
+  @Test
+  public void testSetNextNullId() {
+    FiscalYear year = new FiscalYear(YEAR);
+    try {
+      year.setLastId(null);
+      fail("setLastId() with null id did not throw exception");
+    } catch (InvalidParametersException e) {
+      // success
+      assertTrue("wrong exception: " + e.getMessage(),
+                 e.getMessage().equals("no last id supplied but one is required"));
+    } catch (NullPointerException e) {
+      String message = "setLastId() with null id threw null pointer exception";
+      logger.error(message, e);
+      fail(message);
+    } catch (Exception e) {
+      fail("setLastId() with null id threw wrong exception: " + e.getMessage());
+      throw e;
     }
   }
 }

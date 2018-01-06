@@ -796,9 +796,13 @@ public class OldDataBuilder implements IBuilder {
                                                                        transaction
                                                                          .getTransactionDate(),
                                                                        false, false);
+      // Add the transaction to the transaction map keyed on id.
       transactionMap.put(transaction.getTransactionId(), newTransaction);
       // Add the transaction to the set of transactions.
       transactions.add(newTransaction);
+      // Set the fiscal year's "last" id to the current id if it is greater than the current one.
+      // At the end of the loop, the fiscal year's id will be the greatest id read from the file.
+      fiscalYear.setLastId(id);
     }
   }
 

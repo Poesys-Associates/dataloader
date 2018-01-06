@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigInteger;
 
 import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
 import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
@@ -182,6 +183,15 @@ public class UnitTestParametersNoExceptions extends AbstractStatementMaintaining
    */
   public int getEndCalls() {
     return endCalls;
+  }
+
+  /**
+   * Return the greatest transaction id of the transactions read by getTransactionReader().
+   *
+   * @return the "last" id in the transaction set
+   */
+  public BigInteger getLastId() {
+    return new BigInteger(TRANS_ID_1.toString());
   }
 
   @Override

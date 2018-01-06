@@ -68,9 +68,6 @@ public class CapitalStructure {
   /** the name of the income summary account */
   private final String incomeSummaryAccountName;
 
-  /** a map of max ids indexed by year */
-  private final Map<FiscalYear, BigInteger> ids = new HashMap<>();
-
   // messages
 
   private static final String OWNERSHIP_ERROR = "ownership across entities does not sum to 100%";
@@ -93,7 +90,7 @@ public class CapitalStructure {
    *
    * @return a incomeSummaryAccount
    */
-  String getIncomeSummaryAccount() {
+  public String getIncomeSummaryAccount() {
     return incomeSummaryAccountName;
   }
 
@@ -156,7 +153,7 @@ public class CapitalStructure {
    *                accounting system
    * @return an adjusting transaction or null if no change is required
    */
-  Transaction getCapitalAdjustmentTransaction(IBuilder builder) {
+  public Transaction getCapitalAdjustmentTransaction(IBuilder builder) {
     FiscalYear year = builder.getFiscalYear();
     Transaction transaction = null;
     Statement balanceSheet = new Statement(year, "Balance Sheet", StatementType.BALANCE_SHEET);
@@ -173,7 +170,7 @@ public class CapitalStructure {
     boolean adjusted = distributor.equalize();
 
     if (adjusted) {
-      BigInteger id = getNextId(year);
+      BigInteger id = year.getNextId();
       transaction = new Transaction(id, ADJUST_DESCRIPTION, year.getEnd(), false, false);
       for (CapitalEntity entity : entities) {
         Account account = builder.getAccountByName(entity.getCapitalAccount().getName());
@@ -189,25 +186,6 @@ public class CapitalStructure {
   }
 
   /**
-   * Get the next old-system transaction id for a specified fiscal year. The next id is the current
-   * maximum id plus one. The sequence starts with 1 for each year.
-   *
-   * @param year the year of the id
-   * @return the next id for the year
-   */
-  private BigInteger getNextId(FiscalYear year) {
-    BigInteger id = ids.get(year);
-    if (id == null) {
-      id = BigInteger.ONE;
-    } else {
-      id = id.add(BigInteger.ONE);
-    }
-    // Update the map with the new max id.
-    ids.put(year, id);
-    return id;
-  }
-
-  /**
    * Get a transaction that helps to close a fiscal year by transferring net income to the
    * appropriate capital accounts given the capital structure of the accounting entity. The
    * debit/credit structure depends on the nature of net income, which can be either a credit
@@ -220,7 +198,7 @@ public class CapitalStructure {
    * @param builder the builder containing the accounts
    * @return the transaction
    */
-  Transaction getIncomeToCapitalTransaction(FiscalYear year, IBuilder builder) {
+  public Transaction getIncomeToCapitalTransaction(FiscalYear year, IBuilder builder) {
     List<Account> capitalAccounts = getCapitalAccounts(builder);
 
     AccountCollectionDistributor distributor = getDistributor(year, capitalAccounts);
@@ -304,7 +282,7 @@ public class CapitalStructure {
     Boolean debit = netIncome.compareTo(BigDecimal.ZERO) >= 0;
 
     // Create the income summary account transaction to summarize income.
-    BigInteger id = getNextId(year);
+    BigInteger id = year.getNextId();
     Transaction transaction =
       new Transaction(id, INCOME_SUMMARY_DESCRIPTION + year.getYear(), year.getEnd(), false, false);
 
@@ -352,7 +330,7 @@ public class CapitalStructure {
    * @param builder the builder containing the set of accounts
    * @return a list of transactions, one per capital entity
    */
-  List<Transaction> getDistributionTransactions(FiscalYear year, IBuilder builder) {
+  public List<Transaction> getDistributionTransactions(FiscalYear year, IBuilder builder) {
     if (year == null || builder == null) {
       throw new InvalidParametersException(INVALID_PARAMETER_ERROR);
     }
@@ -371,7 +349,7 @@ public class CapitalStructure {
         // Get the distribution balance for this entity.
         BigDecimal balance = stmt.getAccountBalance(distAccount);
         // Create the transaction to transfer distribution to capital.
-        BigInteger id = getNextId(year);
+        BigInteger id = year.getNextId();
         Transaction transaction = new Transaction(id,
                                                   DISTRIBUTION_DESCRIPTION + distAccount.getName() +
                                                   " for " + year.getYear(), year.getEnd(), false,

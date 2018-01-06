@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -482,6 +483,10 @@ public class OldDataBuilderTest {
 
     assertTrue("wrong number of transactions created: " + transactions.size(),
                transactions.size() == 2);
+
+    FiscalYear year = builder.getFiscalYear();
+    BigInteger lastId = ((UnitTestParametersNoExceptions)parameters).getLastId();
+    assertTrue("last id not properly set: " + year.getId(), year.getId().equals(lastId));
 
     for (com.poesys.accounting.dataloader.newaccounting.Transaction transaction : transactions) {
       if (transaction.isBalance()) {

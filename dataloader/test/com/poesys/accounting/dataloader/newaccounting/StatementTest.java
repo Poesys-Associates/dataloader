@@ -520,13 +520,13 @@ public class StatementTest {
     Statement statement = new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toData();
     String test =
-      "Liabilities\tCredit Accounts\tCredit Card\t95.00\nEquity\tPersonal Capital\tShared " +
-      "Capital\t2080.00\nAssets\tCash\tChecking\t-2150.00";
+      "Assets\tCash\tChecking\t-2150.00\n" + "Liabilities\tCredit Accounts\tCredit Card\t95.00\n" +
+      "Equity\tPersonal Capital\tShared Capital\t2080.00";
     assertTrue("data set incorrect for statement: " + data, test.equals(data));
   }
 
   /**
-   * Test Statement.toDetailData() for balance sheet.
+   * Test Statement.toDetailData() for balance sheet. Ensures line output order is correct.
    */
   @Test
   public void testBalanceSheetToDetailData() {
@@ -536,17 +536,19 @@ public class StatementTest {
     Statement statement = new Statement(year, BALANCE_SHEET_NAME, StatementType.BALANCE_SHEET);
     String data = statement.toDetailData();
     assertTrue("detail data set incorrect for statement: " + data,
-               ("Liabilities\tCredit Accounts\tCredit " +
-                "Card\t6\t01-Jan-17\t75.00\nLiabilities\tCredit Accounts\tCredit " +
-                "Card\t2\t01-Jan-17\t20.00\nEquity\tPersonal Capital\tShared " +
-                "Capital\t7\t01-Jan-17\t2000.00\nEquity\tPersonal Capital\tShared " +
-                "Capital\t3\t01-Jan-17\t80.00\nAssets\tCash\tChecking\t7\t01-Jan-17\t-2000.00" +
-                "\nAssets\tCash\tChecking\t4\t01-Jan-17\t-100.00\nAssets\tCash\tChecking\t5\t01" +
-                "-Jan-17\t50.00\nAssets\tCash\tChecking\t1\t01-Jan-17\t-100.00").equals(data));
+               ("Assets\tCash\tChecking\t1\t01-Jan-17\t-100.00\n" +
+                "Assets\tCash\tChecking\t4\t01-Jan-17\t-100.00\n" +
+                "Assets\tCash\tChecking\t5\t01-Jan-17\t50.00\n" +
+                "Assets\tCash\tChecking\t7\t01-Jan-17\t-2000.00\n" +
+                "Liabilities\tCredit Accounts\tCredit Card\t2\t01-Jan-17\t20.00\n" +
+                "Liabilities\tCredit Accounts\tCredit Card\t6\t01-Jan-17\t75.00\n" +
+                "Equity\tPersonal Capital\tShared Capital\t3\t01-Jan-17\t80.00\n" +
+                "Equity\tPersonal Capital\tShared Capital\t7\t01-Jan-17\t2000.00").equals(
+                 data));
   }
 
   /**
-   * Test Statement.toData() for income statement.
+   * Test Statement.toData() for income statement. Ensures line output order is correct.
    */
   @Test
   public void testIncomeStatementToData() {
