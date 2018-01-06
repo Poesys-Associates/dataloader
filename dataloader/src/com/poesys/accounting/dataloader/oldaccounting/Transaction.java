@@ -17,16 +17,16 @@
  */
 package com.poesys.accounting.dataloader.oldaccounting;
 
-
 import java.io.BufferedReader;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import com.poesys.db.InvalidParametersException;
-
 
 /**
  * Data transfer object for old-accounting transaction data; includes the items
@@ -35,7 +35,7 @@ import com.poesys.db.InvalidParametersException;
  * to the old-accounting transaction; fields: transaction id (Integer),
  * description (string enclosed by double quotes with trailing blanks),
  * transaction date (format dd-MON-yy), checked (boolean Y/N)
- * 
+ *
  * @author Robert J. Muller
  */
 public class Transaction extends AbstractReaderDto {
@@ -54,29 +54,24 @@ public class Transaction extends AbstractReaderDto {
 
   // Messages
 
-  /** null parameter to constructor */
   private static final String NULL_PARAMETER_ERROR =
     "transaction parameters are required but one is null";
-  /** badly formatted date input from reader */
   private static final String BAD_DATE_ERROR = "reader date field not valid: ";
+  public static final String NULL_DATE_ERROR = "null date from transaction file for id ";
 
   /**
    * Create a Transaction object.
-   * 
-   * @param year the fiscal year of the transaction
-   * @param transactionId the unique identifier for the transaction
+   *
+   * @param year            the fiscal year of the transaction
+   * @param transactionId   the unique identifier for the transaction
    * @param transactionDate the date of the transaction
-   * @param description the text describing the nature of the transaction
-   * @param checked whether the transaction is reconciled with an external
-   *          statement
+   * @param description     the text describing the nature of the transaction
+   * @param checked         whether the transaction is reconciled with an external
+   *                        statement
    */
-  public Transaction(Integer year,
-                     Integer transactionId,
-                     Timestamp transactionDate,
-                     String description,
-                     Boolean checked) {
-    if (year == null || transactionId == null || transactionDate == null
-        || description == null) {
+  public Transaction(Integer year, Integer transactionId, Timestamp transactionDate, String
+    description, Boolean checked) {
+    if (year == null || transactionId == null || transactionDate == null || description == null) {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.year = year;
@@ -87,12 +82,12 @@ public class Transaction extends AbstractReaderDto {
   }
 
   /**
-   * Create a Transaction object reading from a tab-delimited line. The client
-   * is responsible for opening and closing the reader. The client should catch
-   * the EndOfStream throwable to determine when reading is complete and to then
-   * close the reader.
-   * 
-   * @param year the fiscal year being read
+   * Create a Transaction object reading from a tab-delimited line. The client is responsible for
+   * opening and closing the reader. The client should catch the EndOfStream throwable to
+   * determine when reading is complete and to then close the reader. The method also checks that
+   * the transaction date is in the fiscal year of the file.
+   *
+   * @param year   the fiscal year being read
    * @param reader the buffered reader set at the current line to read
    */
   public Transaction(Integer year, BufferedReader reader) {
@@ -101,6 +96,16 @@ public class Transaction extends AbstractReaderDto {
       throw new InvalidParametersException(NULL_PARAMETER_ERROR);
     }
     this.year = year;
+    // At this point we have the year and the transaction date; validate it.
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(new Date(transactionDate.getTime()));
+    int transactionYear = cal.get(Calendar.YEAR);
+    if (year != transactionYear) {
+      String message = "Transaction date not in fiscal year of file: " + transactionYear + ", id " +
+                       transactionId + " for fiscal year " + year;
+      logger.error(message);
+      throw new InvalidParametersException(message);
+    }
   }
 
   @Override
@@ -115,6 +120,9 @@ public class Transaction extends AbstractReaderDto {
       transactionDate = new Timestamp(formatter.parse(fields[2]).getTime());
     } catch (ParseException e) {
       logger.error("bad date: " + fields[2] + ", format " + format, e);
+      throw new InvalidParametersException(BAD_DATE_ERROR + fields[2]);
+    } catch (NullPointerException e) {
+      logger.error(NULL_DATE_ERROR + transactionId, e);
       throw new InvalidParametersException(BAD_DATE_ERROR + fields[2]);
     }
     // checked is null in input file, default to "N"
@@ -131,8 +139,7 @@ public class Transaction extends AbstractReaderDto {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-      prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
+    result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
     result = prime * result + ((year == null) ? 0 : year.hashCode());
     return result;
   }
@@ -140,29 +147,36 @@ public class Transaction extends AbstractReaderDto {
   // Override equals() to specify primary key (year, transaction id)
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Transaction other = (Transaction)obj;
     if (transactionId == null) {
-      if (other.transactionId != null)
+      if (other.transactionId != null) {
         return false;
-    } else if (!transactionId.equals(other.transactionId))
+      }
+    } else if (!transactionId.equals(other.transactionId)) {
       return false;
+    }
     if (year == null) {
-      if (other.year != null)
+      if (other.year != null) {
         return false;
-    } else if (!year.equals(other.year))
+      }
+    } else if (!year.equals(other.year)) {
       return false;
+    }
     return true;
   }
 
   /**
    * Get the year.
-   * 
+   *
    * @return a year
    */
   public Integer getYear() {
@@ -171,7 +185,7 @@ public class Transaction extends AbstractReaderDto {
 
   /**
    * Get the transactionId.
-   * 
+   *
    * @return a transactionId
    */
   public Integer getTransactionId() {
@@ -180,7 +194,7 @@ public class Transaction extends AbstractReaderDto {
 
   /**
    * Get the transactionDate.
-   * 
+   *
    * @return a transactionDate
    */
   public Timestamp getTransactionDate() {
@@ -189,7 +203,7 @@ public class Transaction extends AbstractReaderDto {
 
   /**
    * Get the description.
-   * 
+   *
    * @return a description
    */
   public String getDescription() {
@@ -198,7 +212,7 @@ public class Transaction extends AbstractReaderDto {
 
   /**
    * Whether the transaction is reconciled with an external statement.
-   * 
+   *
    * @return true if reconciled, false if not
    */
   public Boolean isChecked() {
@@ -207,8 +221,7 @@ public class Transaction extends AbstractReaderDto {
 
   @Override
   public String toString() {
-    return "Transaction [year=" + year + ", transactionId=" + transactionId
-           + ", transactionDate=" + transactionDate + ", description="
-           + description + "]";
+    return "Transaction [year=" + year + ", transactionId=" + transactionId + ", transactionDate=" +
+           transactionDate + ", description=" + description + "]";
   }
 }

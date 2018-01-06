@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -37,7 +38,6 @@ import com.poesys.db.InvalidParametersException;
 public class Item implements Comparable<Item> {
   /** logger for this class */
   private static final Logger logger = Logger.getLogger(Item.class);
-  public static final String NO_ACCOUNT_TYPE_ERROR = "no account type for account ";
   /** the parent transaction that owns this item */
   private final Transaction transaction;
   /** the dollar amount of the item */
@@ -64,6 +64,9 @@ public class Item implements Comparable<Item> {
     "reimbursement requires a reimbursing item";
   private static final String NULL_RECEIVABLE_ERROR = "reimbursement requires a receivable item";
   private static final String NULL_ITEM_ERROR = "null item in compareTo()";
+  public static final String NO_ACCOUNT_TYPE_ERROR = "no account type for account ";
+  public static final String YEAR_OUT_OF_RANGE_ERROR =
+    "last fiscal year does not contain transaction year: ";
 
   /**
    * An association class that links this item to a reimbursing item; valid only for items with
@@ -157,13 +160,10 @@ public class Item implements Comparable<Item> {
         return false;
       }
       if (reimbursingItem == null) {
-        if (other.reimbursingItem != null) {
-          return false;
-        }
-      } else if (!reimbursingItem.equals(other.reimbursingItem)) {
-        return false;
+        return other.reimbursingItem == null;
+      } else {
+        return reimbursingItem.equals(other.reimbursingItem);
       }
-      return true;
     }
 
     /**
@@ -269,13 +269,10 @@ public class Item implements Comparable<Item> {
       return false;
     }
     if (transaction == null) {
-      if (other.transaction != null) {
-        return false;
-      }
-    } else if (!transaction.equals(other.transaction)) {
-      return false;
+      return other.transaction == null;
+    } else {
+      return transaction.equals(other.transaction);
     }
-    return true;
   }
 
   // Natural order of item is account type, account group order number, account order number,
@@ -304,9 +301,8 @@ public class Item implements Comparable<Item> {
       FiscalYearAccount thatLink = getFiscalYearAccount(fiscalYear, other.account);
       AccountType thisType = account.getAccountType(fiscalYear);
       if (thisType == null) {
-        throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR + account + " for fiscal year " + year);
-      }
-      AccountType thatType = other.account.getAccountType(fiscalYear);
+          throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR + account + " for fiscal year " + year);
+      } AccountType thatType = other.account.getAccountType(fiscalYear);
       if (thatType == null) {
         throw new RuntimeException(NO_ACCOUNT_TYPE_ERROR + account + " for fiscal year " + year);
       }
@@ -340,21 +336,32 @@ public class Item implements Comparable<Item> {
   }
 
   /**
-   * Build a fiscal-year-account link given a year and account.
+   * Build a fiscal-year-account link given a year and account. If the specified fiscal year is
+   * not in the list of years for the account, the method throws an exception.
    *
-   * @param year    the fiscal year to link
+   * @param transactionYear    the year of the transaction
    * @param account the account to link
    * @return a fiscal-year-account link
    */
-  private FiscalYearAccount getFiscalYearAccount(FiscalYear year, Account account) {
+  private FiscalYearAccount getFiscalYearAccount(FiscalYear transactionYear, Account account) {
     FiscalYearAccount returnLink = null;
+    List<FiscalYearAccount> years = account.getYears();
+    if (years != null) {
+      Integer lastYear = years.get(0).getFiscalYear().getYear();
 
-    for (FiscalYearAccount link : account.getYears()) {
-      if (link.getFiscalYear().equals(year)) {
-        returnLink = link;
-        break;
+      for (FiscalYearAccount link : account.getYears()) {
+        if (link.getFiscalYear().equals(transactionYear)) {
+          returnLink = link;
+          break;
+        }
+        lastYear = link.getFiscalYear().getYear();
+      }
+      // if no link found for fiscal year, test against range and throw exception if not in range
+      if (returnLink == null && transactionYear.getYear().compareTo(lastYear) > 0) {
+        throw new RuntimeException(YEAR_OUT_OF_RANGE_ERROR + lastYear + " for transaction year " + transactionYear.getYear());
       }
     }
+
     return returnLink;
   }
 
