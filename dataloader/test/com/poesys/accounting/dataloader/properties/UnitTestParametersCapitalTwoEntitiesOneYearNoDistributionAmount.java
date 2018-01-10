@@ -17,18 +17,9 @@
  */
 package com.poesys.accounting.dataloader.properties;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import com.poesys.accounting.dataloader.newaccounting.*;
 
-import com.poesys.accounting.dataloader.newaccounting.IDataAccessService;
-import com.poesys.accounting.dataloader.newaccounting.IFiscalYearUpdater;
-import com.poesys.accounting.dataloader.newaccounting.IStorageManager;
-import com.poesys.accounting.dataloader.newaccounting.UnitTestFiscalYearUpdater;
-import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionDataService;
-import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorageManager;
+import java.io.*;
 
 /**
  * An implementation of IParameters that returns the parameters for a unit test without looking at a
@@ -39,7 +30,7 @@ import com.poesys.accounting.dataloader.newaccounting.UnitTestNoExceptionsStorag
  *
  * @author Robert J. Muller
  */
-public class UnitTestParametersCapitalTwoEntitiesOneYear extends
+public class UnitTestParametersCapitalTwoEntitiesOneYearNoDistributionAmount extends
   AbstractStatementMaintainingParameters {
 
   // test counters
@@ -116,7 +107,6 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
   private static final Double REC_AMOUNT = 100.00D;
   private static final double INCOME_AMOUNT = 5000.00D;
   private static final double EXPENSE_AMOUNT = 237.45D;
-  private static final double DIST_AMOUNT = 50.00D;
 
   private static final double CHECKING_BALANCE_AMOUNT = 1000.00D;
   private static final double CASH_BALANCE_AMOUNT = 20.00D;
@@ -132,7 +122,6 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
   private static final Integer REIMBURSEMENT_TRANS_ID = 400;
   private static final Integer INCOME_TRANS_ID = 300;
   private static final Integer EXPENSE_TRANS_ID = 500;
-  private static final Integer DIST_TRANS_ID = 505;
 
   private static final String CREDIT = "CR";
   private static final String DEBIT = "DR";
@@ -145,8 +134,6 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
   private static final String REIMBURSEMENT_DESC = "\"reimbursement              \"";
   /** description for income transaction enclosed in quotes with trailing blanks */
   private static final String INCOME_DESC = "\"cash income              \"";
-  /** description for distribution transaction enclosed in quotes with trailing blanks */
-  private static final String DIST_DESC = "\"partner 1 distribution              \"";
   /**
    * description for expense transaction enclosed in quotes with trailing blanks
    */
@@ -311,13 +298,12 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
 
   @Override
   public Reader getTransactionReader(Integer year) {
-    // Transactions include receivable, reimbursement, income, distribution, expense
+    // Transactions include receivable, reimbursement, income, expense
     // @formatter:off
     String input =
             RECEIVABLE_TRANS_ID + DELIM + RECEIVABLE_DESC + DELIM + RECEIVABLE_DATE + DELIM + FALSE + LINE_RET 
           + REIMBURSEMENT_TRANS_ID + DELIM + REIMBURSEMENT_DESC + DELIM + REIMBURSEMENT_DATE + DELIM + FALSE + LINE_RET 
           + INCOME_TRANS_ID + DELIM + INCOME_DESC + DELIM + TRANS_DATE + DELIM + FALSE + LINE_RET 
-          + DIST_TRANS_ID + DELIM + DIST_DESC + DELIM + TRANS_DATE + DELIM + FALSE + LINE_RET
           + EXPENSE_TRANS_ID + DELIM + EXPENSE_DESC + DELIM + TRANS_DATE + DELIM + FALSE;
     // @formatter:on
     return new StringReader(input);
@@ -328,7 +314,6 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
     // Receivable: debit receivable, credit revenue
     // Reimbursement: debit checking, credit receivable
     // Income: debit checking, credit revenue
-    // Distribution: debit distribution partner 1, credit checking
     // Expense: debit tax expense, credit credit card
     // @formatter:off
     String input =
@@ -338,8 +323,6 @@ public class UnitTestParametersCapitalTwoEntitiesOneYear extends
           + REIMBURSEMENT_TRANS_ID + DELIM + RECEIVABLE_ACCOUNT + DELIM + REC_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
           + INCOME_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
           + INCOME_TRANS_ID + DELIM + REVENUE_ACCOUNT + DELIM + INCOME_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET 
-          + DIST_TRANS_ID + DELIM + CHECKING_ACCOUNT + DELIM + DIST_AMOUNT + DELIM + CREDIT + DELIM + FALSE + LINE_RET
-          + DIST_TRANS_ID + DELIM + DIST_ACCOUNT_1 + DELIM + DIST_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
           + EXPENSE_TRANS_ID + DELIM + TAX_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + DEBIT + DELIM + FALSE + LINE_RET
           + EXPENSE_TRANS_ID + DELIM + CREDIT_ACCOUNT + DELIM + EXPENSE_AMOUNT + DELIM + CREDIT + DELIM + FALSE;
     // @formatter:on

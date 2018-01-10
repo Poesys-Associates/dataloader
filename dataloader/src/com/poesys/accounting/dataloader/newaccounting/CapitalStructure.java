@@ -182,6 +182,12 @@ public class CapitalStructure {
         }
       }
     }
+
+    // Check that the transaction is not zero, meaning no adjustment necesssary.
+    if (transaction != null && transaction.isZero()) {
+      transaction = null;
+    }
+
     return transaction;
   }
 
@@ -365,10 +371,10 @@ public class CapitalStructure {
         transaction.addItem(amount, distAccount, !debit, false);
         // Transfer distribution to capital account for this entity.
         transaction.addItem(amount, capAccount, debit, false);
-        // Add the transaction to the list to return.
-        transactions.add(transaction);
-        for (Item item : transaction.getItems()) {
-          logger.debug("added distribution transfer item " + item);
+        // Check that the transaction is not zero, meaning no adjustment necesssary.
+        if (!transaction.isZero()) {
+          // Non-zero, add the transaction to the list to return.
+          transactions.add(transaction);
         }
       }
     }

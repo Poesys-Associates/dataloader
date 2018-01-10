@@ -282,4 +282,25 @@ public class Transaction {
     return "Transaction [id=" + id + ", description=" + description + ", date=" + date +
            ", checked=" + checked + ", balance=" + balance + ", items=" + items + "]";
   }
+
+  /**
+   * Check whether the transaction has items equal to zero, meaning it's not really a transaction.
+   *
+   * @return true if the transaction is a zero transaction, false if not
+   */
+  public boolean isZero() {
+    boolean isZero = true;
+    BigDecimal zero = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
+    for (Item item : items) {
+      // Convert amount to BigDecimal at scale 2 to insure correct arithmetic.
+      BigDecimal amount = new BigDecimal(item.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+      if (amount.compareTo(zero) != 0) {
+        isZero = false;
+        break;
+      }
+    }
+
+    return isZero;
+  }
 }

@@ -45,7 +45,8 @@ public class TransactionTest {
   private static final Boolean CHECKED = Boolean.TRUE;
   private static final Boolean NOT_BALANCE = Boolean.FALSE;
   private static final Double AMOUNT = 10.00D;
-  private static final Double ALLOCATED_AMOUNT = 0.00D;
+  private static final Double ZERO = 0.00D;
+  private static final Double ALLOCATED_AMOUNT = ZERO;
   private static final Boolean DEBIT = Boolean.TRUE;
   private static final Boolean CREDIT = Boolean.FALSE;
 
@@ -89,7 +90,6 @@ public class TransactionTest {
   public void testTransaction() {
     Transaction transaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("transaction constructor failed", transaction != null);
     assertTrue("description getter failed", DESCRIPTION.equals(transaction.getDescription()));
     assertTrue("date getter failed", DATE.equals(transaction.getDate()));
     assertTrue("checked getter failed", NOT_CHECKED.equals(transaction.isChecked()));
@@ -140,9 +140,7 @@ public class TransactionTest {
    */
   private Transaction createTransactionWithItems(BigInteger id) {
     Transaction transaction = new Transaction(id, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("transaction constructor failed", transaction != null);
     Item checkingItem = transaction.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
-
     assertTrue("checking item constructor failed", checkingItem != null);
     Item incomeItem = transaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", incomeItem != null);
@@ -150,16 +148,27 @@ public class TransactionTest {
   }
 
   /**
-   * Test method for {@link com.poesys.accounting.dataloader.newaccounting.Item#Item(com.poesys
-   * .accounting.dataloader.newaccounting.Transaction, * java.lang.Double, com.poesys.accounting
-   * .dataloader.newaccounting.Account, java.lang.Boolean, * java.lang.Boolean)} . Also tests
-   * Transaction.addItem() and getters.
+   * Create a valid transaction with two zero-valued items).
+   *
+   * @param id the unique identifier for the transaction
+   * @return the new Transaction object with zero-valued items
+   */
+  private Transaction createTransactionWithZeroItems(BigInteger id) {
+    Transaction transaction = new Transaction(id, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
+    Item checkingItem = transaction.addItem(ZERO, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
+    assertTrue("zero checking item constructor failed", checkingItem != null);
+    Item incomeItem = transaction.addItem(ZERO, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
+    assertTrue("zero income item constructor failed", incomeItem != null);
+    return transaction;
+  }
+
+  /**
+   * Test method for Transaction.addItem() and getters.
    */
   @Test
   public void testItem() {
     Transaction transaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("transaction constructor failed", transaction != null);
     Item item = transaction.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("item constructor failed", item != null);
     assertTrue("transaction getter failed", transaction.equals(item.getTransaction()));
@@ -189,7 +198,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -213,7 +221,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -239,7 +246,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -252,7 +258,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction =
       new Transaction(TRANSACTION_ID.add(BigInteger.ONE), DESCRIPTION, DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     // cash payment item
     Item payment = reimbursingTransaction.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("payment item constructor failed", payment != null);
@@ -310,7 +315,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -323,7 +327,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction =
       new Transaction(TRANSACTION_ID.add(BigInteger.ONE), DESCRIPTION, DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     Double reimbursementAmount = 1.17D;
     Double reimbursedAmount = 0.00D;
     // cash payment item
@@ -380,7 +383,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, PRIOR_DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -395,7 +397,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction1 =
       new Transaction(transactionId.add(BigInteger.ONE), DESCRIPTION, PRIOR_DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     // cash payment item
     Item payment1 = reimbursingTransaction1.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("payment item constructor failed", payment1 != null);
@@ -412,7 +413,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction2 =
       new Transaction(transactionId.add(BigInteger.ONE), DESCRIPTION, DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     // cash payment item
     Item payment2 = reimbursingTransaction2.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("payment item constructor failed", payment2 != null);
@@ -441,7 +441,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -454,7 +453,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction =
       new Transaction(TRANSACTION_ID.add(BigInteger.ONE), DESCRIPTION, DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     // cash payment item--add $100 to take it past the original amount.
     Item payment =
       reimbursingTransaction.addItem(AMOUNT + 100.00D, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
@@ -479,7 +477,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -492,7 +489,6 @@ public class TransactionTest {
     Transaction reimbursingTransaction =
       new Transaction(TRANSACTION_ID.add(BigInteger.ONE), DESCRIPTION, DATE, NOT_CHECKED,
                       NOT_BALANCE);
-    assertTrue("reimbursing transaction constructor failed", receivableTransaction != null);
     // cash payment item--add $100 to take it past the original amount.
     Item payment = reimbursingTransaction.addItem(AMOUNT, CHECKING_ACCOUNT, DEBIT, NOT_CHECKED);
     assertTrue("payment item constructor failed", payment != null);
@@ -601,7 +597,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -622,7 +617,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, !NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -639,7 +633,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -659,7 +652,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, !NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     assertTrue("valid balance transaction but no items: " + receivableTransaction,
                !receivableTransaction.isValid());
   }
@@ -673,7 +665,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, !NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -693,7 +684,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -710,7 +700,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction transaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("3-item transaction constructor failed", transaction != null);
     // personal capital 1 item
     Item cap1 = transaction.addItem(7.48D, CAPITAL_ACCOUNT_1, CREDIT, NOT_CHECKED);
     assertTrue("capital 1 item constructor failed", cap1 != null);
@@ -733,7 +722,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -755,7 +743,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, !CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -775,7 +762,6 @@ public class TransactionTest {
     // Create the receivable transaction with items.
     Transaction receivableTransaction =
       new Transaction(TRANSACTION_ID, DESCRIPTION, DATE, NOT_CHECKED, NOT_BALANCE);
-    assertTrue("receivable transaction constructor failed", receivableTransaction != null);
     // income item
     Item income = receivableTransaction.addItem(AMOUNT, INCOME_ACCOUNT, CREDIT, NOT_CHECKED);
     assertTrue("income item constructor failed", income != null);
@@ -816,7 +802,7 @@ public class TransactionTest {
       break; // one item only
     }
     assertTrue("Items identical but hashcodes aren't the same",
-               item1.hashCode() == item2.hashCode());
+               item1 != null && item2 != null && item1.hashCode() == item2.hashCode());
   }
 
   /**
@@ -840,7 +826,8 @@ public class TransactionTest {
       }
       break; // one item only
     }
-    assertTrue("Items different but have same hash codes", item1.hashCode() != item2.hashCode());
+    assertTrue("Items different but have same hash codes",
+               item1 != null && item2 != null && item1.hashCode() != item2.hashCode());
   }
 
   /**
@@ -866,7 +853,8 @@ public class TransactionTest {
       }
       break; // one item only
     }
-    assertTrue("Identical items but equals not true", item1.equals(item2));
+    assertTrue("Identical items but equals not true",
+               item1 != null && item2 != null && item1.equals(item2));
   }
 
   /**
@@ -888,5 +876,25 @@ public class TransactionTest {
       "Item [year=2017, transaction=1234, description=description, amount=10.0, account=Account " +
       "[name=Revenue, description=description, debitDefault=false, receivable=false, " +
       "years=[]]," + " debit=false, checked=false]"));
+  }
+
+  /**
+   *   Test method for {@link com.poesys.accounting.dataloader.newaccounting.Transaction#isZero()}.
+   *   Tests case when the items are all zero items.
+   */
+  @Test
+  public void testIsZeroTrue() {
+    Transaction transaction = createTransactionWithZeroItems(TRANSACTION_ID);
+    assertTrue("transaction with 2 zero items has isZero false", transaction.isZero());
+  }
+
+  /**
+   *   Test method for {@link com.poesys.accounting.dataloader.newaccounting.Transaction#isZero()}.
+   *   Tests case when the items are all non-zero items.
+   */
+  @Test
+  public void testIsZeroFalse() {
+    Transaction transaction = createTransactionWithItems(TRANSACTION_ID);
+    assertTrue("transaction with 2 non-zero items has isZero true", !transaction.isZero());
   }
 }

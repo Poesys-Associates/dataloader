@@ -24,25 +24,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.poesys.accounting.dataloader.properties.*;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.poesys.accounting.dataloader.IBuilder;
 import com.poesys.accounting.dataloader.newaccounting.Statement.StatementType;
 import com.poesys.accounting.dataloader.oldaccounting.OldDataBuilder;
-import com.poesys.accounting.dataloader.properties.IParameters;
-import com.poesys.accounting.dataloader.properties
-  .UnitTestParametersCapitalOneEntityOneYearNoDistribution;
-import com.poesys.accounting.dataloader.properties
-  .UnitTestParametersCapitalOneEntityOneYearWithDistribution;
-import com.poesys.accounting.dataloader.properties
-  .UnitTestParametersCapitalOneEntityTwoYearsNoDistribution;
-import com.poesys.accounting.dataloader.properties
-  .UnitTestParametersCapitalOneEntityTwoYearsWithDistribution;
-import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalPoesys1997Bug;
-import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalPoesys1998Bug;
-import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalTwoEntitiesOneYear;
-import com.poesys.accounting.dataloader.properties.UnitTestParametersCapitalTwoEntitiesTwoYears;
 
 /**
  * CUT: CapitalStructure
@@ -713,7 +701,7 @@ public class CapitalStructureTest {
   /**
    * Test method for
    * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getCapitalAdjustmentTransaction(com.poesys.accounting.dataloader.IBuilder)}
-   * . Tests getting transactions for two capital entities in a single fiscal year.
+   * . Tests getting transactions for two capital entities in a single fiscal year with a distribution.
    */
   @Test
   public void testGetCapitalAdjustTwoEntitiesSingleYear() {
@@ -734,8 +722,54 @@ public class CapitalStructureTest {
     assertTrue("no capital accounts transaction created", transaction != null);
     List<Transaction> transactions = capStruct.getDistributionTransactions(year, builder);
     assertTrue("no distribution transaction list created", transactions != null);
-    assertTrue("distribution transaction list is empty for structure with no distribution account",
+    assertTrue("distribution transaction list is empty for structure with distribution account",
                !transactions.isEmpty());
+    Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
+    // should have adjustment because distribution moved into capital account
+    assertTrue("no adjusting transaction created", adjust != null);
+    Statement stmt =
+      new Statement(year, "2 Entities 1 Year Balance Sheet", StatementType.BALANCE_SHEET);
+    assertTrue("balance sheet balance is not 0: " + stmt.getBalance(),
+               stmt.getBalance().compareTo(BigDecimal.ZERO) == 0);
+    Account distAccount1 = builder.getAccountByName(DIST_ACCOUNT_1_NAME);
+    assertTrue(
+      "distribution account 1 balance is not zero: " + stmt.getAccountBalance(distAccount1),
+      stmt.getAccountBalance(distAccount1).compareTo(
+        BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)) == 0);
+    Account distAccount2 = builder.getAccountByName(DIST_ACCOUNT_2_NAME);
+    assertTrue(
+      "distribution account 2 balance is not zero: " + stmt.getAccountBalance(distAccount2),
+      stmt.getAccountBalance(distAccount2).compareTo(
+        BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)) == 0);
+  }
+
+  /**
+   * Test method for
+   * {@link com.poesys.accounting.dataloader.newaccounting.CapitalStructure#getCapitalAdjustmentTransaction(com.poesys.accounting.dataloader.IBuilder)}
+   * . Tests getting transactions for two capital entities in a single fiscal year but with no
+   * distributions to process (zero amount distribution transfer).
+   */
+  @Test
+  public void testGetCapitalAdjustTwoEntitiesSingleYearNoDistributions() {
+    IParameters parameters = new UnitTestParametersCapitalTwoEntitiesOneYearNoDistributionAmount();
+    IBuilder builder = new OldDataBuilder(parameters);
+    builder.buildCapitalStructure();
+    builder.buildFiscalYear(YEAR1);
+    builder.buildAccountGroups();
+    builder.buildAccountMap();
+    builder.buildAccounts();
+    builder.buildBalances();
+    builder.buildTransactions();
+
+    FiscalYear year = builder.getFiscalYear();
+    CapitalStructure capStruct = builder.getCapitalStructure();
+
+    Transaction transaction = capStruct.getIncomeToCapitalTransaction(year, builder);
+    assertTrue("no capital accounts transaction created", transaction != null);
+    List<Transaction> transactions = capStruct.getDistributionTransactions(year, builder);
+    assertTrue("no distribution transaction list created", transactions != null);
+    assertTrue("distribution transaction list has transaction, but no distributions made",
+               transactions.isEmpty());
     Transaction adjust = capStruct.getCapitalAdjustmentTransaction(builder);
     assertTrue("adjusting transaction created but should not have been", adjust == null);
     Statement stmt =
