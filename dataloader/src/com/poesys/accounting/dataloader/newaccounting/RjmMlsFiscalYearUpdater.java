@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class RjmMlsFiscalYearUpdater implements IFiscalYearUpdater {
   @Override
-  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, IBuilder builder) {
+  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, Set<Transaction> currentTransactions, IBuilder builder) {
     // Update the fiscal year with closing transactions.
 
     CapitalStructure capStruct = builder.getCapitalStructure();

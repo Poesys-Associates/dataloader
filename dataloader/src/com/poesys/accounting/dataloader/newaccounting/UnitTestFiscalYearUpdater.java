@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class UnitTestFiscalYearUpdater implements IFiscalYearUpdater {
   @Override
-  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, IBuilder builder) {
+  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, Set<Transaction> currentTransactions, IBuilder builder) {
     // Does nothing for unit test
   }
 }

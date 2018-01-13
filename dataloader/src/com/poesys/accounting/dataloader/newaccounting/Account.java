@@ -246,7 +246,16 @@ public class Account {
 
   @Override
   public String toString() {
+    // Build a comma-separated list of years rather than displaying all the FiscalYearAccount
+    // objects.
+    StringBuilder yearsBuilder = new StringBuilder();
+    String separator = "";
+    for (FiscalYearAccount fya : years) {
+      yearsBuilder.append(separator);
+      yearsBuilder.append(fya.getFiscalYear().getYear());
+      separator = ", ";
+    }
     return "Account [name=" + name + ", description=" + description + ", debitDefault=" +
-           debitDefault + ", receivable=" + receivable + ", years=" + years + "]";
+           debitDefault + ", receivable=" + receivable + ", years=" + yearsBuilder.toString() + "]";
   }
 }

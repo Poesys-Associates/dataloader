@@ -134,11 +134,7 @@ public class DataLoader implements IDirector {
       builder.buildTransactions();
       builder.buildReimbursements();
 
-      // Update fiscal year with any closing transactions.
-      FiscalYear fiscalYear = builder.getFiscalYear();
-
-      // Write the statements.
-      writeStatements(parameters, fiscalYear);
+      writeStatements(parameters, builder.getFiscalYear());
     }
   }
 

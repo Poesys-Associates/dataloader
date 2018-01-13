@@ -18,6 +18,7 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 import com.poesys.db.InvalidParametersException;
+import org.apache.log4j.Logger;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -33,6 +34,7 @@ import java.util.List;
  * @author Robert J. Muller
  */
 public class FiscalYear {
+  private static final Logger logger = Logger.getLogger(FiscalYear.class);
   /** the name of the fiscal year; usually the calendar year of the start date */
   private final Integer year;
   /** the date and time at which the fiscal year starts */

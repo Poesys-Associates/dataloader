@@ -32,10 +32,13 @@ public interface IFiscalYearUpdater {
   /**
    * Update a fiscal year with additional constructs based on the built content of the fiscal year.
    *
-   * @param fiscalYear   the fiscal year to update
-   * @param transactions the set of transactions to update
-   * @param builder      the Builder containing built elements of the accounting system that the
-   *                     Updater will use to update the fiscal year
+   * @param fiscalYear          the fiscal year to update
+   * @param transactions        the set of transactions to update
+   * @param currentTransactions transaction set for the current fiscal year (for debugging)
+   * @param builder             the Builder containing built elements of the accounting system
+   *                            that the
+   *                            Updater will use to update the fiscal year
    */
-  void update(FiscalYear fiscalYear, Set<Transaction> transactions, IBuilder builder);
+  void update(FiscalYear fiscalYear, Set<Transaction> transactions, Set<Transaction>
+    currentTransactions, IBuilder builder);
 }

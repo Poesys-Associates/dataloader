@@ -18,6 +18,7 @@
 package com.poesys.accounting.dataloader.newaccounting;
 
 import com.poesys.accounting.dataloader.IBuilder;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Set;
@@ -30,8 +31,10 @@ import java.util.Set;
  * @author Robert J. Muller
  */
 public class PoesysFiscalYearUpdater implements IFiscalYearUpdater {
+  private static final Logger logger = Logger.getLogger(PoesysFiscalYearUpdater.class);
+
   @Override
-  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, IBuilder builder) {
+  public void update(FiscalYear fiscalYear, Set<Transaction> transactions, Set<Transaction> currentTransactions, IBuilder builder) {
     // Update the fiscal year with closing transactions.
 
     CapitalStructure capStruct = builder.getCapitalStructure();
@@ -40,16 +43,19 @@ public class PoesysFiscalYearUpdater implements IFiscalYearUpdater {
     Transaction capitalTransaction = capStruct.getIncomeToCapitalTransaction(fiscalYear, builder);
     transactions.add(capitalTransaction);
 
-    // Add transactions to close the distributions accounts by removing the
-    // distributions from the capital accounts.
+    // Add transactions to close the distributions accounts by removing the distributions from the capital accounts.
     List<Transaction> distTransactions = capStruct.getDistributionTransactions(fiscalYear, builder);
-    transactions.addAll(distTransactions);
+    if (!distTransactions.isEmpty()) {
+      logger.debug("Adding distribution adjustment transactions: " + distTransactions);
+      transactions.addAll(distTransactions);
+    }
 
     // Ensure that the capital accounts are nearly equal. Create a balance sheet
     // and a distributor.
     Transaction adjustingTransaction = capStruct.getCapitalAdjustmentTransaction(builder);
     if (adjustingTransaction != null) {
       transactions.add(adjustingTransaction);
+      logger.debug("Adding capital adjustment transactions: " + distTransactions);
     }
   }
 }

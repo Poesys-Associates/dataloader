@@ -108,6 +108,11 @@
     <priority value="INFO" />
   </category>
 
+  <category name="com.poesys.accounting.dataloader.newaccounting.PoesysFiscalYearUpdater">
+    <!-- debugging for detailed capital transfer debugging -->
+    <priority value="INFO" />
+  </category>
+
   <!-- ========================= Setup the Root category ========================= -->
   <root>
     <priority value="DEBUG" />

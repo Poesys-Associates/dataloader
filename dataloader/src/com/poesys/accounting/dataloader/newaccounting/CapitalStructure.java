@@ -169,6 +169,7 @@ public class CapitalStructure {
     // Equalize the capital accounts.
     boolean adjusted = distributor.equalize();
 
+    // If the distributor adjusted the value, create the adjusting transaction.
     if (adjusted) {
       BigInteger id = year.getNextId();
       transaction = new Transaction(id, ADJUST_DESCRIPTION, year.getEnd(), false, false);
@@ -183,9 +184,12 @@ public class CapitalStructure {
       }
     }
 
-    // Check that the transaction is not zero, meaning no adjustment necesssary.
+    // Check that the transaction is not zero, meaning no adjustment necesssary. This ensures
+    // that no spurious transaction gets into the transaction set.
     if (transaction != null && transaction.isZero()) {
       transaction = null;
+    } else if (transaction != null) {
+      logger.debug("Added capital adjustment: " + transaction);
     }
 
     return transaction;
@@ -209,7 +213,14 @@ public class CapitalStructure {
 
     AccountCollectionDistributor distributor = getDistributor(year, capitalAccounts);
 
-    return buildCapitalTransaction(year, builder, capitalAccounts, distributor);
+    Transaction capitalTransaction =
+      buildCapitalTransaction(year, builder, capitalAccounts, distributor);
+
+    if (capitalTransaction != null) {
+      logger.debug("Added income-to-capital transaction: " + capitalTransaction);
+    }
+
+    return capitalTransaction;
   }
 
   /**
@@ -307,9 +318,6 @@ public class CapitalStructure {
     if (!transaction.isValid()) {
       throw new RuntimeException(INVALID_TRANSACTION_ERROR + transaction);
     }
-    for (Item item : transaction.getItems()) {
-      logger.debug("added capital transfer item " + item);
-    }
     return transaction;
   }
 
@@ -354,27 +362,30 @@ public class CapitalStructure {
       if (distAccount != null) {
         // Get the distribution balance for this entity.
         BigDecimal balance = stmt.getAccountBalance(distAccount);
-        // Create the transaction to transfer distribution to capital.
-        BigInteger id = year.getNextId();
-        Transaction transaction = new Transaction(id,
-                                                  DISTRIBUTION_DESCRIPTION + distAccount.getName() +
-                                                  " for " + year.getYear(), year.getEnd(), false,
-                                                  false);
-        // Convert amount to absolute value.
-        Double amount = balance.abs().doubleValue();
-        // Set debit flag by sign of balance. A debit balance is a positive
-        // distribution (contra account).
-        Boolean debit =
-          balance.compareTo(BigDecimal.ZERO.setScale(CapitalEntity.SCALE, RoundingMode.HALF_UP)) <
-          0;
-        // Zero out distribution account for this entity.
-        transaction.addItem(amount, distAccount, !debit, false);
-        // Transfer distribution to capital account for this entity.
-        transaction.addItem(amount, capAccount, debit, false);
-        // Check that the transaction is not zero, meaning no adjustment necesssary.
-        if (!transaction.isZero()) {
-          // Non-zero, add the transaction to the list to return.
-          transactions.add(transaction);
+        // For non-zero balance, create the transaction to transfer distribution to capital.
+        if (balance.compareTo(BigDecimal.ZERO) != 0) {
+          BigInteger id = year.getNextId();
+          Transaction transaction = new Transaction(id, DISTRIBUTION_DESCRIPTION +
+                                                        distAccount.getName() + " for " +
+                                                        year.getYear(), year.getEnd(), false,
+                                                    false);
+          // Convert amount to absolute value.
+          Double amount = balance.abs().doubleValue();
+          // Set debit flag by sign of balance. A debit balance is a positive
+          // distribution (contra account).
+          Boolean debit =
+            balance.compareTo(BigDecimal.ZERO.setScale(CapitalEntity.SCALE, RoundingMode.HALF_UP)) <
+            0;
+          // Zero out distribution account for this entity.
+          transaction.addItem(amount, distAccount, !debit, false);
+          // Transfer distribution to capital account for this entity.
+          transaction.addItem(amount, capAccount, debit, false);
+          // Check that the transaction is not zero, meaning no adjustment necesssary.
+          if (!transaction.isZero()) {
+            // Non-zero, add the transaction to the list to return.
+            transactions.add(transaction);
+            logger.debug("Added distribution adjustment: " + transaction);
+          }
         }
       }
     }

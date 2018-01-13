@@ -57,6 +57,15 @@ public class OldDataBuilder implements IBuilder {
   private final Set<com.poesys.accounting.dataloader.newaccounting.Transaction> transactions =
     new HashSet<>();
 
+  /**
+   * the set of transactions for the current fiscal year; this gets cleared when each fiscal year
+   * starts processing. This set exists to enable easier debugging of the transaction list, which
+   * can get very large. The list for a specific year is much smaller, so you can more easily
+   * inspect it in the debugger. The variable is not used elsewhere and has no accessors.
+   */
+  private final Set<com.poesys.accounting.dataloader.newaccounting.Transaction>
+    currentTransactions = new HashSet<>();
+
   // operational constants
   /** limit on number of rows from file, prevents infinite loop */
   private static final int LIMIT = 10000;
@@ -613,6 +622,9 @@ public class OldDataBuilder implements IBuilder {
     // year. Also note that the transaction set itself is not cleared, as it spans the fiscal years.
     accountNumberMap.clear();
     transactionMap.clear();
+
+    // Clear currentTransaction data (debugging data)
+    currentTransactions.clear();
   }
 
   /**
@@ -766,7 +778,7 @@ public class OldDataBuilder implements IBuilder {
     // Get the updater if any and update with generated transactions.
     IFiscalYearUpdater updater = parameters.getUpdater();
     if (updater != null) {
-      updater.update(fiscalYear, transactions, this);
+      updater.update(fiscalYear, transactions, currentTransactions, this);
     }
   }
 
@@ -800,6 +812,7 @@ public class OldDataBuilder implements IBuilder {
       transactionMap.put(transaction.getTransactionId(), newTransaction);
       // Add the transaction to the set of transactions.
       transactions.add(newTransaction);
+      currentTransactions.add(newTransaction);
       // Set the fiscal year's "last" id to the current id if it is greater than the current one.
       // At the end of the loop, the fiscal year's id will be the greatest id read from the file.
       fiscalYear.setLastId(id);
