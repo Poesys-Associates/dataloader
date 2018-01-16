@@ -41,11 +41,11 @@
 
   <!-- debugging for Poesys/DB SQL transactions -->
   <category name="com.poesys.db.dao">
-    <priority value="DEBUG" />
+    <priority value="INFO" />
   </category>
 
   <category name="com.poesys.db.dao.PoesysTrackingThread">
-    <priority value="DEBUG" />
+    <priority value="INFO" />
   </category>
 
   <category name="com.poesys.db.dto">
