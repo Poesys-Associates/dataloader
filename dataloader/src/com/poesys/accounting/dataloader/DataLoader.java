@@ -38,9 +38,6 @@ public class DataLoader implements IDirector {
   /** Logger for this class */
   private static final Logger logger = Logger.getLogger(DataLoader.class);
 
-  /** the capital structure of the accounting system, containing the capital entities */
-  private CapitalStructure capitalStructure = null;
-
   /** property file name, file should be in classpath */
   private static final String PROPERTY_FILE = "dataloader.properties";
 
@@ -96,8 +93,8 @@ public class DataLoader implements IDirector {
     builder.buildCapitalStructure();
     buildFiscalYears(builder, parameters);
     if (storageManager.validate(builder.getFiscalYears())) {
-      storageManager.store(parameters.getEntity(), capitalStructure, builder.getFiscalYears(),
-                           builder.getTransactions(), dbService);
+      storageManager.store(parameters.getEntity(), builder.getCapitalStructure(),
+                           builder.getFiscalYears(), builder.getTransactions(), dbService);
     } else {
       logger.fatal(FATAL_BALANCE_ERROR);
       System.exit(1);
