@@ -27,9 +27,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * <p>
  * A data transfer object containing data about a fiscal year, an accounting period defined by a
  * start date and end date. The fiscal year may be a calendar year (Jan. 1 - Dec. 31) or any
- * arbitrary annual period.
+ * arbitrary annual period.</p>
+ *
+ * <p>TODO: the current fiscal-year implementation assumes only a single fiscal year in the
+ * database for a specific numeric year. This should expand to a named fiscal year with no
+ * assumptions about the calendar year. Fiscal year should remain independent of a specific
+ * entity, though.</p>
  *
  * @author Robert J. Muller
  */

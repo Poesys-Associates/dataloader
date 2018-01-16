@@ -132,12 +132,26 @@ public class AccountingDbService implements IDataAccessService {
   @Override
   public void storeFiscalYears(List<FiscalYear> years) {
     FiscalYearDelegate delegate = AccountDelegateFactory.getFiscalYearDelegate();
-    List<BsFiscalYear> persistedYears = new ArrayList<>(years.size());
-    for (FiscalYear year : years) {
-      BsFiscalYear persistedYear =
-        delegate.createFiscalYear(year.getYear(), year.getStart(), year.getEnd());
-      persistedYears.add(persistedYear);
+    // Query all the existing fiscal years.
+    List<BsFiscalYear> persistedYears = delegate.getAllObjects(20);
+
+    // Index on integer year.
+    Map<Integer, BsFiscalYear> fiscalYearMap = new HashMap<>();
+    for (BsFiscalYear year : persistedYears) {
+      fiscalYearMap.put(year.getYear(), year);
     }
+
+    // Add fiscal years not already present.
+    for (FiscalYear year : years) {
+      Integer yearNumber = year.getYear();
+      if (fiscalYearMap.get(yearNumber) == null) {
+        BsFiscalYear persistedYear =
+          delegate.createFiscalYear(year.getYear(), year.getStart(), year.getEnd());
+        persistedYears.add(persistedYear);
+      }
+    }
+
+    // Insert the new years.
     delegate.process(persistedYears);
   }
 
@@ -187,12 +201,14 @@ public class AccountingDbService implements IDataAccessService {
         // objects for persisting yet. This works around a bug with
         // nested-object processing, you need to store the objects before the
         // link. Instead, accumulate the links for later insert.
-        links.add(
-          yearDelegate.createFiscalYearAccount(persistedAccount, group, fiscalYear, persistedAccount.getAccountName(),
-                                               persistedAccount.getEntityName(), fiscalYear.getYear(),
-                                               link.getAccountOrderNumber(),
-                                               link.getGroupOrderNumber(), group.getAccountType(),
-                                               group.getGroupName(), group.toDto()));
+        links.add(yearDelegate.createFiscalYearAccount(persistedAccount, group, fiscalYear,
+                                                       persistedAccount.getAccountName(),
+                                                       persistedAccount.getEntityName(),
+                                                       fiscalYear.getYear(),
+                                                       link.getAccountOrderNumber(),
+                                                       link.getGroupOrderNumber(),
+                                                       group.getAccountType(), group.getGroupName(),
+                                                       group.toDto()));
       }
     }
 
